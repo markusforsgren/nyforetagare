@@ -1,0 +1,104 @@
+---
+import '../styles/global.css';
+import { SITE, CATEGORIES } from '../config';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+}
+const { title, description = SITE.description, image = '/img/hero_people.jpg' } = Astro.props;
+const fullTitle = title ? `${title} – ${SITE.name}` : `${SITE.name} – ${SITE.tagline}`;
+const path = Astro.url.pathname;
+const canonical = new URL(path, Astro.site);
+const ogImage = new URL(image, Astro.site);
+const nav = [
+  ...CATEGORIES.map((c) => ({ href: `/kategori/${c.slug}/`, label: c.name })),
+  { href: '/foretagstjanster/', label: 'Företagstjänster' },
+];
+---
+<!doctype html>
+<html lang="sv">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href="/img/mark.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content="sv_SE" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="topbar">
+      <div class="wrap">
+        <span class="claim">STARTA · DRIVA · VÄXA</span>
+        <nav aria-label="Genvägar">
+          <a href="/om-oss/">Om oss</a>
+          <a href="/om-oss/#annonsera">Annonsera</a>
+          <a href="/om-oss/#kontakt">Kontakt</a>
+        </nav>
+      </div>
+    </div>
+
+    <header class="site-header">
+      <div class="wrap header-row">
+        <a href="/" class="logo" aria-label="Nyföretagare, till startsidan">
+          <img src="/img/mark.png" alt="" width="50" height="48" />
+          <span>Nyföretagare</span>
+        </a>
+        <div class="header-cta">
+          <a href="/lista-ditt-foretag/" class="btn btn-outline">Lista ditt företag</a>
+          <a href="/#nyhetsbrev" class="btn btn-primary">Få nyhetsbrevet</a>
+        </div>
+      </div>
+      <nav class="wrap mainnav" aria-label="Huvudmeny">
+        {nav.map((n) => (
+          <a href={n.href} aria-current={path.startsWith(n.href) ? 'page' : undefined}>{n.label}</a>
+        ))}
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap cols">
+        <div class="col">
+          <span class="brand">Nyföretagare</span>
+          <span>{SITE.tagline}</span>
+        </div>
+        <div class="col">
+          <span class="h">Innehåll</span>
+          <a href="/artiklar/">Alla artiklar</a>
+          {CATEGORIES.slice(0, 4).map((c) => <a href={`/kategori/${c.slug}/`}>{c.name}</a>)}
+        </div>
+        <div class="col">
+          <span class="h">För företag</span>
+          <a href="/lista-ditt-foretag/">Lista ditt företag</a>
+          <a href="/foretagstjanster/">Företagstjänster</a>
+          <a href="/om-oss/#annonsera">Annonsera</a>
+          <a href="/om-oss/#lokal-partner">Bli lokal partner</a>
+        </div>
+        <div class="col">
+          <span class="h">Nyföretagare</span>
+          <a href="/om-oss/">Om oss</a>
+          <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
+          <a href={SITE.facebook} rel="noopener">Facebook</a>
+          <a href="/integritet/">Integritet</a>
+        </div>
+      </div>
+      <div class="wrap bottom">© {new Date().getFullYear()} Nyföretagare</div>
+    </footer>
+  </body>
+</html>
