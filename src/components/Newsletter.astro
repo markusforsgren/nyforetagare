@@ -1,0 +1,17 @@
+---
+import { FORMS } from '../config';
+---
+<section class="newsletter" id="nyhetsbrev">
+  <div class="wrap section split">
+    <div>
+      <h2 class="h2">Veckans bästa tips för företagare</h2>
+      <p>Nyheter, reportage och verktyg direkt i inkorgen. Gratis.</p>
+    </div>
+    <form class="inline-form" action={FORMS.nyhetsbrev} method="POST">
+      <label for="nb-epost" class="sr-only">E-postadress</label>
+      <input id="nb-epost" type="email" name="email" placeholder="Din e-postadress" required autocomplete="email" />
+      <input type="hidden" name="_subject" value="Ny prenumerant på nyhetsbrevet" />
+      <button type="submit" class="btn btn-bright">Prenumerera</button>
+    </form>
+  </div>
+</section>
