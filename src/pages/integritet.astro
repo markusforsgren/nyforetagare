@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+---
+<Base title="Integritet">
+  <article class="article">
+    <h1>Integritet</h1>
+    <div class="prose">
+      <p>När du skickar ett formulär eller anmäler dig till nyhetsbrevet sparar vi de uppgifter du lämnar: namn, e-post och det du skriver. Vi använder dem bara för att kontakta dig om ditt ärende eller skicka nyhetsbrevet.</p>
+      <p>Formulären skickas via tjänsten Formspree. Vi säljer aldrig uppgifter vidare.</p>
+      <p>Sajten använder inga spårningscookies.</p>
+      <p>Vill du att vi tar bort dina uppgifter? Mejla <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+      <p><em>[Komplettera med personuppgiftsansvarig, organisationsnummer och adress när bolaget är klart.]</em></p>
+    </div>
+  </article>
+</Base>

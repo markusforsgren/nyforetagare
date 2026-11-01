@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import { SERVICES } from '../config';
+
+const services = [...SERVICES].sort((a, b) => Number(b.utvald) - Number(a.utvald));
+const categories = [...new Set(services.map((s) => s.category))];
+---
+<Base title="Företagstjänster" description="Hitta leverantörer som är vana vid nystartade företag.">
+  <div class="wrap page-head stack">
+    <span class="eyebrow">Företagstjänster</span>
+    <h1>Hitta rätt hjälp för ditt företag</h1>
+    <p class="lead" style="margin:0">Hemsida, redovisning, marknadsföring och mer. Leverantörer som är vana vid nystartade.</p>
+    <div class="chips">{categories.map((c) => <span>{c}</span>)}</div>
+  </div>
+  <div class="wrap grid" style="padding-bottom:56px">
+    {services.map((s) => (
+      <article class={`card ${s.utvald ? 'featured' : 'bordered'}`}>
+        {s.utvald && <span class="badge">Utvald partner</span>}
+        <h3>{s.name}</h3>
+        <span class="meta">{s.category} · {s.area}</span>
+        <p>{s.text}</p>
+        {s.price && <p style="font-weight:700;color:var(--ink)">{s.price}</p>}
+        {s.link && <a href={s.link} class={`btn push ${s.utvald ? 'btn-primary' : 'btn-outline'}`} rel="noopener">Begär offert</a>}
+      </article>
+    ))}
+  </div>
+  <section class="soft">
+    <div class="wrap section split">
+      <div class="stack">
+        <h2 class="h2">Erbjuder du tjänster till företagare?</h2>
+        <p class="lead" style="margin:0">Bli listad här och nå nystartade som letar efter hjälp.</p>
+      </div>
+      <div><a href="/lista-ditt-foretag/" class="btn btn-dark">Anmäl ditt företag</a></div>
+    </div>
+  </section>
+</Base>

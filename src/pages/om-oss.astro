@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE, FORMS } from '../config';
+---
+<Base title="Om oss">
+  <div class="wrap page-head stack">
+    <span class="eyebrow">Om Nyföretagare</span>
+    <h1>Vi lyfter Sveriges företagare</h1>
+    <p class="lead" style="margin:0">Nyföretagare är en mötesplats för dig som vill starta, driver eller vill utveckla företag. Här hittar du nyheter, reportage, inspiration och tjänster, och en chans att synas.</p>
+  </div>
+
+  <div class="wrap grid" style="padding-bottom:56px">
+    <article class="card bordered" id="lokal-partner">
+      <h3>Bli lokal partner</h3>
+      <p>Vill du driva Nyföretagare i din stad eller kommun och lyfta företagen där? Hör av dig så berättar vi mer.</p>
+    </article>
+    <article class="card bordered" id="annonsera">
+      <h3>Annonsera</h3>
+      <p>Nå företagare och de som just ska starta. Annonser, sponsrade artiklar och nyhetsbrev.</p>
+    </article>
+    <article class="card bordered">
+      <h3>Tipsa oss</h3>
+      <p>Känner du en företagare med en historia värd att berätta? Tipsa redaktionen.</p>
+    </article>
+  </div>
+
+  <section class="soft" id="kontakt">
+    <div class="wrap section split" style="align-items:flex-start">
+      <div class="stack">
+        <h2 class="h2">Kontakta oss</h2>
+        <p class="lead" style="margin:0">Mejla <a href={`mailto:${SITE.email}`}>{SITE.email}</a> eller använd formuläret.</p>
+      </div>
+      <form class="form" action={FORMS.kontakt} method="POST">
+        <input type="hidden" name="_subject" value="Kontakt från nyforetagare.se" />
+        <label>Namn<input name="namn" required autocomplete="name" /></label>
+        <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
+        <label>Ärende
+          <select name="arende">
+            <option>Bli lokal partner</option>
+            <option>Annonsera</option>
+            <option>Tips till redaktionen</option>
+            <option>Annat</option>
+          </select>
+        </label>
+        <label>Meddelande<textarea name="meddelande" required></textarea></label>
+        <div><button type="submit" class="btn btn-primary">Skicka</button></div>
+      </form>
+    </div>
+  </section>
+</Base>
