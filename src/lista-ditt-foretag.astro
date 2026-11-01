@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import { FORMS } from '../config';
+---
+<Base title="Lista ditt företag" description="Skicka in ditt företag och synas på Nyföretagare.">
+  <div class="wrap page-head stack">
+    <span class="eyebrow">Gratis</span>
+    <h1>Lista ditt företag</h1>
+    <p class="lead" style="margin:0">Berätta om ditt företag så hör vi av oss. Vi lyfter företag i artiklar, under Företagare i fokus och i tjänstekatalogen.</p>
+  </div>
+  <div class="wrap" style="padding-bottom:64px">
+    <form class="form" action={FORMS.listaForetag} method="POST">
+      <input type="hidden" name="_subject" value="Nytt företag vill listas" />
+      <label>Företagsnamn
+        <input name="foretag" required autocomplete="organization" />
+      </label>
+      <label>Ditt namn
+        <input name="namn" required autocomplete="name" />
+      </label>
+      <label>E-post
+        <input type="email" name="email" required autocomplete="email" />
+      </label>
+      <label>Telefon <span class="hint">(valfritt)</span>
+        <input type="tel" name="telefon" autocomplete="tel" />
+      </label>
+      <label>Ort / kommun
+        <input name="ort" required />
+      </label>
+      <label>Bransch
+        <input name="bransch" required placeholder="t.ex. café, bygg, redovisning" />
+      </label>
+      <label>Vad vill du?
+        <select name="typ">
+          <option>Synas som företag</option>
+          <option>Listas som tjänsteleverantör</option>
+          <option>Bli intervjuad i ett reportage</option>
+          <option>Annonsera</option>
+        </select>
+      </label>
+      <label>Hemsida eller sociala medier <span class="hint">(valfritt)</span>
+        <input name="lank" placeholder="https://" />
+      </label>
+      <label>Berätta kort om företaget
+        <textarea name="beskrivning" required></textarea>
+      </label>
+      <label style="display:flex;gap:10px;align-items:flex-start;font-weight:400">
+        <input type="checkbox" name="samtycke" required style="margin-top:4px" />
+        <span>Jag godkänner att Nyföretagare sparar uppgifterna för att kontakta mig. <a href="/integritet/">Läs mer</a>.</span>
+      </label>
+      <div><button type="submit" class="btn btn-primary">Skicka</button></div>
+    </form>
+  </div>
+</Base>
