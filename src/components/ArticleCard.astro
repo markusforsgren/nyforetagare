@@ -1,17 +1,17 @@
 ---
 import type { CollectionEntry } from 'astro:content';
-import { categoryName } from '../config';
+import { categoryName, lanName } from '../config';
 
 interface Props {
   post: CollectionEntry<'artiklar'>;
   showIngress?: boolean;
 }
 const { post, showIngress = false } = Astro.props;
-const { title, ingress, kategori, bild } = post.data;
+const { title, ingress, kategori, bild, lan } = post.data;
 ---
 <a href={`/artiklar/${post.id}/`} class="acard">
   {bild ? <img class="img" src={bild} alt="" loading="lazy" /> : <div class="img" aria-hidden="true"></div>}
-  <span class="cat">{categoryName(kategori)}</span>
+  <span class="cat">{categoryName(kategori)}{lan && ` · ${lanName(lan)}`}</span>
   <span class="t">{title}</span>
   {showIngress && <p class="i">{ingress}</p>}
 </a>

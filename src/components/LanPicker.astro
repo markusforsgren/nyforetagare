@@ -1,0 +1,26 @@
+---
+import { LAN } from '../config';
+interface Props { current?: string; id?: string }
+const { current = '', id = 'lan-val' } = Astro.props;
+---
+<form class="lan-picker" action="/lan/" method="get" data-lan-picker>
+  <label for={id} class="sr-only">Välj län</label>
+  <select id={id} name="lan">
+    <option value="" selected={!current}>Välj län</option>
+    {LAN.map((l) => <option value={l.slug} selected={l.slug === current}>{l.name}</option>)}
+  </select>
+  <button type="submit" class="btn btn-dark">Visa</button>
+</form>
+
+<script>
+  // Gå direkt till länets sida när man väljer i listan
+  document.querySelectorAll<HTMLFormElement>('[data-lan-picker]').forEach((form) => {
+    const go = (e?: Event) => {
+      e?.preventDefault();
+      const v = (form.querySelector('select') as HTMLSelectElement).value;
+      window.location.href = v ? `/lan/${v}/` : '/lan/';
+    };
+    form.addEventListener('submit', go);
+    form.querySelector('select')?.addEventListener('change', () => go());
+  });
+</script>
