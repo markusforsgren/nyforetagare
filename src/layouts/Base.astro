@@ -13,8 +13,10 @@ const path = Astro.url.pathname;
 const canonical = new URL(path, Astro.site);
 const ogImage = new URL(image, Astro.site);
 const nav = [
+  { href: '/artiklar/', label: 'Artiklar' },
   ...CATEGORIES.map((c) => ({ href: `/kategori/${c.slug}/`, label: c.name })),
   { href: '/foretagstjanster/', label: 'Företagstjänster' },
+  { href: '/lan/', label: 'Lokalt' },
 ];
 ---
 <!doctype html>
@@ -87,6 +89,7 @@ const nav = [
           <span class="h">För företag</span>
           <a href="/lista-ditt-foretag/">Lista ditt företag</a>
           <a href="/foretagstjanster/">Företagstjänster</a>
+          <a href="/lan/">Lokalt – välj län</a>
           <a href="/om-oss/#annonsera">Annonsera</a>
           <a href="/om-oss/#lokal-partner">Bli lokal partner</a>
         </div>
