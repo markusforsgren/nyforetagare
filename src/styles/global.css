@@ -184,3 +184,16 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; }
   .logo span { font-size: 24px; }
   .mainnav { gap: 0 18px; font-size: 14px; overflow-x: auto; flex-wrap: nowrap; white-space: nowrap; }
 }
+
+/* Län */
+.lan-picker { display: flex; flex-wrap: wrap; gap: 12px; }
+.lan-picker select { flex: 1 1 220px; min-height: 48px; padding: 0 14px; border: 1px solid var(--field); border-radius: 8px; font: inherit; background: #fff; color: var(--ink); }
+.lan-head { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: flex-end; }
+.lan-head .lan-picker { flex: 0 1 380px; }
+.lan-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.lan-grid a { display: flex; flex-direction: column; gap: 4px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--radius); color: var(--navy); }
+.lan-grid a:hover { text-decoration: none; border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue); }
+.lan-grid .n { font-family: var(--display); font-weight: 700; font-size: 18px; }
+.lan-grid .c { font-size: 13px; color: var(--muted); }
+.empty { background: var(--bg-soft); border-radius: var(--radius); padding: 32px; display: flex; flex-direction: column; gap: 12px; }
+.chips-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
