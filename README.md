@@ -1,6 +1,6 @@
 # Nyföretagare – webbplats
 
-Statisk sajt byggd med Astro. Ingen databas och inget att underhålla. Artiklar är Markdown-filer och formulär går via Formspree.
+Statisk sajt byggd med Astro. Ingen databas och inget att underhålla. Artiklar är Markdown-filer och formulär går via Netlify Forms.
 
 ## 1. Kör sajten på din dator (15 min)
 
@@ -28,45 +28,54 @@ Gör det på **ditt eget** konto och gör repot **privat**.
    ```
    (Eller använd GitHub Desktop och välj "Add existing repository".)
 
-## 3. Publicera på Vercel (10 min)
+## 3. Publicera på Netlify (10 min)
 
-1. vercel.com → logga in med ditt GitHub-konto (gratisnivån Hobby räcker).
-2. Add New → Project → välj `nyforetagare` → Deploy. Vercel känner igen Astro själv.
-3. Du får en testadress, t.ex. `nyforetagare-xxxx.vercel.app`. **Den skickar du till partnern.**
+1. app.netlify.com → Add new site → Import an existing project → GitHub → välj `nyforetagare`.
+2. Inställningarna läses från `netlify.toml` (build: `npm run build`, mapp: `dist`). Klicka Deploy.
+3. Du får en testadress, t.ex. `nyforetagare-xxxx.netlify.app` (byt namn under Site configuration). **Den skickar du till partnern.**
 4. Varje gång du pushar till GitHub uppdateras sajten automatiskt.
 
-## 4. Koppla formulären (15 min)
+## 4. Formulären (5 min)
 
-1. formspree.io → skapa konto → skapa tre formulär: *Lista företag*, *Nyhetsbrev*, *Kontakt*.
-2. Kopiera respektive adress (`https://formspree.io/f/xxxxxxx`).
-3. Klistra in dem i `src/config.ts` under `FORMS`.
-4. Pusha. Klart. Inskick kommer till din e-post.
+Formulären (Lista ditt företag, Kontakt, Nyhetsbrev) använder Netlify Forms och fungerar direkt efter första publiceringen.
+
+1. Netlify → sajten → **Forms** → klicka Enable form detection om det behövs, och publicera en gång till.
+2. Under Forms → Form notifications → lägg till e-postnotis så får du inskick till din mejl.
+3. Efter inskick hamnar besökaren på `/tack/`.
 
 Gratisnivån har ett tak på antal inskick per månad. Det räcker i början. Nyhetsbrevet kan flyttas till MailerLite eller Brevo senare.
 
 ## 5. Ändra innehåll
 
-**Nästan allt ändras i `src/config.ts`:** kontaktadress, ditt pris, företagstjänster, "Företagare i fokus" och partners.
+**Nästan allt ändras i `src/config.ts`:** kontaktadress, ditt pris, län och lokala redaktörer, företagstjänster, "Företagare i fokus" och partners.
 
 **Ny artikel:**
-1. Kopiera `src/content/artiklar/_MALL.md` och döp om den, t.ex. `cafe-i-falun.md` (blir `/artiklar/cafe-i-falun/`).
+1. Kopiera `src/content/artiklar/_MALL.md` (vanlig artikel) eller `_INTERVJU.md` (intervju med företagare) och döp om den, t.ex. `cafe-i-falun.md` (blir `/artiklar/cafe-i-falun/`).
 2. Fyll i rubrik, ingress, kategori och datum. Sätt `utkast: false`.
-3. Bilder läggs i `public/img/` och anges som `bild: /img/filnamn.jpg`.
-4. `toppnyhet: true` gör artikeln stor överst på startsidan.
-5. Pusha.
+3. Lokal artikel: lägg till `lan: dalarna` och `ort: Falun`. Då syns den på `/lan/dalarna/`. Länens namn står i `src/config.ts` under `LAN`.
+4. Bilder läggs i `public/img/` och anges som `bild: /img/filnamn.jpg`.
+5. `toppnyhet: true` gör artikeln stor överst på startsidan.
+6. Commit + push. Netlify publicerar automatiskt.
 
-Tips: Det går att skapa och redigera filer direkt på github.com (knappen "Add file" eller pennan). Vercel publicerar automatiskt efteråt.
+**Län**
+- `/lan/` visar alla 21 län. `/lan/<slug>/` visar länets artiklar, företag och tjänster.
+- Lokal redaktör: fyll i `redaktor` på länet i `LAN`.
+- Företag: sätt `lan: 'dalarna'` i `FEATURED_COMPANIES`.
+- Tjänster: `lan: ['dalarna', 'gavleborg']`, eller `['hela-sverige']` för att visas i alla län.
+
+**Smidigast att uppdatera:** använd GitHub Desktop. Klona repot en gång, lägg nya filer i mappen, skriv en kort beskrivning, klicka Commit och sedan Push.
 
 ## 6. Domän (när det är dags)
 
-Vercel → projektet → Settings → Domains → lägg till `nyforetagare.se` och följ instruktionerna för DNS hos domänleverantören.
+Netlify → sajten → Domain management → Add a domain → `nyforetagare.se`, och följ instruktionerna för DNS hos domänleverantören.
 
 ## Struktur
 
 ```
 src/config.ts              Inställningar och innehåll
 src/content/artiklar/      Artiklar (Markdown)
-src/pages/                 Sidor (startsida, tjänster, om oss …)
+src/pages/                 Sidor (startsida, tjänster, län, om oss …)
+src/components/            Återanvända delar (artikelkort, länsväljare …)
 src/layouts/Base.astro     Header och footer
 src/styles/global.css      Färger och utseende
 public/img/                Bilder och logga
