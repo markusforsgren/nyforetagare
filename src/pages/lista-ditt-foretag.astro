@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { FORMS } from '../config';
+import { LAN } from '../config';
 ---
 <Base title="Lista ditt företag" description="Skicka in ditt företag och synas på Nyföretagare.">
   <div class="wrap page-head stack">
@@ -9,8 +9,9 @@ import { FORMS } from '../config';
     <p class="lead" style="margin:0">Berätta om ditt företag så hör vi av oss. Vi lyfter företag i artiklar, under Företagare i fokus och i tjänstekatalogen.</p>
   </div>
   <div class="wrap" style="padding-bottom:64px">
-    <form class="form" action={FORMS.listaForetag} method="POST">
-      <input type="hidden" name="_subject" value="Nytt företag vill listas" />
+    <form class="form" name="lista-foretag" method="POST" action="/tack/" data-netlify="true" netlify-honeypot="bot-field">
+      <input type="hidden" name="form-name" value="lista-foretag" />
+      <p hidden><label>Lämna tomt <input name="bot-field" /></label></p>
       <label>Företagsnamn
         <input name="foretag" required autocomplete="organization" />
       </label>
@@ -22,6 +23,12 @@ import { FORMS } from '../config';
       </label>
       <label>Telefon <span class="hint">(valfritt)</span>
         <input type="tel" name="telefon" autocomplete="tel" />
+      </label>
+      <label>Län
+        <select name="lan" required>
+          <option value="">Välj län</option>
+          {LAN.map((l) => <option value={l.name}>{l.name}</option>)}
+        </select>
       </label>
       <label>Ort / kommun
         <input name="ort" required />
