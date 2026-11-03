@@ -22,7 +22,7 @@ const env = () => ({
   anonKey: process.env.SUPABASE_ANON_KEY,
   serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   ghToken: process.env.GITHUB_TOKEN,
-  repo: process.env.GITHUB_REPO, // t.ex. markusforsgren/nyforetagare
+  repo: process.env.GITHUB_REPO, // ägare/repo, sätts i Netlify
   branch: process.env.GITHUB_BRANCH || 'main',
   dir: (process.env.ARTICLES_DIR || 'src/content/artiklar').replace(/\/$/, ''),
   imgDir: (process.env.IMAGES_DIR || 'public/img/uploads').replace(/\/$/, ''),
