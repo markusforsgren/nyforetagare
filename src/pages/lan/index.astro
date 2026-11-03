@@ -1,0 +1,23 @@
+---
+import Base from '../../layouts/Base.astro';
+import { LAN } from '../../config';
+import { getPosts } from '../../lib/posts';
+
+const posts = await getPosts();
+const count = (slug: string) => posts.filter((p) => p.data.lan === slug).length;
+---
+<Base title="Lokalt – välj län" description="Nyheter, företagare och tjänster i ditt län.">
+  <div class="wrap page-head stack">
+    <span class="eyebrow">Lokalt</span>
+    <h1>Företagarna i ditt län</h1>
+    <p class="lead" style="margin:0">Välj län för att se intervjuer, företag och tjänster nära dig.</p>
+  </div>
+  <div class="wrap lan-grid" style="padding-bottom:64px">
+    {LAN.map((l) => (
+      <a href={`/lan/${l.slug}/`}>
+        <span class="n">{l.name}</span>
+        <span class="c">{count(l.slug) > 0 ? `${count(l.slug)} artiklar` : l.redaktor ? 'Lokal redaktör finns' : 'Söker lokal partner'}</span>
+      </a>
+    ))}
+  </div>
+</Base>
