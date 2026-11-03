@@ -1,0 +1,79 @@
+---
+import Base from '../../layouts/Base.astro';
+import ArticleCard from '../../components/ArticleCard.astro';
+import ServiceCard from '../../components/ServiceCard.astro';
+import LanPicker from '../../components/LanPicker.astro';
+import Newsletter from '../../components/Newsletter.astro';
+import { getPosts } from '../../lib/posts';
+import { LAN, SERVICES, FEATURED_COMPANIES } from '../../config';
+
+export async function getStaticPaths() {
+  return LAN.map((l) => ({ params: { slug: l.slug }, props: { lan: l } }));
+}
+
+const { lan } = Astro.props;
+const posts = (await getPosts()).filter((p) => p.data.lan === lan.slug);
+const companies = FEATURED_COMPANIES.filter((c) => c.lan === lan.slug);
+const services = SERVICES
+  .filter((s) => s.lan.includes(lan.slug) || s.lan.includes('hela-sverige'))
+  .sort((a, b) => Number(b.utvald) - Number(a.utvald));
+---
+<Base title={`Företagare i ${lan.name}`} description={`Intervjuer, företag och tjänster i ${lan.full}.`}>
+  <div class="wrap page-head">
+    <div class="lan-head">
+      <div class="stack" style="gap:10px">
+        <span class="eyebrow">Lokalt · {lan.full}</span>
+        <h1>Företagarna i {lan.name}</h1>
+        {lan.redaktor && <p class="muted" style="margin:0;font-size:16px">Lokal redaktör: <strong style="color:var(--ink)">{lan.redaktor}</strong></p>}
+      </div>
+      <LanPicker current={lan.slug} id="lan-val-top" />
+    </div>
+  </div>
+
+  <!-- Artiklar -->
+  <section class="wrap" style="padding-bottom:56px">
+    {posts.length > 0 ? (
+      <div class="grid">{posts.map((p) => <ArticleCard post={p} showIngress />)}</div>
+    ) : (
+      <div class="empty">
+        <h2 class="h2" style="font-size:24px">Inga intervjuer från {lan.name} ännu</h2>
+        <p style="margin:0">Känner du en företagare här som borde synas? Tipsa oss.</p>
+        <div class="chips-row">
+          <a href="/lista-ditt-foretag/" class="btn btn-primary">Tipsa om ett företag</a>
+          {!lan.redaktor && <a href="/om-oss/#lokal-partner" class="btn btn-outline">Bli lokal partner i {lan.name}</a>}
+        </div>
+      </div>
+    )}
+  </section>
+
+  <!-- Företag -->
+  {companies.length > 0 && (
+    <section class="soft">
+      <div class="wrap section">
+        <h2 class="h2" style="margin-bottom:24px">Företag i {lan.name}</h2>
+        <div class="grid">
+          {companies.map((f) => (
+            <article class="card">
+              <div class="logo-ph">Logga</div>
+              <h3>{f.name}</h3>
+              <span class="meta">{f.meta}</span>
+              <p>{f.text}</p>
+              {f.link && <a href={f.link} class="push">Läs mer</a>}
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Tjänster -->
+  <section class="wrap section">
+    <div class="section-head">
+      <h2 class="h2">Hjälp för företag i {lan.name}</h2>
+      <a href="/foretagstjanster/" style="font-weight:600">Alla tjänster →</a>
+    </div>
+    <div class="grid">{services.map((s) => <ServiceCard s={s} />)}</div>
+  </section>
+
+  <Newsletter />
+</Base>
