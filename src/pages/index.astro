@@ -1,127 +1,711 @@
 ---
-import Base from '../layouts/Base.astro';
-import ArticleCard from '../components/ArticleCard.astro';
-import CategoryIcon from '../components/CategoryIcon.astro';
-import Newsletter from '../components/Newsletter.astro';
-import LanPicker from '../components/LanPicker.astro';
-import ServiceCard from '../components/ServiceCard.astro';
-import { getPosts, formatDate } from '../lib/posts';
-import { CATEGORIES, SERVICES, FEATURED_COMPANIES, PARTNERS, categoryName } from '../config';
-
-const posts = await getPosts();
-const top = posts.find((p) => p.data.toppnyhet) ?? posts[0];
-const rest = posts.filter((p) => p !== top);
-const latest = rest.slice(0, 5);
-const more = rest.slice(5, 8).length ? rest.slice(5, 8) : rest.slice(0, 3);
-const services = [...SERVICES].sort((a, b) => Number(b.utvald) - Number(a.utvald)).slice(0, 3);
+import '../../styles/global.css';
+import '../../styles/admin.css';
+import { CATEGORIES, LAN } from '../../config';
+const taxonomy = JSON.stringify({
+  kategorier: CATEGORIES.map((c) => ({ slug: c.slug, name: c.name })),
+  lan: LAN.map((l) => ({ slug: l.slug, name: l.name })),
+});
 ---
-<Base>
-  <!-- Toppnyhet + senaste -->
-  {top && (
-    <section class="wrap hero">
-      <article class="hero-main">
-        <img src={top.data.bild ?? '/img/hero_people.jpg'} alt="" />
-        <span class="tag" style="align-self:flex-start">{categoryName(top.data.kategori)}</span>
-        <h1><a href={`/artiklar/${top.id}/`}>{top.data.title}</a></h1>
-        <p class="lead" style="margin:0">{top.data.ingress}</p>
-        <p class="muted" style="margin:0">Av {top.data.skribent} · {formatDate(top.data.datum)}</p>
-      </article>
-      <aside class="latest">
-        <h2>Senaste</h2>
-        {latest.map((p) => (
-          <a href={`/artiklar/${p.id}/`}>
-            <span class="cat">{categoryName(p.data.kategori)}</span>
-            <span class="t">{p.data.title}</span>
-          </a>
-        ))}
-        {latest.length === 0 && <p class="muted">Fler artiklar kommer snart.</p>}
-      </aside>
-    </section>
-  )}
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Redaktion – Nyföretagare</title>
+  <link rel="icon" type="image/png" href="/img/mark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="adm" data-taxonomy={taxonomy}>
 
-  <!-- Kategorier -->
-  <section class="soft" aria-label="Kategorier">
-    <div class="wrap section cats" style="padding-top:40px;padding-bottom:40px">
-      {CATEGORIES.map((c) => (
-        <a href={`/kategori/${c.slug}/`}><CategoryIcon slug={c.slug} />{c.name}</a>
-      ))}
-      <a href="/foretagstjanster/"><CategoryIcon slug="tjanster" />Företagstjänster</a>
-    </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <!-- Laddar -->
+  <section id="v-loading" class="adm-center"><p class="muted">Laddar…</p></section>
+
+  <!-- Inloggning -->
+  <section id="v-login" class="adm-center" hidden>
+    <form id="f-login" class="adm-card adm-auth">
+      <div class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="34" /><span>Nyföretagare</span></div>
+      <h1>Logga in i redaktionen</h1>
+      <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
+      <label>Lösenord<input type="password" name="password" required autocomplete="current-password" /></label>
+      <button class="btn btn-primary" type="submit">Logga in</button>
+      <button class="linkbtn" type="button" id="b-forgot">Glömt lösenordet?</button>
+    </form>
   </section>
 
-  <!-- Lokalt -->
-  <section class="wrap section split">
-    <img src="/img/post_local.jpg" alt="Vi vill lyfta småföretagarna i din stad eller kommun" style="border-radius:12px;max-width:620px" loading="lazy" />
-    <div class="stack">
-      <span class="eyebrow">Lokalt</span>
-      <h2 class="h2">Vi lyfter småföretagarna i ditt län</h2>
-      <p class="lead" style="margin:0">Intervjuer, företag och tjänster nära dig. Välj ditt län.</p>
-      <LanPicker id="lan-val-start" />
-      <a href="/om-oss/#lokal-partner" style="font-weight:600">Vill du driva Nyföretagare i ditt län? Bli lokal partner →</a>
-    </div>
+  <!-- Välj lösenord (inbjudan / återställning) -->
+  <section id="v-setpw" class="adm-center" hidden>
+    <form id="f-setpw" class="adm-card adm-auth">
+      <div class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="34" /><span>Nyföretagare</span></div>
+      <h1>Välj ditt lösenord</h1>
+      <p class="muted" style="margin:0">Minst 10 tecken.</p>
+      <label>Nytt lösenord<input type="password" name="p1" required minlength="10" autocomplete="new-password" /></label>
+      <label>Upprepa lösenord<input type="password" name="p2" required minlength="10" autocomplete="new-password" /></label>
+      <button class="btn btn-primary" type="submit">Spara lösenord</button>
+    </form>
   </section>
 
-  <!-- Företagare i fokus -->
-  <section class="soft">
-    <div class="wrap section">
-      <div class="section-head">
-        <div>
-          <h2 class="h2">Företagare i fokus</h2>
-          <p class="muted" style="margin:6px 0 0;font-size:16px">Företag som syns på Nyföretagare just nu.</p>
+  <!-- Appen -->
+  <section id="v-app" hidden>
+    <header class="adm-top">
+      <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="32" height="30" /><span>Redaktion</span></a>
+      <nav class="adm-tabs" aria-label="Redaktionen">
+        <button type="button" data-tab="articles" aria-current="page">Artiklar</button>
+        <button type="button" data-tab="users" id="tab-users" hidden>Användare</button>
+      </nav>
+      <div class="adm-me">
+        <span id="me-name"></span>
+        <a href="/" target="_blank" rel="noopener" class="linkbtn">Visa sajten</a>
+        <button type="button" class="linkbtn" id="b-logout">Logga ut</button>
+      </div>
+    </header>
+
+    <main class="adm-main">
+      <!-- Artikellista -->
+      <div id="p-list">
+        <div class="adm-head">
+          <h1>Artiklar</h1>
+          <button type="button" class="btn btn-primary" id="b-new">+ Ny artikel</button>
+        </div>
+        <div class="adm-filters">
+          <label class="sr-only" for="flt-status">Status</label>
+          <select id="flt-status">
+            <option value="">Alla</option>
+            <option value="mine">Mina artiklar</option>
+            <option value="granskning">Väntar på granskning</option>
+            <option value="utkast">Utkast</option>
+            <option value="publicerad">Publicerade</option>
+          </select>
+          <label class="sr-only" for="flt-lan">Län</label>
+          <select id="flt-lan"><option value="">Alla län</option></select>
+          <label class="sr-only" for="flt-q">Sök</label>
+          <input id="flt-q" type="search" placeholder="Sök rubrik" />
+        </div>
+        <div class="adm-card adm-tablewrap">
+          <table class="adm-table">
+            <thead><tr><th>Rubrik</th><th>Status</th><th>Län</th><th>Datum</th><th>Skribent</th></tr></thead>
+            <tbody id="list-body"><tr><td colspan="5" class="muted">Laddar…</td></tr></tbody>
+          </table>
         </div>
       </div>
-      <div class="grid">
-        {FEATURED_COMPANIES.map((f) => (
-          <article class="card">
-            <div class="logo-ph">Logga</div>
-            <h3>{f.name}</h3>
-            <span class="meta">{f.meta}</span>
-            <p>{f.text}</p>
-            {f.link && <a href={f.link} class="push">Läs mer</a>}
-          </article>
-        ))}
-        <article class="card dark">
-          <h3 style="font-size:22px">Vill ditt företag synas här?</h3>
-          <p>Skicka in ditt företag och nå andra företagare och kunder. Det är gratis.</p>
-          <a href="/lista-ditt-foretag/" class="btn btn-bright push">Lista ditt företag</a>
-        </article>
-      </div>
-    </div>
-  </section>
 
-  <!-- Företagstjänster -->
-  <section class="wrap section" style="display:flex;flex-wrap:wrap;gap:40px">
-    <div class="stack" style="flex:1 1 320px;min-width:0">
-      <span class="eyebrow">Företagstjänster</span>
-      <h2 class="h2">Hitta rätt hjälp för ditt företag</h2>
-      <p class="lead" style="margin:0">Leverantörer som är vana vid nystartade. Kontakta dem direkt.</p>
-      <div><a href="/foretagstjanster/" class="btn btn-outline">Alla tjänster</a></div>
-    </div>
-    <div class="grid" style="flex:2 1 560px;min-width:0">
-      {services.map((s) => <ServiceCard s={s} />)}
-    </div>
-  </section>
-
-  <!-- Mer att läsa -->
-  {more.length > 0 && (
-    <section class="soft">
-      <div class="wrap section">
-        <div class="section-head">
-          <h2 class="h2">Mer att läsa</h2>
-          <a href="/artiklar/" style="font-weight:600">Alla artiklar →</a>
+      <!-- Editor -->
+      <form id="p-edit" hidden novalidate>
+        <div class="adm-head">
+          <div>
+            <button type="button" class="linkbtn" id="b-back">← Tillbaka till listan</button>
+            <h1 id="ed-title">Ny artikel</h1>
+            <span id="ed-status" class="badge-s"></span>
+          </div>
         </div>
-        <div class="grid">
-          {more.map((p) => <ArticleCard post={p} showIngress />)}
-        </div>
-      </div>
-    </section>
-  )}
 
-  <!-- Partners -->
-  <section class="wrap partners" aria-label="Samarbetspartners">
-    <span class="muted" style="font-weight:600">I samarbete med</span>
-    {PARTNERS.map((p) => <span class="p">{p}</span>)}
+        <div class="adm-editor">
+          <div class="adm-card adm-col">
+            <label>Rubrik<input name="title" required maxlength="200" /></label>
+            <label>Adress
+              <span class="slugrow"><span class="muted">/artiklar/</span><input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" /></span>
+              <span class="hint" id="slug-hint">Skapas av rubriken. Kan inte ändras efter att artikeln sparats.</span>
+            </label>
+            <label>Ingress<textarea name="ingress" rows="3" required maxlength="600"></textarea></label>
+
+            <div class="md">
+              <div class="md-bar" role="toolbar" aria-label="Formatering">
+                <button type="button" data-md="h2" title="Mellanrubrik">H2</button>
+                <button type="button" data-md="bold" title="Fet"><b>F</b></button>
+                <button type="button" data-md="italic" title="Kursiv"><i>K</i></button>
+                <button type="button" data-md="ul" title="Punktlista">• Lista</button>
+                <button type="button" data-md="quote" title="Citat">” Citat</button>
+                <button type="button" data-md="link" title="Länk">Länk</button>
+                <button type="button" data-md="img" title="Bild i texten">Bild</button>
+                <span class="md-sp"></span>
+                <button type="button" id="b-preview" aria-pressed="false">Förhandsvisa</button>
+              </div>
+              <label class="sr-only" for="ed-body">Brödtext</label>
+              <textarea id="ed-body" name="body" rows="22" placeholder="Skriv brödtexten här. ## ger mellanrubrik, - ger punktlista."></textarea>
+              <div id="ed-preview" class="prose md-preview" hidden></div>
+            </div>
+          </div>
+
+          <aside class="adm-card adm-col adm-side">
+            <label>Kategori<select name="kategori" required></select></label>
+            <label>Län<select name="lan"><option value="">Hela Sverige</option></select></label>
+            <label>Ort<input name="ort" maxlength="80" placeholder="t.ex. Falun" /></label>
+            <label>Datum<input type="date" name="datum" required /></label>
+            <label>Skribent<input name="skribent" maxlength="120" /></label>
+
+            <div class="imgbox">
+              <span class="lbl">Huvudbild</span>
+              <img id="ed-img" alt="" hidden />
+              <div class="imgbtns">
+                <label class="btn btn-outline btn-sm">Välj bild<input type="file" id="ed-file" accept="image/jpeg,image/png,image/webp" hidden /></label>
+                <button type="button" class="linkbtn" id="b-img-rm" hidden>Ta bort</button>
+              </div>
+              <input type="hidden" name="bild" />
+            </div>
+
+            <label class="check" id="row-top" hidden><input type="checkbox" name="toppnyhet" /> Toppnyhet (stor överst på startsidan)</label>
+
+            <div class="actions">
+              <button type="button" class="btn btn-outline" data-save="draft">Spara utkast</button>
+              <button type="button" class="btn btn-dark" data-save="review" id="b-review">Skicka för granskning</button>
+              <button type="button" class="btn btn-primary" data-save="publish" id="b-publish">Publicera</button>
+              <button type="button" class="linkbtn" data-save="unpublish" id="b-unpublish" hidden>Avpublicera (gör till utkast)</button>
+              <a id="ed-view" class="linkbtn" target="_blank" rel="noopener" hidden>Visa på sajten ↗</a>
+              <button type="button" class="linkbtn danger" id="b-delete" hidden>Radera artikeln</button>
+            </div>
+            <p class="hint">Publicerade ändringar syns på sajten efter ca 1 minut.</p>
+          </aside>
+        </div>
+      </form>
+
+      <!-- Användare -->
+      <div id="p-users" hidden>
+        <div class="adm-head"><h1>Användare</h1></div>
+        <div class="adm-card adm-tablewrap">
+          <table class="adm-table">
+            <thead><tr><th>Namn</th><th>E-post</th><th>Roll</th><th>Län</th><th>Får publicera</th><th>Aktiv</th><th></th></tr></thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+
+        <form id="f-invite" class="adm-card adm-col" style="max-width:640px;margin-top:24px">
+          <h2>Bjud in ny användare</h2>
+          <p class="muted" style="margin:0">Personen får ett mejl med en länk där hen väljer lösenord.</p>
+          <label>Namn<input name="namn" required maxlength="120" /></label>
+          <label>E-post<input type="email" name="email" required /></label>
+          <label>Roll
+            <select name="roll"><option value="redaktor">Redaktör</option><option value="admin">Admin</option></select>
+          </label>
+          <fieldset class="lanpick"><legend>Län (redaktör, lämna tomt för alla)</legend><div id="invite-lan"></div></fieldset>
+          <label class="check"><input type="checkbox" name="publicera" /> Får publicera själv (annars via granskning)</label>
+          <div><button class="btn btn-primary" type="submit">Skicka inbjudan</button></div>
+        </form>
+      </div>
+    </main>
   </section>
 
-  <Newsletter />
-</Base>
+  <script>
+    import { createClient, type Session } from '@supabase/supabase-js';
+    import { marked } from 'marked';
+
+    type Tax = { kategorier: { slug: string; name: string }[]; lan: { slug: string; name: string }[] };
+    const TAX: Tax = JSON.parse(document.body.dataset.taxonomy || '{}');
+    const lanName = (s: string) => TAX.lan.find((l) => l.slug === s)?.name || '';
+    const katName = (s: string) => TAX.kategorier.find((k) => k.slug === s)?.name || s;
+
+    const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector(sel) as T;
+    const $$ = <T extends HTMLElement = HTMLElement>(sel: string) => Array.from(document.querySelectorAll(sel)) as T[];
+    const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+    // ---------- UI-hjälp ----------
+    const views = ['v-loading', 'v-login', 'v-setpw', 'v-app'];
+    const show = (id: string) => views.forEach((v) => ($('#' + v).hidden = v !== id));
+    let toastTimer: number | undefined;
+    function toast(msg: string, kind: 'ok' | 'err' = 'ok') {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.className = 'toast ' + kind;
+      t.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => (t.hidden = true), kind === 'err' ? 7000 : 3500);
+    }
+    function busy(btn: HTMLButtonElement | null, on: boolean) {
+      if (!btn) return;
+      btn.disabled = on;
+      btn.classList.toggle('is-busy', on);
+    }
+
+    // ---------- Fyll listor ----------
+    const fillOptions = (sel: HTMLSelectElement, items: { slug: string; name: string }[]) =>
+      items.forEach((i) => sel.add(new Option(i.name, i.slug)));
+    fillOptions($('select[name=kategori]'), TAX.kategorier);
+    fillOptions($('select[name=lan]'), TAX.lan);
+    fillOptions($('#flt-lan'), TAX.lan);
+    $('#invite-lan').innerHTML = TAX.lan
+      .map((l) => `<label class="check"><input type="checkbox" value="${l.slug}" /> ${esc(l.name)}</label>`)
+      .join('');
+
+    // ---------- Supabase ----------
+    const hash = window.location.hash;
+    let needPassword = /type=(invite|recovery)/.test(hash);
+    let sb: ReturnType<typeof createClient>;
+    let session: Session | null = null;
+    let me: { id: string; email: string; namn: string; roll: string; lan: string[]; publicera: boolean } | null = null;
+
+    async function api<T = any>(action: string, payload: Record<string, unknown> = {}): Promise<T> {
+      const { data } = await sb.auth.getSession();
+      session = data.session;
+      if (!session) { show('v-login'); throw new Error('Inte inloggad'); }
+      const res = await fetch('/api/cms', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ action, ...payload }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (res.status === 401) { await sb.auth.signOut(); show('v-login'); }
+      if (!res.ok) throw new Error(body.error || `Fel ${res.status}`);
+      return body as T;
+    }
+
+    async function start() {
+      let cfg: { supabaseUrl: string; supabaseAnonKey: string };
+      try {
+        const r = await fetch('/api/cms');
+        cfg = await r.json();
+        if (!r.ok) throw new Error((cfg as any).error);
+      } catch (e: any) {
+        $('#v-loading').innerHTML = `<p class="adm-card" style="max-width:520px">Adminpanelen är inte konfigurerad än.<br><span class="muted">${esc(e?.message || '')}</span></p>`;
+        return;
+      }
+      sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true } });
+
+      sb.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY') { needPassword = true; show('v-setpw'); }
+      });
+
+      const { data } = await sb.auth.getSession();
+      session = data.session;
+      if (session && needPassword) { show('v-setpw'); return; }
+      if (session) return enterApp();
+      show('v-login');
+    }
+
+    async function enterApp() {
+      try {
+        me = await api('me');
+      } catch (e: any) {
+        await sb.auth.signOut();
+        show('v-login');
+        toast(e.message, 'err');
+        return;
+      }
+      history.replaceState(null, '', '/admin/');
+      const roll = me!.roll === 'admin' ? 'Admin' : 'Redaktör';
+      $('#me-name').textContent = `${me!.namn || me!.email} · ${roll}${me!.lan.length ? ' · ' + me!.lan.map(lanName).join(', ') : ''}`;
+      $('#tab-users').hidden = me!.roll !== 'admin';
+      $('#row-top').hidden = me!.roll !== 'admin';
+      $('#b-delete').dataset.allowed = me!.roll === 'admin' ? '1' : '';
+      if (me!.lan.length === 1) ($('#flt-lan') as HTMLSelectElement).value = me!.lan[0];
+      show('v-app');
+      openTab('articles');
+    }
+
+    // ---------- Inloggning ----------
+    $('#f-login').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      busy(btn, true);
+      const { error } = await sb.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+      busy(btn, false);
+      if (error) return toast('Fel e-post eller lösenord.', 'err');
+      f.reset();
+      enterApp();
+    });
+
+    $('#b-forgot').addEventListener('click', async () => {
+      const email = ($('#f-login') as HTMLFormElement).email.value.trim();
+      if (!email) return toast('Skriv din e-post först, klicka sedan på "Glömt lösenordet?".', 'err');
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/admin/` });
+      if (error) return toast(error.message, 'err');
+      toast('Om adressen finns får du ett mejl med en länk för att välja nytt lösenord.');
+    });
+
+    $('#f-setpw').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      if (f.p1.value !== f.p2.value) return toast('Lösenorden är inte lika.', 'err');
+      const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      busy(btn, true);
+      const { error } = await sb.auth.updateUser({ password: f.p1.value });
+      busy(btn, false);
+      if (error) return toast(error.message, 'err');
+      needPassword = false;
+      f.reset();
+      toast('Lösenordet är sparat.');
+      enterApp();
+    });
+
+    $('#b-logout').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      me = null;
+      show('v-login');
+    });
+
+    // ---------- Flikar ----------
+    function openTab(tab: string) {
+      $$('[data-tab]').forEach((b) => b.toggleAttribute('aria-current', b.dataset.tab === tab));
+      $('#p-list').hidden = tab !== 'articles';
+      $('#p-edit').hidden = true;
+      $('#p-users').hidden = tab !== 'users';
+      if (tab === 'articles') loadList();
+      if (tab === 'users') loadUsers();
+    }
+    $$('[data-tab]').forEach((b) => b.addEventListener('click', () => {
+      if (!$('#p-edit').hidden && dirty && !confirm('Du har osparade ändringar. Lämna ändå?')) return;
+      openTab(b.dataset.tab!);
+    }));
+
+    // ---------- Artikellista ----------
+    type Row = { slug: string; title: string; kategori: string; lan: string; ort: string; datum: string; skribent: string; utkast: boolean; granskning: boolean; toppnyhet: boolean; skapad_av: string; canEdit: boolean };
+    let rows: Row[] = [];
+    const statusOf = (r: { utkast: boolean; granskning: boolean }) => (!r.utkast ? 'publicerad' : r.granskning ? 'granskning' : 'utkast');
+    const STATUS_LABEL: Record<string, string> = { publicerad: 'Publicerad', granskning: 'Väntar på granskning', utkast: 'Utkast' };
+
+    async function loadList() {
+      $('#list-body').innerHTML = '<tr><td colspan="5" class="muted">Laddar…</td></tr>';
+      try {
+        rows = await api<Row[]>('list');
+        renderList();
+      } catch (e: any) {
+        $('#list-body').innerHTML = `<tr><td colspan="5" class="err">${esc(e.message)}</td></tr>`;
+      }
+    }
+
+    function renderList() {
+      const st = ($('#flt-status') as HTMLSelectElement).value;
+      const ln = ($('#flt-lan') as HTMLSelectElement).value;
+      const q = ($('#flt-q') as HTMLInputElement).value.trim().toLowerCase();
+      const list = rows.filter((r) =>
+        (!st || (st === 'mine' ? r.skapad_av === me?.email : statusOf(r) === st)) &&
+        (!ln || r.lan === ln) &&
+        (!q || r.title.toLowerCase().includes(q)));
+      $('#list-body').innerHTML = list.length
+        ? list.map((r) => {
+            const s = statusOf(r);
+            return `<tr>
+              <td><button type="button" class="rowlink" data-open="${esc(r.slug)}">${esc(r.title)}</button>${r.toppnyhet ? ' <span class="pill">Toppnyhet</span>' : ''}<div class="muted small">${esc(katName(r.kategori))}${r.canEdit ? '' : ' · endast läsa'}</div></td>
+              <td><span class="badge-s s-${s}">${STATUS_LABEL[s]}</span></td>
+              <td>${esc(r.ort ? r.ort + ', ' : '')}${esc(lanName(r.lan) || 'Hela Sverige')}</td>
+              <td class="nowrap">${esc(r.datum)}</td>
+              <td>${esc(r.skribent)}</td>
+            </tr>`;
+          }).join('')
+        : '<tr><td colspan="5" class="muted">Inga artiklar matchar.</td></tr>';
+    }
+    ['#flt-status', '#flt-lan', '#flt-q'].forEach((s) => $(s).addEventListener('input', renderList));
+    $('#list-body').addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest('[data-open]') as HTMLElement | null;
+      if (b) openEditor(b.dataset.open!);
+    });
+    $('#b-new').addEventListener('click', () => openEditor(null));
+
+    // ---------- Editor ----------
+    const form = $('#p-edit') as HTMLFormElement;
+    let current: { isNew: boolean; sha?: string; utkast: boolean; granskning: boolean; canEdit: boolean; slug?: string } = { isNew: true, utkast: true, granskning: false, canEdit: true };
+    let dirty = false;
+    let slugTouched = false;
+    form.addEventListener('input', () => (dirty = true));
+
+    const today = () => new Date().toISOString().slice(0, 10);
+    function slugify(s: string) {
+      return s.toLowerCase()
+        .replace(/[åä]/g, 'a').replace(/ö/g, 'o')
+        .normalize('NFD').replace(/[̀-ͯ]/g, '')
+        .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80).replace(/-+$/, '');
+    }
+    form.title.addEventListener('input', () => { if (current.isNew && !slugTouched) form.slug.value = slugify(form.title.value); });
+    form.slug.addEventListener('input', () => { slugTouched = true; form.slug.value = slugify(form.slug.value); });
+
+    function setImage(path: string, previewSrc?: string) {
+      form.bild.value = path || '';
+      const img = $('#ed-img') as HTMLImageElement;
+      img.hidden = !path;
+      if (path) img.src = previewSrc || path;
+      $('#b-img-rm').hidden = !path;
+    }
+
+    async function openEditor(slug: string | null) {
+      if (!$('#p-edit').hidden && dirty && !confirm('Du har osparade ändringar. Lämna ändå?')) return;
+      form.reset();
+      slugTouched = false;
+      setPreview(false);
+      $('#p-list').hidden = true;
+      $('#p-users').hidden = true;
+      $('#p-edit').hidden = false;
+      window.scrollTo(0, 0);
+
+      if (!slug) {
+        current = { isNew: true, utkast: true, granskning: false, canEdit: true };
+        $('#ed-title').textContent = 'Ny artikel';
+        form.datum.value = today();
+        form.skribent.value = me?.namn || '';
+        form.kategori.value = 'reportage';
+        if (me?.lan.length) form.lan.value = me.lan[0];
+        setImage('');
+        applyEditorState();
+        dirty = false;
+        form.title.focus();
+        return;
+      }
+
+      $('#ed-title').textContent = 'Laddar…';
+      try {
+        const a = await api('get', { slug });
+        current = { isNew: false, sha: a.sha, utkast: a.utkast === true, granskning: a.granskning === true, canEdit: a.canEdit, slug };
+        $('#ed-title').textContent = a.title || slug;
+        form.title.value = a.title || '';
+        form.slug.value = slug;
+        form.ingress.value = a.ingress || '';
+        form.kategori.value = a.kategori || '';
+        form.lan.value = a.lan || '';
+        form.ort.value = a.ort || '';
+        form.datum.value = a.datum || today();
+        form.skribent.value = a.skribent || '';
+        form.toppnyhet.checked = a.toppnyhet === true;
+        form.body.value = a.body || '';
+        setImage(a.bild || '');
+        applyEditorState();
+        dirty = false;
+      } catch (e: any) {
+        toast(e.message, 'err');
+        openTab('articles');
+      }
+    }
+
+    function applyEditorState() {
+      const s = statusOf(current);
+      const badge = $('#ed-status');
+      badge.textContent = current.isNew ? 'Ny' : STATUS_LABEL[s];
+      badge.className = 'badge-s s-' + (current.isNew ? 'utkast' : s);
+      form.slug.readOnly = !current.isNew;
+      $('#slug-hint').hidden = !current.isNew;
+      const pub = !!me?.publicera;
+      $('#b-publish').hidden = !pub;
+      $('#b-review').hidden = pub;
+      $('#b-publish').textContent = !current.isNew && s === 'publicerad' ? 'Spara och publicera' : 'Publicera';
+      $('#b-unpublish').hidden = !(pub && !current.isNew && s === 'publicerad');
+      $('#b-delete').hidden = current.isNew || !$('#b-delete').dataset.allowed;
+      const view = $('#ed-view') as HTMLAnchorElement;
+      view.hidden = current.isNew || s !== 'publicerad';
+      view.href = `/artiklar/${current.slug}/`;
+      Array.from(form.elements).forEach((el) => {
+        if ((el as HTMLElement).id === 'b-back') return;
+        (el as HTMLInputElement).disabled = !current.canEdit && !(el as HTMLElement).matches('#b-back');
+      });
+      if (!current.canEdit) toast('Du kan läsa men inte ändra den här artikeln.');
+    }
+
+    $('#b-back').addEventListener('click', () => {
+      if (dirty && !confirm('Du har osparade ändringar. Lämna ändå?')) return;
+      dirty = false;
+      openTab('articles');
+    });
+
+    $$('[data-save]').forEach((b) => b.addEventListener('click', async () => {
+      const mode = b.dataset.save!;
+      // Validering
+      const req: [string, string][] = [['title', 'Rubrik'], ['slug', 'Adress'], ['ingress', 'Ingress'], ['datum', 'Datum']];
+      for (const [k, label] of req) {
+        if (!String(form[k].value || '').trim()) { form[k].focus(); return toast(`${label} saknas.`, 'err'); }
+      }
+      if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(form.slug.value)) { form.slug.focus(); return toast('Adressen får bara innehålla a–z, 0–9 och bindestreck.', 'err'); }
+      if (mode === 'publish' && !confirm('Publicera artikeln på sajten?')) return;
+
+      const article = {
+        isNew: current.isNew,
+        sha: current.sha,
+        slug: form.slug.value,
+        title: form.title.value,
+        ingress: form.ingress.value,
+        kategori: form.kategori.value,
+        lan: form.lan.value,
+        ort: form.ort.value,
+        datum: form.datum.value,
+        skribent: form.skribent.value,
+        bild: form.bild.value,
+        toppnyhet: form.toppnyhet.checked,
+        body: form.body.value,
+        utkast: mode !== 'publish',
+        granskning: mode === 'review',
+      };
+      busy(b as HTMLButtonElement, true);
+      try {
+        const res = await api('save', { article });
+        current = { ...current, isNew: false, sha: res.sha, slug: res.slug, utkast: res.state !== 'publicerad', granskning: res.state === 'granskning' };
+        dirty = false;
+        $('#ed-title').textContent = form.title.value;
+        applyEditorState();
+        const msg: Record<string, string> = {
+          publicerad: 'Publicerad! Syns på sajten om ca 1 minut.',
+          granskning: 'Skickad för granskning.',
+          utkast: 'Utkastet är sparat.',
+        };
+        toast(msg[res.state] || 'Sparat.');
+      } catch (e: any) {
+        toast(e.message, 'err');
+      } finally {
+        busy(b as HTMLButtonElement, false);
+      }
+    }));
+
+    $('#b-delete').addEventListener('click', async () => {
+      if (!confirm('Radera artikeln för gott? Det går inte att ångra här.')) return;
+      try {
+        await api('delete', { slug: current.slug });
+        dirty = false;
+        toast('Artikeln är raderad.');
+        openTab('articles');
+      } catch (e: any) { toast(e.message, 'err'); }
+    });
+
+    // Bilder: förminskas i webbläsaren innan uppladdning
+    async function resizeToDataUrl(file: File, max = 1600): Promise<string> {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise<HTMLImageElement>((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = url; });
+        const scale = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * scale);
+        c.height = Math.round(img.height * scale);
+        const ctx = c.getContext('2d')!;
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        return c.toDataURL('image/jpeg', 0.85);
+      } finally { URL.revokeObjectURL(url); }
+    }
+    async function uploadFile(file: File): Promise<{ path: string; preview: string }> {
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error('Välj en JPG, PNG eller WebP.');
+      const dataUrl = await resizeToDataUrl(file);
+      const res = await api<{ path: string }>('upload', { dataUrl, slug: form.slug.value || slugify(form.title.value) });
+      return { path: res.path, preview: dataUrl };
+    }
+
+    $('#ed-file').addEventListener('change', async (ev) => {
+      const input = ev.target as HTMLInputElement;
+      const file = input.files?.[0];
+      input.value = '';
+      if (!file) return;
+      toast('Laddar upp bild…');
+      try {
+        const r = await uploadFile(file);
+        setImage(r.path, r.preview);
+        dirty = true;
+        toast('Bilden är uppladdad. Kom ihåg att spara artikeln.');
+      } catch (e: any) { toast(e.message, 'err'); }
+    });
+    $('#b-img-rm').addEventListener('click', () => { setImage(''); dirty = true; });
+
+    // Markdown-verktyg
+    const ta = $('#ed-body') as HTMLTextAreaElement;
+    function wrap(before: string, after = '', placeholder = '') {
+      const { selectionStart: s, selectionEnd: e, value } = ta;
+      const sel = value.slice(s, e) || placeholder;
+      ta.setRangeText(before + sel + after, s, e, 'end');
+      ta.focus();
+      dirty = true;
+    }
+    function linePrefix(prefix: string) {
+      const { selectionStart: s, selectionEnd: e, value } = ta;
+      const start = value.lastIndexOf('\n', s - 1) + 1;
+      const block = value.slice(start, e) || 'Text';
+      ta.setRangeText(block.split('\n').map((l) => prefix + l).join('\n'), start, e, 'end');
+      ta.focus();
+      dirty = true;
+    }
+    $$('[data-md]').forEach((b) => b.addEventListener('click', async () => {
+      switch (b.dataset.md) {
+        case 'h2': return linePrefix('## ');
+        case 'bold': return wrap('**', '**', 'fet text');
+        case 'italic': return wrap('*', '*', 'kursiv text');
+        case 'ul': return linePrefix('- ');
+        case 'quote': return linePrefix('> ');
+        case 'link': {
+          const url = prompt('Länkadress (https://…)');
+          if (url) wrap('[', `](${url})`, 'länktext');
+          return;
+        }
+        case 'img': {
+          const pick = document.createElement('input');
+          pick.type = 'file';
+          pick.accept = 'image/jpeg,image/png,image/webp';
+          pick.onchange = async () => {
+            const f = pick.files?.[0];
+            if (!f) return;
+            toast('Laddar upp bild…');
+            try {
+              const r = await uploadFile(f);
+              wrap(`\n![`, `](${r.path})\n`, 'Bildtext');
+              toast('Bilden är infogad. Den syns på sajten när artikeln publiceras.');
+            } catch (e: any) { toast(e.message, 'err'); }
+          };
+          pick.click();
+        }
+      }
+    }));
+
+    function setPreview(on: boolean) {
+      $('#b-preview').setAttribute('aria-pressed', String(on));
+      $('#b-preview').textContent = on ? 'Redigera' : 'Förhandsvisa';
+      ta.hidden = on;
+      const p = $('#ed-preview');
+      p.hidden = !on;
+      if (on) p.innerHTML = marked.parse(ta.value || '*Ingen text ännu.*', { async: false }) as string;
+    }
+    $('#b-preview').addEventListener('click', () => setPreview(ta.hidden === false));
+
+    window.addEventListener('beforeunload', (e) => { if (dirty && !$('#p-edit').hidden) e.preventDefault(); });
+
+    // ---------- Användare ----------
+    type U = { id: string; email: string; namn: string; roll: string; lan: string[]; publicera: boolean; aktiv: boolean };
+    let users: U[] = [];
+    async function loadUsers() {
+      $('#users-body').innerHTML = '<tr><td colspan="7" class="muted">Laddar…</td></tr>';
+      try {
+        users = await api<U[]>('users');
+        $('#users-body').innerHTML = users.map((u) => `<tr data-id="${esc(u.id)}">
+          <td><input class="cell" name="namn" value="${esc(u.namn)}" aria-label="Namn" /></td>
+          <td class="small">${esc(u.email)}</td>
+          <td><select class="cell" name="roll" aria-label="Roll">
+            <option value="redaktor"${u.roll !== 'admin' ? ' selected' : ''}>Redaktör</option>
+            <option value="admin"${u.roll === 'admin' ? ' selected' : ''}>Admin</option></select></td>
+          <td><select class="cell" name="lan" aria-label="Län"><option value="">Alla</option>${TAX.lan.map((l) => `<option value="${l.slug}"${u.lan?.[0] === l.slug ? ' selected' : ''}>${esc(l.name)}</option>`).join('')}</select>${(u.lan?.length || 0) > 1 ? `<div class="small muted">+${u.lan.length - 1} till</div>` : ''}</td>
+          <td><input type="checkbox" name="publicera"${u.publicera ? ' checked' : ''} aria-label="Får publicera" /></td>
+          <td><input type="checkbox" name="aktiv"${u.aktiv !== false ? ' checked' : ''} aria-label="Aktiv" /></td>
+          <td><button type="button" class="btn btn-outline btn-sm" data-saveuser>Spara</button></td>
+        </tr>`).join('');
+      } catch (e: any) {
+        $('#users-body').innerHTML = `<tr><td colspan="7" class="err">${esc(e.message)}</td></tr>`;
+      }
+    }
+    $('#users-body').addEventListener('click', async (ev) => {
+      const b = (ev.target as HTMLElement).closest('[data-saveuser]') as HTMLButtonElement | null;
+      if (!b) return;
+      const tr = b.closest('tr')!;
+      const u = users.find((x) => x.id === tr.dataset.id)!;
+      const q = (n: string) => tr.querySelector(`[name=${n}]`) as HTMLInputElement;
+      const lanSel = q('lan').value;
+      // Första länet väljs i listan, övriga län (från inbjudan) behålls
+      const lan = lanSel ? [lanSel, ...(u.lan || []).filter((l) => l !== lanSel)] : [];
+      busy(b, true);
+      try {
+        await api('updateUser', { user: { id: u.id, namn: q('namn').value, roll: q('roll').value, lan, publicera: q('publicera').checked, aktiv: q('aktiv').checked } });
+        toast('Användaren är sparad.');
+        loadUsers();
+      } catch (e: any) { toast(e.message, 'err'); } finally { busy(b, false); }
+    });
+
+    $('#f-invite').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      const lan = $$<HTMLInputElement>('#invite-lan input:checked').map((i) => i.value);
+      const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      busy(btn, true);
+      try {
+        await api('invite', { user: { namn: f.namn.value, email: f.email.value, roll: f.roll.value, lan, publicera: f.publicera.checked } });
+        toast(`Inbjudan skickad till ${f.email.value}.`);
+        f.reset();
+        loadUsers();
+      } catch (e: any) { toast(e.message, 'err'); } finally { busy(btn, false); }
+    });
+
+    start();
+  </script>
+</body>
+</html>
