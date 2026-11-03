@@ -4,3 +4,16 @@
 
 [build.environment]
   NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  # Paketen tas med som vanliga node_modules i stället för att buntas
+  external_node_modules = ["@supabase/supabase-js", "yaml"]
+
+# Adminpanelen ska aldrig cachas eller indexeras
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"
+    X-Frame-Options = "DENY"
