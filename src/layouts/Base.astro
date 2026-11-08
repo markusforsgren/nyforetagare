@@ -15,6 +15,8 @@ const ogImage = new URL(image, Astro.site);
 const nav = [
   { href: '/artiklar/', label: 'Artiklar' },
   ...CATEGORIES.map((c) => ({ href: `/kategori/${c.slug}/`, label: c.name })),
+  { href: '/foretag/', label: 'Företag' },
+  { href: '/community/', label: 'Community' },
   { href: '/foretagstjanster/', label: 'Företagstjänster' },
   { href: '/lan/', label: 'Lokalt' },
 ];
@@ -59,7 +61,7 @@ const nav = [
           <span>Nyföretagare</span>
         </a>
         <div class="header-cta">
-          <a href="/lista-ditt-foretag/" class="btn btn-outline">Lista ditt företag</a>
+          <a href="/foretag/konto/" class="btn btn-outline">Företagskonto</a>
           <a href="/#nyhetsbrev" class="btn btn-primary">Få nyhetsbrevet</a>
         </div>
       </div>
@@ -87,7 +89,9 @@ const nav = [
         </div>
         <div class="col">
           <span class="h">För företag</span>
-          <a href="/lista-ditt-foretag/">Lista ditt företag</a>
+          <a href="/foretag/konto/">Skapa företagsprofil</a>
+          <a href="/foretag/">Alla företag</a>
+          <a href="/community/">Community</a>
           <a href="/foretagstjanster/">Företagstjänster</a>
           <a href="/lan/">Lokalt – välj län</a>
           <a href="/om-oss/#annonsera">Annonsera</a>
