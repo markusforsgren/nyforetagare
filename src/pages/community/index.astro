@@ -1,0 +1,275 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/community.css';
+import { LAN } from '../../config';
+const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })));
+---
+<Base title="Community" description="Fråga, tipsa och hitta samarbeten med andra företagare.">
+  <div class="wrap cm" data-lan={lanJson}>
+    <div id="cm-toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="cm-head">
+      <div>
+        <span class="eyebrow">Community</span>
+        <h1>Företagare hjälper företagare</h1>
+        <p class="lead" style="margin:0">Ställ frågor, dela tips och hitta samarbeten med andra företagare.</p>
+      </div>
+      <a href="/community/chatt/" class="btn btn-outline" id="cm-msgs" hidden>Meddelanden <span class="unread" id="cm-unread" hidden></span></a>
+    </div>
+
+    <div class="cm-layout">
+      <div class="cm-feedcol">
+        <!-- Skrivruta / inloggningsuppmaning -->
+        <div id="cm-guest" class="card bordered cm-cta" hidden>
+          <p style="margin:0"><strong>Vill du vara med?</strong> Skapa en gratis företagsprofil eller logga in för att skriva inlägg, kommentera och chatta med andra företagare.</p>
+          <a href="/foretag/konto/" class="btn btn-primary">Skapa profil / logga in</a>
+        </div>
+        <div id="cm-pending" class="card bordered cm-cta" hidden>
+          <p style="margin:0"><strong>Nästan klart!</strong> Du kan skriva i communityn när din företagsprofil är godkänd.</p>
+          <a href="/foretag/konto/" class="btn btn-outline">Till din profil</a>
+        </div>
+
+        <form id="cm-compose" class="card bordered cm-compose" hidden>
+          <label for="cm-body" class="sr-only">Skriv ett inlägg</label>
+          <textarea id="cm-body" name="body" rows="3" maxlength="5000" placeholder="Ställ en fråga, dela ett tips eller sök samarbete…" required></textarea>
+          <div class="cm-compose-row">
+            <label class="sr-only" for="cm-typ">Typ</label>
+            <select id="cm-typ" name="typ">
+              <option value="fraga">Fråga</option>
+              <option value="tips">Tips</option>
+              <option value="samarbete">Söker samarbete</option>
+              <option value="ovrigt">Övrigt</option>
+            </select>
+            <label class="sr-only" for="cm-lan">Län</label>
+            <select id="cm-lan" name="lan"><option value="">Hela Sverige</option></select>
+            <button type="submit" class="btn btn-primary">Publicera</button>
+          </div>
+        </form>
+
+        <!-- Filter -->
+        <div class="cm-filters" role="group" aria-label="Filtrera inlägg">
+          <button type="button" data-typ="" aria-pressed="true">Alla</button>
+          <button type="button" data-typ="fraga" aria-pressed="false">Frågor</button>
+          <button type="button" data-typ="tips" aria-pressed="false">Tips</button>
+          <button type="button" data-typ="samarbete" aria-pressed="false">Samarbete</button>
+          <button type="button" data-typ="ovrigt" aria-pressed="false">Övrigt</button>
+          <label class="sr-only" for="cm-flan">Län</label>
+          <select id="cm-flan"><option value="">Alla län</option></select>
+        </div>
+
+        <div id="cm-feed" class="cm-feed"><p class="muted">Laddar inlägg…</p></div>
+        <div style="text-align:center;margin-top:16px"><button type="button" class="btn btn-outline" id="cm-more" hidden>Visa fler</button></div>
+      </div>
+
+      <aside class="cm-side">
+        <div class="card bordered">
+          <h2 style="font-size:18px">Så funkar communityn</h2>
+          <ul class="cm-rules">
+            <li>Alla kan läsa. Medlemmar med godkänd företagsprofil kan skriva.</li>
+            <li>Var hjälpsam och saklig. Ingen ren reklam i flödet.</li>
+            <li>Vill du prata enskilt? Skicka ett meddelande.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    import { getSupabase, getMembers, esc, richText, timeAgo, avatar, memberName, type Member } from '../../lib/supa-browser';
+    import type { SupabaseClient } from '@supabase/supabase-js';
+
+    const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector(s) as T;
+    const LANS: { slug: string; name: string }[] = JSON.parse(($('.cm') as HTMLElement).dataset.lan || '[]');
+    const lanName = (s: string | null) => LANS.find((l) => l.slug === s)?.name || '';
+    const TYP: Record<string, string> = { fraga: 'Fråga', tips: 'Tips', samarbete: 'Söker samarbete', ovrigt: 'Övrigt' };
+    for (const sel of ['#cm-lan', '#cm-flan']) LANS.forEach((l) => ($(sel) as HTMLSelectElement).add(new Option(l.name, l.slug)));
+
+    let tt: number | undefined;
+    function toast(msg: string, kind: 'ok' | 'err' = 'ok') {
+      const t = $('#cm-toast'); t.textContent = msg; t.className = 'toast ' + kind; t.hidden = false;
+      clearTimeout(tt); tt = window.setTimeout(() => (t.hidden = true), kind === 'err' ? 6000 : 3000);
+    }
+
+    let sb: SupabaseClient;
+    let me: string | null = null;
+    let isMember = false;
+    let isAdmin = false;
+    const members = new Map<string, Member>();
+    const PAGE = 20;
+    let offset = 0;
+    let filterTyp = '';
+    let filterLan = '';
+
+    type Post = { id: string; author_id: string; typ: string; body: string; lan: string | null; created_at: string };
+
+    async function init() {
+      const client = await getSupabase();
+      if (!client) { $('#cm-feed').innerHTML = '<p class="muted">Communityn är inte aktiverad än.</p>'; return; }
+      sb = client;
+      const { data } = await sb.auth.getSession();
+      me = data.session?.user.id ?? null;
+      if (me) {
+        const [m, a] = await Promise.all([sb.rpc('is_member', { uid: me }), sb.rpc('is_admin', { uid: me })]);
+        isMember = m.data === true;
+        isAdmin = a.data === true;
+        const mine = await getMembers(sb, [me]);
+        mine.forEach((v, k) => members.set(k, v));
+        const myLan = members.get(me)?.lan;
+        if (myLan) ($('#cm-lan') as HTMLSelectElement).value = myLan;
+      }
+      $('#cm-guest').hidden = !!me;
+      $('#cm-pending').hidden = !me || isMember;
+      $('#cm-compose').hidden = !isMember;
+      $('#cm-msgs').hidden = !isMember;
+      if (isMember) loadUnread();
+      load(true);
+    }
+
+    async function loadUnread() {
+      const { count } = await sb.from('messages').select('id', { count: 'exact', head: true }).eq('recipient_id', me!).is('read_at', null);
+      const b = $('#cm-unread'); b.textContent = String(count || 0); b.hidden = !count;
+    }
+
+    async function load(reset = false) {
+      if (reset) { offset = 0; $('#cm-feed').innerHTML = '<p class="muted">Laddar inlägg…</p>'; }
+      let q = sb.from('posts').select('id,author_id,typ,body,lan,created_at').order('created_at', { ascending: false }).range(offset, offset + PAGE - 1);
+      if (filterTyp) q = q.eq('typ', filterTyp);
+      if (filterLan) q = q.eq('lan', filterLan);
+      const { data, error } = await q;
+      if (error) { $('#cm-feed').innerHTML = `<p class="err">Kunde inte hämta inlägg.</p>`; return; }
+      const posts = (data || []) as Post[];
+      const ids = posts.map((p) => p.id);
+      const [mm, cc] = await Promise.all([
+        getMembers(sb, posts.map((p) => p.author_id).filter((id) => !members.has(id))),
+        ids.length ? sb.from('comments').select('post_id').in('post_id', ids) : Promise.resolve({ data: [] as { post_id: string }[] }),
+      ]);
+      mm.forEach((v, k) => members.set(k, v));
+      const counts: Record<string, number> = {};
+      for (const c of (cc.data || []) as { post_id: string }[]) counts[c.post_id] = (counts[c.post_id] || 0) + 1;
+      const html = posts.map((p) => postHtml(p, counts[p.id] || 0)).join('');
+      if (reset) $('#cm-feed').innerHTML = html || '<div class="card bordered"><p style="margin:0">Inga inlägg här än. Bli först!</p></div>';
+      else $('#cm-feed').insertAdjacentHTML('beforeend', html);
+      offset += posts.length;
+      $('#cm-more').hidden = posts.length < PAGE;
+    }
+
+    function postHtml(p: Post, nComments: number) {
+      const m = members.get(p.author_id);
+      const meta = [m?.bransch, lanName(p.lan)].filter(Boolean).join(' · ');
+      const canDelete = me && (p.author_id === me || isAdmin);
+      const canMsg = isMember && me && p.author_id !== me && m;
+      return `<article class="card bordered post" data-id="${p.id}" data-author="${p.author_id}">
+        <header class="post-head">
+          ${avatar(m)}
+          <div class="post-who">${memberName(m)}<span class="muted small">${esc(meta)}${meta ? ' · ' : ''}${timeAgo(p.created_at)}</span></div>
+          <span class="typ typ-${esc(p.typ)}">${TYP[p.typ] || ''}</span>
+        </header>
+        <div class="post-body">${richText(p.body)}</div>
+        <footer class="post-actions">
+          <button type="button" data-act="comments" aria-expanded="false">Kommentarer (<span class="n">${nComments}</span>)</button>
+          ${canMsg ? `<a href="/community/chatt/?till=${p.author_id}">Skicka meddelande</a>` : ''}
+          ${canDelete ? '<button type="button" data-act="del" class="danger">Ta bort</button>' : ''}
+        </footer>
+        <div class="comments" hidden></div>
+      </article>`;
+    }
+
+    function commentHtml(c: { id: string; author_id: string; body: string; created_at: string }) {
+      const m = members.get(c.author_id);
+      const canDelete = me && (c.author_id === me || isAdmin);
+      return `<div class="comment" data-cid="${c.id}">
+        ${avatar(m, 32)}
+        <div class="comment-main">
+          <div>${memberName(m)} <span class="muted small">${timeAgo(c.created_at)}</span></div>
+          <div class="comment-body">${richText(c.body)}</div>
+          ${canDelete ? '<button type="button" data-act="cdel" class="danger small-btn">Ta bort</button>' : ''}
+        </div>
+      </div>`;
+    }
+
+    async function openComments(post: HTMLElement) {
+      const box = post.querySelector('.comments') as HTMLElement;
+      const btn = post.querySelector('[data-act=comments]') as HTMLButtonElement;
+      if (!box.hidden) { box.hidden = true; btn.setAttribute('aria-expanded', 'false'); return; }
+      box.hidden = false; btn.setAttribute('aria-expanded', 'true');
+      box.innerHTML = '<p class="muted small">Laddar…</p>';
+      const { data } = await sb.from('comments').select('id,author_id,body,created_at').eq('post_id', post.dataset.id!).order('created_at');
+      const list = data || [];
+      (await getMembers(sb, list.map((c) => c.author_id).filter((id) => !members.has(id)))).forEach((v, k) => members.set(k, v));
+      box.innerHTML = `<div class="comment-list">${list.map(commentHtml).join('') || '<p class="muted small" style="margin:0">Inga kommentarer än.</p>'}</div>` +
+        (isMember
+          ? `<form class="comment-form"><label class="sr-only" for="c-${post.dataset.id}">Skriv en kommentar</label><textarea id="c-${post.dataset.id}" rows="2" maxlength="2000" placeholder="Skriv en kommentar…" required></textarea><button type="submit" class="btn btn-primary btn-sm">Skicka</button></form>`
+          : `<p class="small" style="margin:8px 0 0"><a href="/foretag/konto/">Logga in</a> för att kommentera.</p>`);
+    }
+
+    // ---------- Händelser ----------
+    $('#cm-compose').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      const body = (f.body as unknown as HTMLTextAreaElement).value.trim();
+      if (body.length < 2) return;
+      const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      btn.disabled = true;
+      const { data, error } = await sb.from('posts').insert({ author_id: me, body, typ: f.typ.value, lan: f.lan.value || null }).select().single();
+      btn.disabled = false;
+      if (error) return toast(error.message.includes('För många') ? error.message : 'Kunde inte publicera: ' + error.message, 'err');
+      (f.body as unknown as HTMLTextAreaElement).value = '';
+      const empty = $('#cm-feed').querySelector('.post') === null;
+      if (empty) $('#cm-feed').innerHTML = '';
+      $('#cm-feed').insertAdjacentHTML('afterbegin', postHtml(data as Post, 0));
+      toast('Publicerat!');
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-typ]').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('[data-typ]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+      filterTyp = b.dataset.typ || '';
+      load(true);
+    }));
+    $('#cm-flan').addEventListener('change', (e) => { filterLan = (e.target as HTMLSelectElement).value; load(true); });
+    $('#cm-more').addEventListener('click', () => load(false));
+
+    $('#cm-feed').addEventListener('click', async (ev) => {
+      const t = ev.target as HTMLElement;
+      const post = t.closest('.post') as HTMLElement | null;
+      if (!post) return;
+      const act = (t.closest('[data-act]') as HTMLElement | null)?.dataset.act;
+      if (act === 'comments') return openComments(post);
+      if (act === 'del') {
+        if (!confirm('Ta bort inlägget och alla kommentarer?')) return;
+        const { error } = await sb.from('posts').delete().eq('id', post.dataset.id!);
+        if (error) return toast('Kunde inte ta bort.', 'err');
+        post.remove(); toast('Inlägget är borttaget.');
+      }
+      if (act === 'cdel') {
+        const c = t.closest('.comment') as HTMLElement;
+        if (!confirm('Ta bort kommentaren?')) return;
+        const { error } = await sb.from('comments').delete().eq('id', c.dataset.cid!);
+        if (error) return toast('Kunde inte ta bort.', 'err');
+        c.remove();
+        const n = post.querySelector('.n')!; n.textContent = String(Math.max(0, Number(n.textContent) - 1));
+      }
+    });
+
+    $('#cm-feed').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      if (!f.classList.contains('comment-form')) return;
+      const post = f.closest('.post') as HTMLElement;
+      const ta = f.querySelector('textarea') as HTMLTextAreaElement;
+      const body = ta.value.trim();
+      if (!body) return;
+      const btn = f.querySelector('button') as HTMLButtonElement;
+      btn.disabled = true;
+      const { data, error } = await sb.from('comments').insert({ post_id: post.dataset.id, author_id: me, body }).select().single();
+      btn.disabled = false;
+      if (error) return toast(error.message.includes('För många') ? error.message : 'Kunde inte skicka: ' + error.message, 'err');
+      ta.value = '';
+      const list = post.querySelector('.comment-list')!;
+      list.querySelector('p.muted')?.remove();
+      list.insertAdjacentHTML('beforeend', commentHtml(data as any));
+      const n = post.querySelector('.n')!; n.textContent = String(Number(n.textContent) + 1);
+    });
+
+    init();
+  </script>
+</Base>
