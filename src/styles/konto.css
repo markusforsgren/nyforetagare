@@ -1,0 +1,41 @@
+/* Företagskonto /foretag/konto/ */
+.konto { padding-top: 40px; padding-bottom: 72px; min-height: 60vh; }
+.konto [hidden] { display: none !important; }
+.konto h1 { font-size: clamp(28px, 4vw, 38px); font-weight: 800; margin: 6px 0 10px; }
+#k-auth { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 48px; align-items: start; }
+.k-points { padding-left: 20px; color: var(--text); display: grid; gap: 8px; font-size: 17px; }
+.k-box { padding: 0; overflow: hidden; }
+.k-box .form { padding: 24px; max-width: none; }
+.k-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+.k-tabs button { background: #fafbfd; border: 0; padding: 14px; font: inherit; font-weight: 700; color: var(--muted); cursor: pointer; min-height: 48px; }
+.k-tabs button[aria-selected=true] { background: #fff; color: var(--navy); box-shadow: inset 0 -3px 0 var(--blue-bright); }
+.k-narrow { max-width: 520px; margin: 0 auto; gap: 14px; }
+.k-link { background: none; border: 0; padding: 6px 0; font: inherit; font-weight: 600; color: var(--blue); cursor: pointer; text-align: left; min-height: 36px; }
+.k-link:hover { text-decoration: underline; }
+.k-check { display: flex !important; gap: 10px; align-items: flex-start; font-weight: 400 !important; }
+.k-check input { margin-top: 4px; width: 18px; height: 18px; flex: 0 0 auto; }
+.k-head { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; }
+.k-head-actions { display: flex; align-items: center; gap: 18px; }
+.k-status { padding: 14px 18px; border-radius: 10px; font-weight: 600; margin-bottom: 20px; }
+.k-pending { background: #fff1d6; color: #7a4b00; }
+.k-approved { background: #e3f4e8; color: #1d6b34; }
+.k-rejected { background: #fde7e5; color: #8c1d15; }
+.k-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start; }
+.k-main, .k-side { max-width: none; }
+.k-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.k-side { position: sticky; top: 16px; }
+.k-side .btn-primary { width: 100%; }
+.k-logo { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.k-logo .k-lbl { flex: 0 0 100%; font-weight: 600; font-size: 15px; }
+.k-logo img { width: 72px; height: 72px; object-fit: contain; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.k-logo .clogo { width: 72px; height: 72px; }
+.k-file { cursor: pointer; }
+.btn-sm { min-height: 36px; padding: 0 14px; font-size: 14px; border-radius: 18px; }
+.konto .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; max-width: min(560px, calc(100% - 32px)); padding: 12px 18px; border-radius: 10px; font-weight: 600; box-shadow: 0 8px 24px rgba(11,31,58,.18); }
+.konto .toast.ok { background: var(--navy); color: #fff; }
+.konto .toast.err { background: #b3261e; color: #fff; }
+@media (max-width: 900px) {
+  #k-auth, .k-grid { grid-template-columns: 1fr; }
+  .k-side { position: static; }
+  .k-row { grid-template-columns: 1fr; }
+}

@@ -197,3 +197,36 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; }
 .lan-grid .c { font-size: 13px; color: var(--muted); }
 .empty { background: var(--bg-soft); border-radius: var(--radius); padding: 32px; display: flex; flex-direction: column; gap: 12px; }
 .chips-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 4px; }
+
+/* Reservbild när artikel saknar huvudbild */
+.img-fallback { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: var(--navy); color: #fff; }
+.img-fallback img { width: 44px; height: 42px; object-fit: contain; background: #fff; border-radius: 8px; padding: 4px; }
+.img-fallback span { font-family: var(--display); font-weight: 700; font-size: 15px; letter-spacing: .04em; text-transform: uppercase; opacity: .9; }
+.img-fallback.cat-reportage { background: #0b1f3a; }
+.img-fallback.cat-foretagsnyheter { background: #123a6b; }
+.img-fallback.cat-inspiration { background: #1565c0; }
+.img-fallback.cat-affarsideer { background: #0e4d64; }
+.img-fallback.cat-kapital { background: #2a3f5f; }
+.img-fallback.cat-natverk { background: #174a7c; }
+
+/* Företag */
+.ccard { color: var(--navy); }
+.ccard:hover { text-decoration: none; box-shadow: 0 0 0 2px var(--blue-bright); }
+.ccard .more { font-weight: 600; color: var(--blue); font-size: 15px; }
+.clogo { width: 64px; height: 64px; border-radius: var(--radius); object-fit: contain; background: #fff; border: 1px solid var(--line); }
+.clogo-ph { display: inline-flex; align-items: center; justify-content: center; background: var(--navy); color: #fff; font-family: var(--display); font-weight: 800; font-size: 22px; border: 0; }
+.svc-logo { width: 48px; height: 48px; object-fit: contain; border-radius: 8px; border: 1px solid var(--line); }
+.filter-select { min-height: 44px; padding: 0 14px; border: 1px solid var(--field); border-radius: 8px; font: inherit; background: #fff; color: var(--ink); flex: 0 1 260px; }
+.profile { padding-top: 32px; }
+.profile .back { font-weight: 600; display: inline-block; margin-bottom: 20px; }
+.profile-head { display: flex; flex-wrap: wrap; gap: 24px; align-items: center; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.profile-head h1 { font-size: clamp(30px, 4.5vw, 42px); font-weight: 800; }
+.plogo { width: 112px; height: 112px; border-radius: 16px; object-fit: contain; background: #fff; border: 1px solid var(--line); flex: 0 0 auto; }
+.plogo.clogo-ph { font-size: 36px; }
+.profile-body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; padding-top: 32px; align-items: start; }
+.profile-body .prose h2 { margin-top: 28px; }
+.contact { gap: 12px; }
+.contact .btn { width: 100%; }
+.linklike { font-weight: 600; word-break: break-all; }
+@media (max-width: 860px) { .profile-body { grid-template-columns: 1fr; } }
+.plogo.clogo-ph { background: var(--navy); color: #fff; border: 0; display: inline-flex; }

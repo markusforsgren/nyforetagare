@@ -101,3 +101,24 @@ body.adm { background: var(--bg-soft); min-height: 100vh; }
   .adm-main { padding: 20px 16px 48px; }
   .adm-me { margin-left: 0; }
 }
+
+/* Företag i adminpanelen */
+.adm-tabs .count { display: inline-block; min-width: 20px; padding: 0 6px; margin-left: 4px; border-radius: 10px; background: #ffb020; color: #0b1f3a; font-size: 12px; font-weight: 800; line-height: 20px; text-align: center; }
+.c-list { display: grid; gap: 14px; }
+.c-item { padding: 18px 20px; }
+.c-top { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 16px; align-items: start; }
+.c-logo { width: 56px; height: 56px; border-radius: 10px; object-fit: contain; border: 1px solid var(--line); background: #fff; }
+.c-ph { display: inline-flex; align-items: center; justify-content: center; background: var(--navy); color: #fff; font-family: var(--display); font-weight: 800; font-size: 22px; border: 0; }
+.c-main h2 { font-size: 18px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0 0 4px; }
+.c-main p { margin: 4px 0 0; }
+.c-actions { display: flex; flex-direction: column; gap: 8px; align-items: stretch; min-width: 150px; }
+.c-item details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+.c-item summary { cursor: pointer; font-weight: 600; color: var(--blue); }
+.c-dl { display: grid; grid-template-columns: 160px minmax(0, 1fr); gap: 6px 16px; margin: 12px 0 0; font-size: 15px; }
+.c-dl dt { font-weight: 600; color: var(--muted); }
+.c-dl dd { margin: 0; }
+@media (max-width: 700px) {
+  .c-top { grid-template-columns: 48px minmax(0, 1fr); }
+  .c-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
+  .c-dl { grid-template-columns: 1fr; }
+}
