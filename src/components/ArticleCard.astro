@@ -14,7 +14,7 @@ const { title, ingress, kategori, bild, lan } = post.data;
     <img class="img" src={bild} alt="" loading="lazy" />
   ) : (
     <div class={`img img-fallback cat-${kategori}`} aria-hidden="true">
-      <img src="/img/mark.png" alt="" width="44" height="42" />
+      <img src="/img/mark.png" alt="" width="64" height="52" />
       <span>{categoryName(kategori)}</span>
     </div>
   )}
