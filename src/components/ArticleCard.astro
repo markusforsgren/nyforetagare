@@ -10,7 +10,14 @@ const { post, showIngress = false } = Astro.props;
 const { title, ingress, kategori, bild, lan } = post.data;
 ---
 <a href={`/artiklar/${post.id}/`} class="acard">
-  {bild ? <img class="img" src={bild} alt="" loading="lazy" /> : <div class="img" aria-hidden="true"></div>}
+  {bild ? (
+    <img class="img" src={bild} alt="" loading="lazy" />
+  ) : (
+    <div class={`img img-fallback cat-${kategori}`} aria-hidden="true">
+      <img src="/img/mark.png" alt="" width="44" height="42" />
+      <span>{categoryName(kategori)}</span>
+    </div>
+  )}
   <span class="cat">{categoryName(kategori)}{lan && ` · ${lanName(lan)}`}</span>
   <span class="t">{title}</span>
   {showIngress && <p class="i">{ingress}</p>}

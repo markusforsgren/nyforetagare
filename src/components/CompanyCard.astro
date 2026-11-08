@@ -1,0 +1,15 @@
+---
+import { placeOf, type Company } from '../lib/companies';
+interface Props { c: Company }
+const { c } = Astro.props;
+const initials = c.namn.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+---
+<a href={`/foretag/${c.slug}/`} class="card ccard" data-lan={c.lan ?? ''}>
+  {c.logo_url
+    ? <img src={c.logo_url} alt="" class="clogo" loading="lazy" />
+    : <span class="clogo clogo-ph" aria-hidden="true">{initials}</span>}
+  <h3>{c.namn}</h3>
+  <span class="meta">{[c.bransch, placeOf(c)].filter(Boolean).join(' · ')}</span>
+  {c.kort && <p>{c.kort}</p>}
+  <span class="push more">Visa företaget →</span>
+</a>

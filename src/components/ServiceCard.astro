@@ -1,13 +1,19 @@
 ---
-import type { SERVICES } from '../config';
-interface Props { s: (typeof SERVICES)[number] }
+import type { Service } from '../config';
+interface Props { s: Service }
 const { s } = Astro.props;
+const external = /^https?:\/\//.test(s.link);
 ---
 <article class={`card ${s.utvald ? 'featured' : 'bordered'}`}>
   {s.utvald && <span class="badge">Utvald partner</span>}
+  {s.logo && <img src={s.logo} alt="" class="svc-logo" loading="lazy" />}
   <h3>{s.name}</h3>
-  <span class="meta">{s.category} · {s.area}</span>
+  <span class="meta">{s.category}{s.area && ` · ${s.area}`}</span>
   <p>{s.text}</p>
   {s.price && <p style="font-weight:700;color:var(--ink)">{s.price}</p>}
-  {s.link && <a href={s.link} class={`btn push ${s.utvald ? 'btn-primary' : 'btn-outline'}`} rel="noopener">Begär offert</a>}
+  {s.link && (
+    <a href={s.link} class={`btn push ${s.utvald ? 'btn-primary' : 'btn-outline'}`} rel={external ? 'noopener' : undefined}>
+      {s.cta || 'Begär offert'}
+    </a>
+  )}
 </article>
