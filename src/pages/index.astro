@@ -1,0 +1,137 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import CategoryIcon from '../components/CategoryIcon.astro';
+import Newsletter from '../components/Newsletter.astro';
+import LanPicker from '../components/LanPicker.astro';
+import ServiceCard from '../components/ServiceCard.astro';
+import { getPosts, formatDate } from '../lib/posts';
+import { getCompanies, asService } from '../lib/companies';
+import CompanyCard from '../components/CompanyCard.astro';
+import { CATEGORIES, SERVICES, FEATURED_COMPANIES, PARTNERS, categoryName } from '../config';
+
+const posts = await getPosts();
+const top = posts.find((p) => p.data.toppnyhet) ?? posts[0];
+const rest = posts.filter((p) => p !== top);
+const latest = rest.slice(0, 5);
+const more = rest.slice(5, 8).length ? rest.slice(5, 8) : rest.slice(0, 3);
+const companies = await getCompanies();
+// Utvalda företag först, sedan de senast uppdaterade
+const focus = [...companies].sort((a, b) => Number(b.utvald) - Number(a.utvald) || b.updated_at.localeCompare(a.updated_at)).slice(0, 3);
+const services = [
+  ...SERVICES.filter((s) => s.utvald),
+  ...companies.filter((c) => c.tjanstekategori).map(asService),
+  ...SERVICES.filter((s) => !s.utvald),
+].slice(0, 3);
+---
+<Base>
+  <!-- Toppnyhet + senaste -->
+  {top && (
+    <section class="wrap hero">
+      <article class="hero-main">
+        <img src={top.data.bild ?? '/img/hero_people.jpg'} alt="" />
+        <span class="tag" style="align-self:flex-start">{categoryName(top.data.kategori)}</span>
+        <h1><a href={`/artiklar/${top.id}/`}>{top.data.title}</a></h1>
+        <p class="lead" style="margin:0">{top.data.ingress}</p>
+        <p class="muted" style="margin:0">Av {top.data.skribent} · {formatDate(top.data.datum)}</p>
+      </article>
+      <aside class="latest">
+        <h2>Senaste</h2>
+        {latest.map((p) => (
+          <a href={`/artiklar/${p.id}/`}>
+            <span class="cat">{categoryName(p.data.kategori)}</span>
+            <span class="t">{p.data.title}</span>
+          </a>
+        ))}
+        {latest.length === 0 && <p class="muted">Fler artiklar kommer snart.</p>}
+      </aside>
+    </section>
+  )}
+
+  <!-- Kategorier -->
+  <section class="soft" aria-label="Kategorier">
+    <div class="wrap section cats" style="padding-top:40px;padding-bottom:40px">
+      {CATEGORIES.map((c) => (
+        <a href={`/kategori/${c.slug}/`}><CategoryIcon slug={c.slug} />{c.name}</a>
+      ))}
+      <a href="/foretagstjanster/"><CategoryIcon slug="tjanster" />Företagstjänster</a>
+    </div>
+  </section>
+
+  <!-- Lokalt -->
+  <section class="wrap section split">
+    <img src="/img/post_local.jpg" alt="Vi vill lyfta småföretagarna i din stad eller kommun" style="border-radius:12px;max-width:620px" loading="lazy" />
+    <div class="stack">
+      <span class="eyebrow">Lokalt</span>
+      <h2 class="h2">Vi lyfter småföretagarna i ditt län</h2>
+      <p class="lead" style="margin:0">Intervjuer, företag och tjänster nära dig. Välj ditt län.</p>
+      <LanPicker id="lan-val-start" />
+      <a href="/om-oss/#lokal-partner" style="font-weight:600">Vill du driva Nyföretagare i ditt län? Bli lokal partner →</a>
+    </div>
+  </section>
+
+  <!-- Företagare i fokus -->
+  <section class="soft">
+    <div class="wrap section">
+      <div class="section-head">
+        <div>
+          <h2 class="h2">Företagare i fokus</h2>
+          <p class="muted" style="margin:6px 0 0;font-size:16px">Företag som syns på Nyföretagare just nu.</p>
+        </div>
+      </div>
+      <div class="grid">
+        {focus.length > 0
+          ? focus.map((c) => <CompanyCard c={c} />)
+          : FEATURED_COMPANIES.map((f) => (
+            <article class="card">
+              <div class="logo-ph">Logga</div>
+              <h3>{f.name}</h3>
+              <span class="meta">{f.meta}</span>
+              <p>{f.text}</p>
+            </article>
+          ))}
+        <article class="card dark">
+          <h3 style="font-size:22px">Vill ditt företag synas här?</h3>
+          <p>Skapa en gratis profil och nå andra företagare och kunder.</p>
+          <a href="/foretag/konto/" class="btn btn-bright push">Skapa företagsprofil</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Företagstjänster -->
+  <section class="wrap section" style="display:flex;flex-wrap:wrap;gap:40px">
+    <div class="stack" style="flex:1 1 320px;min-width:0">
+      <span class="eyebrow">Företagstjänster</span>
+      <h2 class="h2">Hitta rätt hjälp för ditt företag</h2>
+      <p class="lead" style="margin:0">Leverantörer som är vana vid nystartade. Kontakta dem direkt.</p>
+      <div><a href="/foretagstjanster/" class="btn btn-outline">Alla tjänster</a></div>
+    </div>
+    <div class="grid" style="flex:2 1 560px;min-width:0">
+      {services.map((s) => <ServiceCard s={s} />)}
+    </div>
+  </section>
+
+  <!-- Mer att läsa -->
+  {more.length > 0 && (
+    <section class="soft">
+      <div class="wrap section">
+        <div class="section-head">
+          <h2 class="h2">Mer att läsa</h2>
+          <a href="/artiklar/" style="font-weight:600">Alla artiklar →</a>
+        </div>
+        <div class="grid">
+          {more.map((p) => <ArticleCard post={p} showIngress />)}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <!-- Partners -->
+  <section class="wrap partners" aria-label="Samarbetspartners">
+    <span class="muted" style="font-weight:600">I samarbete med</span>
+    {PARTNERS.map((p) => <span class="p">{p}</span>)}
+  </section>
+
+  <Newsletter />
+</Base>

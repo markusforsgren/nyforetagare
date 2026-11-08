@@ -2,8 +2,10 @@
 import Base from '../layouts/Base.astro';
 import ServiceCard from '../components/ServiceCard.astro';
 import { SERVICES } from '../config';
+import { getCompanies, asService } from '../lib/companies';
 
-const services = [...SERVICES].sort((a, b) => Number(b.utvald) - Number(a.utvald));
+const dbServices = (await getCompanies()).filter((c) => c.tjanstekategori).map(asService);
+const services = [...SERVICES, ...dbServices].sort((a, b) => Number(b.utvald) - Number(a.utvald));
 const categories = [...new Set(services.map((s) => s.category))];
 ---
 <Base title="Företagstjänster" description="Hitta leverantörer som är vana vid nystartade företag.">
@@ -20,9 +22,9 @@ const categories = [...new Set(services.map((s) => s.category))];
     <div class="wrap section split">
       <div class="stack">
         <h2 class="h2">Erbjuder du tjänster till företagare?</h2>
-        <p class="lead" style="margin:0">Bli listad här och nå nystartade som letar efter hjälp.</p>
+        <p class="lead" style="margin:0">Skapa en företagsprofil, välj vilken tjänst du erbjuder och syns här för nystartade som letar efter hjälp.</p>
       </div>
-      <div><a href="/lista-ditt-foretag/" class="btn btn-dark">Anmäl ditt företag</a></div>
+      <div><a href="/foretag/konto/" class="btn btn-dark">Skapa företagsprofil</a></div>
     </div>
   </section>
 </Base>
