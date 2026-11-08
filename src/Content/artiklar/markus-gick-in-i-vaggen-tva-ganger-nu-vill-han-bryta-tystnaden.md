@@ -6,7 +6,7 @@ ort: Falun
 datum: 2026-11-08
 skribent: Markus Forsgren
 bild: /img/uploads/markus-gick-in-i-vaggen-tva-ganger-nu-vill-han-bryta-tystnad-1794170393467.jpg
-utkast: true
+utkast: false
 skapad_av: muran_92@hotmail.com
 ---
 
