@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompanyCard from '../../components/CompanyCard.astro';
+import { getCompanies, placeOf, type Company } from '../../lib/companies';
+import { lanName } from '../../config';
+
+export async function getStaticPaths() {
+  const companies = await getCompanies();
+  return companies.map((c) => ({ params: { slug: c.slug }, props: { c, companies } }));
+}
+
+const { c, companies } = Astro.props as { c: Company; companies: Company[] };
+const paragraphs = (c.beskrivning || '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+const web = c.webbplats?.replace(/^https?:\/\//, '').replace(/\/$/, '');
+const related = companies.filter((x) => x.id !== c.id && x.lan && x.lan === c.lan).slice(0, 3);
+const initials = c.namn.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+---
+<Base title={c.namn} description={c.kort || `${c.namn} på Nyföretagare`} image={c.logo_url || undefined}>
+  <div class="wrap profile">
+    <a href="/foretag/" class="back">← Alla företag</a>
+    <header class="profile-head">
+      {c.logo_url
+        ? <img src={c.logo_url} alt={`${c.namn} logotyp`} class="plogo" />
+        : <span class="plogo clogo-ph" aria-hidden="true">{initials}</span>}
+      <div class="stack" style="gap:8px">
+        <h1>{c.namn}</h1>
+        <p class="muted" style="margin:0;font-size:16px">{[c.bransch, placeOf(c)].filter(Boolean).join(' · ')}</p>
+        {c.kort && <p class="lead" style="margin:0">{c.kort}</p>}
+      </div>
+    </header>
+
+    <div class="profile-body">
+      <div class="prose">
+        {paragraphs.length > 0 ? paragraphs.map((p) => <p>{p}</p>) : <p class="muted">Företaget har inte lagt till någon beskrivning ännu.</p>}
+
+        {c.tjanster.length > 0 && (
+          <>
+            <h2>Det här erbjuder vi</h2>
+            <div class="chips">{c.tjanster.map((t) => <span>{t}</span>)}</div>
+          </>
+        )}
+      </div>
+
+      <aside class="card bordered contact">
+        <h2 style="font-size:20px">Kontakt</h2>
+        {c.epost && <a href={`mailto:${c.epost}?subject=${encodeURIComponent('Kontakt via Nyföretagare')}`} class="btn btn-primary">Mejla {c.namn.length > 18 ? 'företaget' : c.namn}</a>}
+        {c.telefon && <a href={`tel:${c.telefon.replace(/[^\d+]/g, '')}`} class="btn btn-outline">Ring {c.telefon}</a>}
+        {web && <a href={c.webbplats!} rel="noopener nofollow" target="_blank" class="linklike">{web} ↗</a>}
+        <a href={`/community/chatt/?till=${c.owner_id}`} class="btn btn-outline">Skicka meddelande</a>
+        <p class="hint" style="margin:0">Meddelanden kan skickas av medlemmar i communityn.</p>
+        {c.tjanstekategori && <p class="muted" style="margin:0">Finns i tjänstekatalogen under <a href="/foretagstjanster/">{c.tjanstekategori}</a>.</p>}
+        {c.lan && <p class="muted" style="margin:0">Fler företag i <a href={`/lan/${c.lan}/`}>{lanName(c.lan)}</a>.</p>}
+      </aside>
+    </div>
+
+    {related.length > 0 && (
+      <section style="padding:48px 0 64px">
+        <h2 class="h2" style="font-size:24px;margin-bottom:20px">Fler företag i {lanName(c.lan!)}</h2>
+        <div class="grid">{related.map((x) => <CompanyCard c={x} />)}</div>
+      </section>
+    )}
+  </div>
+</Base>

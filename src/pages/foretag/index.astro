@@ -1,0 +1,65 @@
+---
+import Base from '../../layouts/Base.astro';
+import CompanyCard from '../../components/CompanyCard.astro';
+import { getCompanies } from '../../lib/companies';
+import { LAN } from '../../config';
+
+const companies = await getCompanies();
+const lanWithCompanies = LAN.filter((l) => companies.some((c) => c.lan === l.slug));
+---
+<Base title="Företag" description="Företag och företagare som syns på Nyföretagare.">
+  <div class="wrap page-head">
+    <div class="lan-head">
+      <div class="stack" style="gap:10px">
+        <span class="eyebrow">Företag</span>
+        <h1>Företagen på Nyföretagare</h1>
+        <p class="lead" style="margin:0">Hitta företag nära dig, nya kunder och samarbetspartners.</p>
+      </div>
+      <a href="/foretag/konto/" class="btn btn-primary">Skapa företagsprofil</a>
+    </div>
+  </div>
+
+  <div class="wrap" style="padding-bottom:64px">
+    {companies.length > 0 ? (
+      <>
+        <div class="adm-filters" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px">
+          <label class="sr-only" for="f-lan">Län</label>
+          <select id="f-lan" class="filter-select">
+            <option value="">Alla län</option>
+            {lanWithCompanies.map((l) => <option value={l.slug}>{l.name}</option>)}
+          </select>
+          <label class="sr-only" for="f-q">Sök</label>
+          <input id="f-q" class="filter-select" type="search" placeholder="Sök företag eller bransch" />
+        </div>
+        <div class="grid" id="c-grid">{companies.map((c) => <CompanyCard c={c} />)}</div>
+        <p id="c-empty" class="lead" hidden>Inga företag matchar sökningen.</p>
+      </>
+    ) : (
+      <div class="empty">
+        <h2 class="h2" style="font-size:24px">Bli ett av de första företagen här</h2>
+        <p style="margin:0">Skapa en gratis profil och syns för kunder och andra företagare i ditt län.</p>
+        <div class="chips-row"><a href="/foretag/konto/" class="btn btn-primary">Skapa företagsprofil</a></div>
+      </div>
+    )}
+  </div>
+
+  <script>
+    const lan = document.getElementById('f-lan') as HTMLSelectElement | null;
+    const q = document.getElementById('f-q') as HTMLInputElement | null;
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('#c-grid .ccard'));
+    function filter() {
+      const l = lan?.value || '';
+      const t = (q?.value || '').trim().toLowerCase();
+      let shown = 0;
+      cards.forEach((c) => {
+        const ok = (!l || c.dataset.lan === l) && (!t || c.textContent!.toLowerCase().includes(t));
+        c.hidden = !ok;
+        if (ok) shown++;
+      });
+      const empty = document.getElementById('c-empty');
+      if (empty) empty.hidden = shown > 0;
+    }
+    lan?.addEventListener('change', filter);
+    q?.addEventListener('input', filter);
+  </script>
+</Base>
