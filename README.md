@@ -102,7 +102,7 @@ Så funkar det: inloggning och roller sköts av **Supabase**. När någon sparar
 | `SUPABASE_ANON_KEY` | anon public key |
 | `SUPABASE_SERVICE_ROLE_KEY` | service_role key (hemlig!) |
 | `GITHUB_TOKEN` | tokenen från steg B (hemlig!) |
-| `GITHUB_REPO` | `ditt-github-namn/nyforetagare` |
+| `GITHUB_REPO` | `ditt-github-namn/repo-namn` (inte markerad som hemlig) |
 | `GITHUB_BRANCH` | `main` |
 | `ARTICLES_DIR` | `src/Content/artiklar` (exakt som mappen heter i repot) |
 
@@ -133,6 +133,49 @@ Supabase inbyggda e-post klarar bara ett fåtal mejl i timmen. Räcker för reda
 - Utkast och bilduppladdningar startar ingen ny publicering på Netlify (sparar byggminuter).
 - Tjänster, företag i fokus och län ändras fortfarande i `src/config.ts`.
 
+## 8. Företagsprofiler (/foretag/)
+
+Företag skapar själva ett konto på `/foretag/konto/`, fyller i sin profil och laddar upp logga. Du godkänner i adminpanelen under fliken **Företag**. Godkända företag syns på:
+- `/foretag/` (lista med sök och länsfilter) och en egen profilsida `/foretag/<namn>/`
+- sitt läns sida (`/lan/dalarna/` osv.)
+- tjänstekatalogen, om de kryssat i att de erbjuder tjänster till andra företag
+- startsidan under "Företagare i fokus" (de som är **Utvald** först)
+
+### Engångsinställning (ca 15 min)
+
+**A. Supabase**
+1. SQL Editor → klistra in `supabase/foretag.sql` → Run. (Skapar tabellen `companies`, skydd så att företag inte kan godkänna sig själva, och lagring för loggor.)
+2. Authentication → Sign In / Providers → slå **på** *Allow new users to sign up* igen och se till att *Confirm email* är på. Nya konton kommer inte åt redaktionen – den kräver en rad i `profiles` som bara du kan skapa.
+3. Authentication → URL Configuration → Redirect URLs → lägg till `https://nyforetagare.netlify.app/**` (täcker både `/admin/` och `/foretag/konto/`).
+4. **Viktigt före lansering:** Supabase inbyggda e-post skickar bara några få mejl i timmen. Koppla en egen e-posttjänst under Authentication → Emails → SMTP Settings (t.ex. Resend eller Brevo, båda har gratisnivå). Annars får nya företag inget bekräftelsemejl när flera registrerar sig samtidigt.
+
+**B. Netlify**
+1. Site configuration → Build & deploy → **Build hooks** → Add build hook → namn `Företag` → Save. Kopiera adressen.
+2. Environment variables → lägg till `NETLIFY_BUILD_HOOK` = adressen (markera som hemlig).
+3. Kontrollera att `SUPABASE_URL` och `SUPABASE_ANON_KEY` **inte** är markerade som hemliga. De används när sajten byggs och loggornas adresser innehåller Supabase-adressen – annars stoppar Netlifys hemlighetsskanning bygget.
+4. Trigger deploy.
+
+### Så funkar det
+- Nytt företag → status **Väntar på granskning** → du klickar **Godkänn** eller **Avslå** (med anledning som företaget ser).
+- När du godkänner byggs sajten om automatiskt och profilen syns efter ca 1 minut.
+- Ett godkänt företag som ändrar sin profil → sajten byggs om automatiskt.
+- Ett avslaget företag som ändrar sin profil → hamnar i granskning igen.
+- **Utvald**: lyfts fram först under "Företagare i fokus" på startsidan.
+
+## 9. Community och chatt (/community/)
+
+- **Flöde** på `/community/`: inlägg (fråga, tips, söker samarbete, övrigt) med kommentarer. Alla kan läsa, bara medlemmar kan skriva.
+- **Chatt** på `/community/chatt/`: privata meddelanden mellan medlemmar, uppdateras i realtid. Starta från ett inlägg, en företagsprofil eller "Ny konversation".
+- **Medlem** = har en godkänd företagsprofil, eller är aktiv i redaktionen.
+- **Moderering:** medlemmar kan ta bort sina egna inlägg och kommentarer. Admin kan ta bort allt direkt i flödet.
+- **Spamspärr:** max 10 inlägg, 60 kommentarer och 200 meddelanden per person och timme.
+
+### Engångsinställning (5 min)
+1. Supabase → SQL Editor → klistra in `supabase/community.sql` → Run (efter `setup.sql` och `foretag.sql`).
+2. Supabase → Database → Publications → kontrollera att `messages` är påslagen under `supabase_realtime` (skriptet gör det, men dubbelkolla).
+
+Inget mer behövs i Netlify.
+
 ## Struktur
 
 ```
@@ -144,10 +187,15 @@ src/layouts/Base.astro     Header och footer
 src/styles/global.css      Färger och utseende
 src/pages/admin/           Adminpanelen
 netlify/functions/cms.mjs  Serverdelen för adminpanelen
-supabase/setup.sql         Databastabell för användare och roller
+supabase/setup.sql         Databastabell för redaktionens användare och roller
+supabase/foretag.sql       Databastabell och regler för företagsprofiler
+supabase/community.sql     Inlägg, kommentarer, chatt och regler
+src/pages/community/       Communityflöde och chatt
+src/pages/foretag/         Företagslista, profilsidor och företagskonto
+src/lib/companies.ts       Hämtar godkända företag när sajten byggs
 public/img/                Bilder och logga
 ```
 
 ## Inte med i den här versionen
 
-Inloggning för företag (företagsprofiler), sök, kommunfilter, forum och betalning. Det byggs i nästa fas.
+Event, betalda placeringar, notiser via e-post. Det byggs i nästa fas.
