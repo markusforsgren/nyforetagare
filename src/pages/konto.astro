@@ -1,0 +1,364 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/konto.css';
+import { LAN, TJANST_KATEGORIER } from '../../config';
+---
+<Base title="Företagskonto" description="Skapa och hantera ditt företags profil på Nyföretagare.">
+  <div class="konto wrap">
+    <div id="k-toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <p id="k-loading" class="muted">Laddar…</p>
+
+    <!-- Logga in / skapa konto -->
+    <section id="k-auth" hidden>
+      <div class="k-intro">
+        <span class="eyebrow">Gratis för företag</span>
+        <h1>Syns på Nyföretagare</h1>
+        <p class="lead">Skapa en företagsprofil och nå kunder, samarbetspartners och andra företagare i ditt län.</p>
+        <ul class="k-points">
+          <li>Egen profilsida med logga, beskrivning och kontaktuppgifter</li>
+          <li>Synlig på ditt läns sida och i företagslistan</li>
+          <li>Erbjuder du tjänster till andra företag? Syns i tjänstekatalogen</li>
+        </ul>
+      </div>
+      <div class="card bordered k-box">
+        <div class="k-tabs" role="tablist">
+          <button type="button" role="tab" data-ktab="register" aria-selected="true">Skapa konto</button>
+          <button type="button" role="tab" data-ktab="login" aria-selected="false">Logga in</button>
+        </div>
+        <form id="f-register" class="form">
+          <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
+          <label>Lösenord <span class="hint">(minst 10 tecken)</span><input type="password" name="password" required minlength="10" autocomplete="new-password" /></label>
+          <label class="k-check"><input type="checkbox" name="ok" required /> <span>Jag godkänner att Nyföretagare sparar uppgifterna för att visa vår profil. <a href="/integritet/">Läs mer</a></span></label>
+          <button class="btn btn-primary" type="submit">Skapa konto</button>
+        </form>
+        <form id="f-login" class="form" hidden>
+          <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
+          <label>Lösenord<input type="password" name="password" required autocomplete="current-password" /></label>
+          <button class="btn btn-primary" type="submit">Logga in</button>
+          <button class="k-link" type="button" id="b-forgot">Glömt lösenordet?</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Bekräfta e-post -->
+    <section id="k-check" class="card bordered k-narrow" hidden>
+      <h1>Kolla din e-post</h1>
+      <p class="lead" style="margin:0">Vi har skickat en länk till <strong id="k-check-email"></strong>. Klicka på den för att aktivera kontot och fortsätta med din profil.</p>
+      <p class="muted" style="margin:0">Hittar du inget mejl? Kolla skräpposten.</p>
+    </section>
+
+    <!-- Nytt lösenord -->
+    <section id="k-setpw" class="card bordered k-narrow" hidden>
+      <h1>Välj nytt lösenord</h1>
+      <form id="f-setpw" class="form">
+        <label>Nytt lösenord<input type="password" name="p1" required minlength="10" autocomplete="new-password" /></label>
+        <label>Upprepa lösenord<input type="password" name="p2" required minlength="10" autocomplete="new-password" /></label>
+        <button class="btn btn-primary" type="submit">Spara lösenord</button>
+      </form>
+    </section>
+
+    <!-- Profilen -->
+    <section id="k-app" hidden>
+      <div class="k-head">
+        <div>
+          <span class="eyebrow">Företagskonto</span>
+          <h1 id="k-title">Din företagsprofil</h1>
+          <p class="muted" style="margin:0" id="k-user"></p>
+        </div>
+        <div class="k-head-actions">
+          <a id="k-view" class="btn btn-outline" target="_blank" rel="noopener" hidden>Visa profilen ↗</a>
+          <button type="button" class="k-link" id="b-logout">Logga ut</button>
+        </div>
+      </div>
+
+      <div id="k-status" class="k-status" hidden></div>
+
+      <form id="f-company" class="k-grid" novalidate>
+        <div class="card bordered form k-main">
+          <label>Företagets namn *<input name="namn" required minlength="2" maxlength="120" /></label>
+          <div class="k-row">
+            <label>Bransch<input name="bransch" maxlength="80" placeholder="t.ex. Café, Bygg, Redovisning" /></label>
+            <label>Organisationsnummer <span class="hint">(visas inte)</span><input name="orgnr" maxlength="20" placeholder="556677-8899" /></label>
+          </div>
+          <div class="k-row">
+            <label>Län *
+              <select name="lan" required>
+                <option value="">Välj län</option>
+                {LAN.map((l) => <option value={l.slug}>{l.name}</option>)}
+              </select>
+            </label>
+            <label>Ort<input name="ort" maxlength="80" placeholder="t.ex. Falun" /></label>
+          </div>
+          <label>Kort beskrivning * <span class="hint" id="kort-count">0/300</span>
+            <textarea name="kort" rows="2" required maxlength="300" placeholder="En eller två meningar om vad ni gör. Visas på korten."></textarea>
+          </label>
+          <label>Om företaget <span class="hint">(tom rad = nytt stycke)</span>
+            <textarea name="beskrivning" rows="8" maxlength="3000" placeholder="Berätta mer: vilka ni är, vad ni gör och för vem."></textarea>
+          </label>
+          <label>Det här erbjuder vi <span class="hint">(separera med komma)</span>
+            <input name="tjanster" maxlength="400" placeholder="t.ex. Hemsidor, SEO, Logotyper" />
+          </label>
+          <label class="k-check"><input type="checkbox" name="erbjuder" /> <span>Vi erbjuder tjänster till andra företag (syns i tjänstekatalogen)</span></label>
+          <label id="row-kat" hidden>Kategori i tjänstekatalogen
+            <select name="tjanstekategori">
+              {TJANST_KATEGORIER.map((k) => <option value={k}>{k}</option>)}
+            </select>
+          </label>
+        </div>
+
+        <aside class="card bordered form k-side">
+          <div class="k-logo">
+            <span class="k-lbl">Logga</span>
+            <img id="k-logo-img" alt="" hidden />
+            <span id="k-logo-ph" class="clogo clogo-ph" aria-hidden="true">?</span>
+            <label class="btn btn-outline btn-sm k-file">Välj bild<input type="file" id="k-file" accept="image/png,image/jpeg,image/webp" hidden /></label>
+            <button type="button" class="k-link" id="b-logo-rm" hidden>Ta bort</button>
+            <input type="hidden" name="logo_url" />
+          </div>
+          <label>Webbplats<input name="webbplats" type="url" maxlength="200" placeholder="https://" /></label>
+          <label>E-post för kunder<input name="epost" type="email" maxlength="200" /></label>
+          <label>Telefon<input name="telefon" type="tel" maxlength="30" /></label>
+          <button class="btn btn-primary" type="submit" id="b-save">Spara profil</button>
+          <p class="hint" id="k-save-hint">Nya profiler granskas innan de syns på sajten.</p>
+        </aside>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    import { createClient, type SupabaseClient, type Session } from '@supabase/supabase-js';
+
+    const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector(s) as T;
+    const views = ['k-loading', 'k-auth', 'k-check', 'k-setpw', 'k-app'];
+    const show = (id: string) => views.forEach((v) => ($('#' + v).hidden = v !== id));
+    let tt: number | undefined;
+    function toast(msg: string, kind: 'ok' | 'err' = 'ok') {
+      const t = $('#k-toast');
+      t.textContent = msg; t.className = 'toast ' + kind; t.hidden = false;
+      clearTimeout(tt); tt = window.setTimeout(() => (t.hidden = true), kind === 'err' ? 7000 : 4000);
+    }
+    const busy = (b: HTMLButtonElement, on: boolean) => { b.disabled = on; b.style.opacity = on ? '.6' : ''; };
+
+    let sb: SupabaseClient;
+    let session: Session | null = null;
+    let company: Record<string, any> | null = null;
+    let needPw = /type=recovery/.test(location.hash);
+
+    // ---------- Start ----------
+    async function start() {
+      try {
+        const r = await fetch('/api/cms');
+        const cfg = await r.json();
+        if (!r.ok) throw new Error(cfg.error);
+        sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, { auth: { flowType: 'implicit', detectSessionInUrl: true, persistSession: true } });
+      } catch (e: any) {
+        $('#k-loading').textContent = 'Företagskonton är inte aktiverade än. Försök igen senare.';
+        return;
+      }
+      sb.auth.onAuthStateChange((ev) => { if (ev === 'PASSWORD_RECOVERY') { needPw = true; show('k-setpw'); } });
+      const { data } = await sb.auth.getSession();
+      session = data.session;
+      if (session && needPw) return show('k-setpw');
+      if (session) return enterApp();
+      show('k-auth');
+    }
+
+    // ---------- Flikar ----------
+    document.querySelectorAll<HTMLButtonElement>('[data-ktab]').forEach((b) => b.addEventListener('click', () => {
+      document.querySelectorAll('[data-ktab]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+      $('#f-register').hidden = b.dataset.ktab !== 'register';
+      $('#f-login').hidden = b.dataset.ktab !== 'login';
+    }));
+
+    // ---------- Konto ----------
+    $('#f-register').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      busy(btn, true);
+      const email = f.email.value.trim();
+      const { data, error } = await sb.auth.signUp({ email, password: f.password.value, options: { emailRedirectTo: `${location.origin}/foretag/konto/` } });
+      busy(btn, false);
+      if (error) return toast(/registered|exists/i.test(error.message) ? 'Det finns redan ett konto med den adressen. Logga in i stället.' : error.message, 'err');
+      if (data.session) { session = data.session; return enterApp(); }
+      $('#k-check-email').textContent = email;
+      show('k-check');
+    });
+
+    $('#f-login').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      const btn = f.querySelector('button[type=submit]') as HTMLButtonElement;
+      busy(btn, true);
+      const { data, error } = await sb.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+      busy(btn, false);
+      if (error) return toast(/confirm/i.test(error.message) ? 'Bekräfta din e-post först via länken vi skickade.' : 'Fel e-post eller lösenord.', 'err');
+      session = data.session;
+      enterApp();
+    });
+
+    $('#b-forgot').addEventListener('click', async () => {
+      const email = ($('#f-login') as HTMLFormElement).email.value.trim();
+      if (!email) return toast('Skriv din e-post först.', 'err');
+      await sb.auth.resetPasswordForEmail(email, { redirectTo: `${location.origin}/foretag/konto/` });
+      toast('Om kontot finns får du ett mejl med en länk för att välja nytt lösenord.');
+    });
+
+    $('#f-setpw').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target as HTMLFormElement;
+      if (f.p1.value !== f.p2.value) return toast('Lösenorden är inte lika.', 'err');
+      const { error } = await sb.auth.updateUser({ password: f.p1.value });
+      if (error) return toast(error.message, 'err');
+      needPw = false;
+      toast('Lösenordet är sparat.');
+      enterApp();
+    });
+
+    $('#b-logout').addEventListener('click', async () => { await sb.auth.signOut(); company = null; show('k-auth'); });
+
+    // ---------- Profil ----------
+    const form = $('#f-company') as HTMLFormElement;
+    const STATUS: Record<string, [string, string]> = {
+      pending: ['k-pending', 'Din profil granskas. Den syns på sajten så snart den är godkänd, oftast inom ett dygn.'],
+      approved: ['k-approved', 'Din profil är publicerad. Ändringar du sparar syns på sajten inom några minuter.'],
+      rejected: ['k-rejected', 'Profilen godkändes inte.'],
+    };
+
+    async function enterApp() {
+      history.replaceState(null, '', '/foretag/konto/');
+      const { data: u } = await sb.auth.getUser();
+      if (!u.user) return show('k-auth');
+      $('#k-user').textContent = `Inloggad som ${u.user.email}`;
+      const { data, error } = await sb.from('companies').select('*').eq('owner_id', u.user.id).maybeSingle();
+      if (error && error.code !== 'PGRST116') { toast('Kunde inte hämta profilen: ' + error.message, 'err'); }
+      company = data;
+      fill(u.user.email || '');
+      show('k-app');
+    }
+
+    function fill(email: string) {
+      form.reset();
+      const c = company || {};
+      for (const k of ['namn', 'bransch', 'orgnr', 'lan', 'ort', 'kort', 'beskrivning', 'webbplats', 'telefon']) form[k].value = c[k] ?? '';
+      form.epost.value = c.epost ?? email;
+      form.tjanster.value = (c.tjanster || []).join(', ');
+      form.erbjuder.checked = !!c.tjanstekategori;
+      if (c.tjanstekategori) form.tjanstekategori.value = c.tjanstekategori;
+      $('#row-kat').hidden = !form.erbjuder.checked;
+      setLogo(c.logo_url || '');
+      updateCount();
+      $('#k-title').textContent = company ? c.namn : 'Skapa din företagsprofil';
+      $('#b-save').textContent = company ? 'Spara ändringar' : 'Skicka in profil';
+      const st = $('#k-status');
+      if (company) {
+        const [cls, text] = STATUS[c.status] || STATUS.pending;
+        st.className = 'k-status ' + cls;
+        st.textContent = text + (c.status === 'rejected' && c.avslag_orsak ? ` Anledning: ${c.avslag_orsak}. Ändra och spara så granskas den igen.` : c.status === 'rejected' ? ' Ändra och spara så granskas den igen.' : '');
+        st.hidden = false;
+      } else st.hidden = true;
+      const view = $('#k-view') as HTMLAnchorElement;
+      view.hidden = !(company && c.status === 'approved');
+      if (company) view.href = `/foretag/${c.slug}/`;
+      $('#k-save-hint').textContent = company?.status === 'approved' ? 'Ändringar syns på sajten inom några minuter.' : 'Nya profiler granskas innan de syns på sajten.';
+    }
+
+    form.erbjuder.addEventListener('change', () => ($('#row-kat').hidden = !form.erbjuder.checked));
+    const updateCount = () => ($('#kort-count').textContent = `${form.kort.value.length}/300`);
+    form.kort.addEventListener('input', updateCount);
+
+    function setLogo(url: string, preview?: string) {
+      form.logo_url.value = url;
+      const img = $('#k-logo-img') as HTMLImageElement;
+      img.hidden = !url;
+      if (url) img.src = preview || url;
+      $('#k-logo-ph').hidden = !!url;
+      $('#k-logo-ph').textContent = (form.namn.value || '?').slice(0, 1).toUpperCase();
+      $('#b-logo-rm').hidden = !url;
+    }
+
+    async function resize(file: File, max = 512): Promise<Blob> {
+      const url = URL.createObjectURL(file);
+      try {
+        const img = await new Promise<HTMLImageElement>((ok, bad) => { const i = new Image(); i.onload = () => ok(i); i.onerror = bad; i.src = url; });
+        const s = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+        c.getContext('2d')!.drawImage(img, 0, 0, c.width, c.height);
+        return await new Promise<Blob>((ok) => c.toBlob((b) => ok(b!), 'image/png'));
+      } finally { URL.revokeObjectURL(url); }
+    }
+
+    $('#k-file').addEventListener('change', async (ev) => {
+      const input = ev.target as HTMLInputElement;
+      const file = input.files?.[0];
+      input.value = '';
+      if (!file) return;
+      if (!/^image\/(png|jpeg|webp)$/.test(file.type)) return toast('Välj en PNG, JPG eller WebP.', 'err');
+      toast('Laddar upp logga…');
+      try {
+        const blob = await resize(file);
+        const { data: u } = await sb.auth.getUser();
+        const path = `${u.user!.id}/${Date.now()}.png`;
+        const { error } = await sb.storage.from('logos').upload(path, blob, { contentType: 'image/png', cacheControl: '31536000' });
+        if (error) throw error;
+        const { data } = sb.storage.from('logos').getPublicUrl(path);
+        setLogo(data.publicUrl, URL.createObjectURL(blob));
+        toast('Loggan är uppladdad. Kom ihåg att spara.');
+      } catch (e: any) { toast('Kunde inte ladda upp: ' + (e.message || e), 'err'); }
+    });
+    $('#b-logo-rm').addEventListener('click', () => setLogo(''));
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const req: [string, string][] = [['namn', 'Företagets namn'], ['lan', 'Län'], ['kort', 'Kort beskrivning']];
+      for (const [k, label] of req) if (!String(form[k].value).trim()) { form[k].focus(); return toast(`${label} saknas.`, 'err'); }
+      let web = form.webbplats.value.trim();
+      if (web && !/^https?:\/\//i.test(web)) web = 'https://' + web;
+      const tjanster = form.tjanster.value.split(',').map((t: string) => t.trim()).filter(Boolean).slice(0, 12).map((t: string) => t.slice(0, 40));
+      const row = {
+        namn: form.namn.value.trim(),
+        bransch: form.bransch.value.trim() || null,
+        orgnr: form.orgnr.value.trim() || null,
+        lan: form.lan.value || null,
+        ort: form.ort.value.trim() || null,
+        kort: form.kort.value.trim(),
+        beskrivning: form.beskrivning.value.trim() || null,
+        tjanster,
+        tjanstekategori: form.erbjuder.checked ? form.tjanstekategori.value : null,
+        webbplats: web || null,
+        epost: form.epost.value.trim() || null,
+        telefon: form.telefon.value.trim() || null,
+        logo_url: form.logo_url.value || null,
+      };
+      const btn = $('#b-save') as HTMLButtonElement;
+      busy(btn, true);
+      try {
+        const { data: u } = await sb.auth.getUser();
+        const q = company
+          ? sb.from('companies').update(row).eq('id', company.id).select().single()
+          : sb.from('companies').insert({ ...row, owner_id: u.user!.id }).select().single();
+        const { data, error } = await q;
+        if (error) throw error;
+        const wasNew = !company;
+        company = data;
+        fill(u.user!.email || '');
+        if (company!.status === 'approved') {
+          // Bygg om sajten så att ändringen syns
+          const { data: s } = await sb.auth.getSession();
+          fetch('/api/cms', { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${s.session?.access_token}` }, body: JSON.stringify({ action: 'companyChanged' }) }).catch(() => {});
+          toast('Sparat! Ändringarna syns på sajten inom några minuter.');
+        } else {
+          toast(wasNew ? 'Tack! Profilen är inskickad och granskas nu.' : 'Sparat.');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (e: any) {
+        const m = String(e.message || e);
+        toast(/check constraint.*webbplats/.test(m) ? 'Webbplatsen måste börja med https://' : /epost/.test(m) ? 'Ogiltig e-postadress.' : 'Kunde inte spara: ' + m, 'err');
+      } finally { busy(btn, false); }
+    });
+
+    start();
+  </script>
+</Base>
