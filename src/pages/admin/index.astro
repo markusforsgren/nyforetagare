@@ -56,6 +56,7 @@ const taxonomy = JSON.stringify({
       <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="32" height="30" /><span>Redaktion</span></a>
       <nav class="adm-tabs" aria-label="Redaktionen">
         <button type="button" data-tab="articles" aria-current="page">Artiklar</button>
+        <button type="button" data-tab="companies" id="tab-companies" hidden>Företag <span id="pending-count" class="count" hidden></span></button>
         <button type="button" data-tab="users" id="tab-users" hidden>Användare</button>
       </nav>
       <div class="adm-me">
@@ -162,6 +163,24 @@ const taxonomy = JSON.stringify({
           </aside>
         </div>
       </form>
+
+      <!-- Företag -->
+      <div id="p-companies" hidden>
+        <div class="adm-head">
+          <h1>Företag</h1>
+          <a href="/foretag/" target="_blank" rel="noopener" class="linkbtn">Visa företagssidan ↗</a>
+        </div>
+        <div class="adm-filters">
+          <label class="sr-only" for="c-status">Status</label>
+          <select id="c-status">
+            <option value="pending">Väntar på granskning</option>
+            <option value="approved">Godkända</option>
+            <option value="rejected">Ej godkända</option>
+            <option value="">Alla</option>
+          </select>
+        </div>
+        <div id="c-list" class="c-list"><p class="muted">Laddar…</p></div>
+      </div>
 
       <!-- Användare -->
       <div id="p-users" hidden>
@@ -288,6 +307,8 @@ const taxonomy = JSON.stringify({
       const roll = me!.roll === 'admin' ? 'Admin' : 'Redaktör';
       $('#me-name').textContent = `${me!.namn || me!.email} · ${roll}${me!.lan.length ? ' · ' + me!.lan.map(lanName).join(', ') : ''}`;
       $('#tab-users').hidden = me!.roll !== 'admin';
+      $('#tab-companies').hidden = me!.roll !== 'admin';
+      if (me!.roll === 'admin') loadCompanies(true);
       $('#row-top').hidden = me!.roll !== 'admin';
       $('#b-delete').dataset.allowed = me!.roll === 'admin' ? '1' : '';
       if (me!.lan.length === 1) ($('#flt-lan') as HTMLSelectElement).value = me!.lan[0];
@@ -343,6 +364,8 @@ const taxonomy = JSON.stringify({
       $('#p-list').hidden = tab !== 'articles';
       $('#p-edit').hidden = true;
       $('#p-users').hidden = tab !== 'users';
+      $('#p-companies').hidden = tab !== 'companies';
+      if (tab === 'companies') loadCompanies();
       if (tab === 'articles') loadList();
       if (tab === 'users') loadUsers();
     }
@@ -427,6 +450,7 @@ const taxonomy = JSON.stringify({
       setPreview(false);
       $('#p-list').hidden = true;
       $('#p-users').hidden = true;
+      $('#p-companies').hidden = true;
       $('#p-edit').hidden = false;
       window.scrollTo(0, 0);
 
@@ -703,6 +727,83 @@ const taxonomy = JSON.stringify({
         f.reset();
         loadUsers();
       } catch (e: any) { toast(e.message, 'err'); } finally { busy(btn, false); }
+    });
+
+    // ---------- Företag ----------
+    type C = { id: string; slug: string; namn: string; bransch: string | null; orgnr: string | null; lan: string | null; ort: string | null; kort: string | null; beskrivning: string | null; tjanster: string[]; tjanstekategori: string | null; webbplats: string | null; epost: string | null; telefon: string | null; logo_url: string | null; status: string; avslag_orsak: string | null; utvald: boolean; created_at: string; konto: string };
+    let companies: C[] = [];
+    const C_STATUS: Record<string, [string, string]> = { pending: ['granskning', 'Väntar på granskning'], approved: ['publicerad', 'Godkänd'], rejected: ['utkast', 'Ej godkänd'] };
+
+    async function loadCompanies(countOnly = false) {
+      try {
+        companies = await api<C[]>('companies');
+        const n = companies.filter((c) => c.status === 'pending').length;
+        const badge = $('#pending-count');
+        badge.textContent = String(n);
+        badge.hidden = n === 0;
+        if (!countOnly) renderCompanies();
+      } catch (e: any) {
+        if (!countOnly) $('#c-list').innerHTML = `<p class="err">${esc(e.message)}</p>`;
+      }
+    }
+
+    function renderCompanies() {
+      const st = ($('#c-status') as HTMLSelectElement).value;
+      const list = companies.filter((c) => !st || c.status === st);
+      $('#c-list').innerHTML = list.length ? list.map((c) => {
+        const [cls, label] = C_STATUS[c.status] || C_STATUS.pending;
+        const logo = c.logo_url ? `<img src="${esc(c.logo_url)}" alt="" class="c-logo" />` : `<span class="c-logo c-ph">${esc(c.namn.slice(0, 1).toUpperCase())}</span>`;
+        const place = [c.ort, lanName(c.lan || '')].filter(Boolean).join(', ');
+        return `<article class="adm-card c-item" data-id="${esc(c.id)}">
+          <div class="c-top">
+            ${logo}
+            <div class="c-main">
+              <h2>${esc(c.namn)} <span class="badge-s s-${cls}">${label}</span>${c.utvald ? ' <span class="pill">Utvald</span>' : ''}</h2>
+              <p class="muted small">${esc([c.bransch, place].filter(Boolean).join(' · '))} · Konto: ${esc(c.konto)} · Registrerad ${esc(c.created_at.slice(0, 10))}</p>
+              <p>${esc(c.kort || '')}</p>
+            </div>
+            <div class="c-actions">
+              ${c.status !== 'approved' ? '<button type="button" class="btn btn-primary btn-sm" data-c="approve">Godkänn</button>' : ''}
+              ${c.status !== 'rejected' ? '<button type="button" class="btn btn-outline btn-sm" data-c="reject">Avslå</button>' : ''}
+              ${c.status === 'approved' ? `<button type="button" class="btn btn-outline btn-sm" data-c="star">${c.utvald ? 'Ta bort utvald' : 'Gör utvald'}</button><a class="linkbtn" target="_blank" rel="noopener" href="/foretag/${esc(c.slug)}/">Visa ↗</a>` : ''}
+            </div>
+          </div>
+          <details>
+            <summary>Visa hela profilen</summary>
+            <dl class="c-dl">
+              <dt>Om företaget</dt><dd>${esc(c.beskrivning || '–').replace(/\n/g, '<br>')}</dd>
+              <dt>Erbjuder</dt><dd>${esc((c.tjanster || []).join(', ') || '–')}</dd>
+              <dt>Tjänstekatalog</dt><dd>${esc(c.tjanstekategori || 'Nej')}</dd>
+              <dt>Webbplats</dt><dd>${c.webbplats ? `<a href="${esc(c.webbplats)}" target="_blank" rel="noopener nofollow">${esc(c.webbplats)}</a>` : '–'}</dd>
+              <dt>E-post / telefon</dt><dd>${esc(c.epost || '–')} · ${esc(c.telefon || '–')}</dd>
+              <dt>Org.nr</dt><dd>${esc(c.orgnr || '–')}</dd>
+              ${c.avslag_orsak ? `<dt>Avslagsorsak</dt><dd>${esc(c.avslag_orsak)}</dd>` : ''}
+            </dl>
+          </details>
+        </article>`;
+      }).join('') : '<p class="muted">Inga företag här.</p>';
+    }
+    $('#c-status').addEventListener('change', renderCompanies);
+    $('#c-list').addEventListener('click', async (ev) => {
+      const b = (ev.target as HTMLElement).closest('[data-c]') as HTMLButtonElement | null;
+      if (!b) return;
+      const id = (b.closest('[data-id]') as HTMLElement).dataset.id!;
+      const c = companies.find((x) => x.id === id)!;
+      const payload: Record<string, unknown> = { id };
+      if (b.dataset.c === 'approve') payload.status = 'approved';
+      if (b.dataset.c === 'reject') {
+        const why = prompt(`Varför godkänns inte ${c.namn}? (visas för företaget)`, '');
+        if (why === null) return;
+        payload.status = 'rejected';
+        payload.avslag_orsak = why;
+      }
+      if (b.dataset.c === 'star') payload.utvald = !c.utvald;
+      busy(b, true);
+      try {
+        const r = await api<{ rebuilt: boolean }>('updateCompany', { company: payload });
+        toast(r.rebuilt ? 'Sparat. Sajten uppdateras om ca 1 minut.' : 'Sparat.');
+        loadCompanies();
+      } catch (e: any) { toast(e.message, 'err'); busy(b, false); }
     });
 
     start();
