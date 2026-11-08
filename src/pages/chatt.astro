@@ -1,0 +1,242 @@
+---
+import Base from '../../layouts/Base.astro';
+import '../../styles/community.css';
+---
+<Base title="Meddelanden" description="Privata meddelanden mellan medlemmar på Nyföretagare.">
+  <div class="wrap cm chat-page">
+    <div id="ch-toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="cm-head">
+      <div>
+        <a href="/community/" class="back">← Community</a>
+        <h1>Meddelanden</h1>
+      </div>
+    </div>
+
+    <p id="ch-loading" class="muted">Laddar…</p>
+    <div id="ch-guest" class="card bordered cm-cta" hidden>
+      <p style="margin:0">Chatten är för medlemmar med godkänd företagsprofil.</p>
+      <a href="/foretag/konto/" class="btn btn-primary">Skapa profil / logga in</a>
+    </div>
+
+    <div id="ch-app" class="chat" hidden>
+      <aside class="chat-list" aria-label="Konversationer">
+        <div class="chat-list-head">
+          <button type="button" class="btn btn-primary btn-sm" id="ch-new">+ Ny konversation</button>
+        </div>
+        <div id="ch-search" class="chat-search" hidden>
+          <label class="sr-only" for="ch-q">Sök medlem</label>
+          <input id="ch-q" type="search" placeholder="Sök företag eller namn" autocomplete="off" />
+          <div id="ch-results" class="chat-results"></div>
+        </div>
+        <div id="ch-convs" class="chat-convs"></div>
+      </aside>
+
+      <section class="chat-thread" aria-live="polite">
+        <div id="ch-empty" class="chat-empty"><p class="muted">Välj en konversation eller starta en ny.</p></div>
+        <div id="ch-active" hidden>
+          <header class="chat-thread-head">
+            <button type="button" class="chat-back" id="ch-back" aria-label="Tillbaka till konversationer">←</button>
+            <span id="ch-who"></span>
+          </header>
+          <div id="ch-msgs" class="chat-msgs"></div>
+          <form id="ch-form" class="chat-form">
+            <label class="sr-only" for="ch-text">Skriv ett meddelande</label>
+            <textarea id="ch-text" rows="1" maxlength="2000" placeholder="Skriv ett meddelande…" required></textarea>
+            <button type="submit" class="btn btn-primary">Skicka</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    import { getSupabase, getMembers, esc, richText, timeAgo, avatar, memberName, type Member } from '../../lib/supa-browser';
+    import type { SupabaseClient } from '@supabase/supabase-js';
+
+    const $ = <T extends HTMLElement = HTMLElement>(s: string) => document.querySelector(s) as T;
+    let tt: number | undefined;
+    function toast(msg: string, kind: 'ok' | 'err' = 'ok') {
+      const t = $('#ch-toast'); t.textContent = msg; t.className = 'toast ' + kind; t.hidden = false;
+      clearTimeout(tt); tt = window.setTimeout(() => (t.hidden = true), kind === 'err' ? 6000 : 3000);
+    }
+
+    type Msg = { id: string; sender_id: string; recipient_id: string; body: string; created_at: string; read_at: string | null };
+    let sb: SupabaseClient;
+    let me = '';
+    let current: string | null = null;
+    const members = new Map<string, Member>();
+    let all: Member[] | null = null;
+    let msgs: Msg[] = [];
+
+    async function init() {
+      const client = await getSupabase();
+      $('#ch-loading').hidden = true;
+      if (!client) { $('#ch-guest').hidden = false; return; }
+      sb = client;
+      const { data } = await sb.auth.getSession();
+      me = data.session?.user.id || '';
+      const ok = me ? (await sb.rpc('is_member', { uid: me })).data === true : false;
+      if (!ok) { $('#ch-guest').hidden = false; return; }
+      $('#ch-app').hidden = false;
+      await loadConversations();
+      const till = new URLSearchParams(location.search).get('till');
+      if (till && /^[0-9a-f-]{36}$/.test(till) && till !== me) openThread(till);
+      subscribe();
+    }
+
+    async function ensureMembers(ids: string[]) {
+      (await getMembers(sb, ids.filter((id) => !members.has(id)))).forEach((v, k) => members.set(k, v));
+    }
+
+    // ---------- Konversationslista ----------
+    async function loadConversations() {
+      const { data } = await sb.from('messages').select('*')
+        .or(`sender_id.eq.${me},recipient_id.eq.${me}`)
+        .order('created_at', { ascending: false }).limit(500);
+      msgs = (data || []) as Msg[];
+      renderConversations();
+    }
+
+    async function renderConversations() {
+      const convs = new Map<string, { last: Msg; unread: number }>();
+      for (const m of msgs) {
+        const other = m.sender_id === me ? m.recipient_id : m.sender_id;
+        const c = convs.get(other) || { last: m, unread: 0 };
+        if (new Date(m.created_at) > new Date(c.last.created_at)) c.last = m;
+        if (m.recipient_id === me && !m.read_at) c.unread++;
+        convs.set(other, c);
+      }
+      await ensureMembers([...convs.keys()]);
+      const list = [...convs.entries()].sort((a, b) => b[1].last.created_at.localeCompare(a[1].last.created_at));
+      $('#ch-convs').innerHTML = list.length
+        ? list.map(([id, c]) => {
+            const m = members.get(id);
+            const preview = (c.last.sender_id === me ? 'Du: ' : '') + c.last.body;
+            return `<button type="button" class="conv${id === current ? ' active' : ''}" data-user="${id}">
+              ${avatar(m, 40)}
+              <span class="conv-main"><span class="conv-name">${esc(m?.namn || 'Tidigare medlem')}</span><span class="conv-prev">${esc(preview.slice(0, 70))}</span></span>
+              <span class="conv-side"><span class="muted small">${timeAgo(c.last.created_at)}</span>${c.unread ? `<span class="unread">${c.unread}</span>` : ''}</span>
+            </button>`;
+          }).join('')
+        : '<p class="muted small" style="padding:16px;margin:0">Inga konversationer än. Starta en ny eller skicka ett meddelande från ett inlägg eller en företagsprofil.</p>';
+    }
+
+    $('#ch-convs').addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest('[data-user]') as HTMLElement | null;
+      if (b) openThread(b.dataset.user!);
+    });
+
+    // ---------- Tråd ----------
+    async function openThread(other: string) {
+      current = other;
+      await ensureMembers([other]);
+      const m = members.get(other);
+      if (!m) { toast('Medlemmen finns inte eller är inte längre aktiv.', 'err'); current = null; return; }
+      history.replaceState(null, '', `/community/chatt/?till=${other}`);
+      $('#ch-who').innerHTML = `${avatar(m, 36)} <span>${memberName(m)}${m.bransch ? `<span class="muted small" style="display:block">${esc(m.bransch)}</span>` : ''}</span>`;
+      $('#ch-empty').hidden = true;
+      $('#ch-active').hidden = false;
+      document.querySelector('.chat')!.classList.add('show-thread');
+      const { data } = await sb.from('messages').select('*')
+        .or(`and(sender_id.eq.${me},recipient_id.eq.${other}),and(sender_id.eq.${other},recipient_id.eq.${me})`)
+        .order('created_at', { ascending: true }).limit(300);
+      const thread = (data || []) as Msg[];
+      $('#ch-msgs').innerHTML = thread.map(bubble).join('') || '<p class="muted small chat-hint">Skriv första meddelandet.</p>';
+      scrollDown();
+      ($('#ch-text') as HTMLTextAreaElement).focus({ preventScroll: true });
+      markRead(other);
+      renderConversations();
+    }
+
+    function bubble(m: Msg) {
+      const mine = m.sender_id === me;
+      return `<div class="bubble ${mine ? 'mine' : 'theirs'}"><div class="bubble-body">${richText(m.body)}</div><span class="bubble-time">${timeAgo(m.created_at)}</span></div>`;
+    }
+    const scrollDown = () => { const box = $('#ch-msgs'); box.scrollTop = box.scrollHeight; };
+
+    async function markRead(other: string) {
+      const unread = msgs.filter((m) => m.sender_id === other && m.recipient_id === me && !m.read_at);
+      if (!unread.length) return;
+      const now = new Date().toISOString();
+      await sb.from('messages').update({ read_at: now }).eq('recipient_id', me).eq('sender_id', other).is('read_at', null);
+      unread.forEach((m) => (m.read_at = now));
+      renderConversations();
+    }
+
+    $('#ch-back').addEventListener('click', () => {
+      document.querySelector('.chat')!.classList.remove('show-thread');
+      current = null;
+      history.replaceState(null, '', '/community/chatt/');
+      renderConversations();
+    });
+
+    const ta = $('#ch-text') as HTMLTextAreaElement;
+    ta.addEventListener('input', () => { ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 160) + 'px'; });
+    ta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); ($('#ch-form') as HTMLFormElement).requestSubmit(); }
+    });
+
+    $('#ch-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const body = ta.value.trim();
+      if (!body || !current) return;
+      ta.value = ''; ta.style.height = 'auto';
+      const { data, error } = await sb.from('messages').insert({ sender_id: me, recipient_id: current, body }).select().single();
+      if (error) { ta.value = body; return toast(error.message.includes('För många') ? error.message : 'Kunde inte skicka meddelandet.', 'err'); }
+      msgs.unshift(data as Msg);
+      $('#ch-msgs').querySelector('.chat-hint')?.remove();
+      $('#ch-msgs').insertAdjacentHTML('beforeend', bubble(data as Msg));
+      scrollDown();
+      renderConversations();
+    });
+
+    // ---------- Ny konversation ----------
+    $('#ch-new').addEventListener('click', async () => {
+      const s = $('#ch-search');
+      s.hidden = !s.hidden;
+      if (s.hidden) return;
+      if (!all) {
+        const { data } = await sb.from('members').select('*').order('namn').limit(1000);
+        all = ((data || []) as Member[]).filter((m) => m.user_id !== me);
+        all.forEach((m) => members.set(m.user_id, m));
+      }
+      ($('#ch-q') as HTMLInputElement).focus();
+      renderResults();
+    });
+    function renderResults() {
+      const q = ($('#ch-q') as HTMLInputElement).value.trim().toLowerCase();
+      const hits = (all || []).filter((m) => !q || `${m.namn} ${m.bransch || ''}`.toLowerCase().includes(q)).slice(0, 20);
+      $('#ch-results').innerHTML = hits.map((m) => `<button type="button" class="conv" data-pick="${m.user_id}">${avatar(m, 32)}<span class="conv-main"><span class="conv-name">${esc(m.namn)}</span><span class="conv-prev">${esc(m.bransch || '')}</span></span></button>`).join('') || '<p class="muted small" style="margin:8px 0">Inga träffar.</p>';
+    }
+    $('#ch-q').addEventListener('input', renderResults);
+    $('#ch-results').addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest('[data-pick]') as HTMLElement | null;
+      if (!b) return;
+      $('#ch-search').hidden = true;
+      openThread(b.dataset.pick!);
+    });
+
+    // ---------- Realtid ----------
+    function subscribe() {
+      sb.channel('dm-' + me)
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `recipient_id=eq.${me}` }, (payload) => {
+          const m = payload.new as Msg;
+          if (msgs.some((x) => x.id === m.id)) return;
+          msgs.unshift(m);
+          if (current === m.sender_id) {
+            $('#ch-msgs').querySelector('.chat-hint')?.remove();
+            $('#ch-msgs').insertAdjacentHTML('beforeend', bubble(m));
+            scrollDown();
+            markRead(m.sender_id);
+          } else {
+            renderConversations();
+            toast('Nytt meddelande');
+          }
+        })
+        .subscribe();
+    }
+
+    init();
+  </script>
+</Base>
