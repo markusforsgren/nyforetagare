@@ -33,7 +33,7 @@ body.adm { background: var(--bg-soft); min-height: 100vh; }
 /* Topbar */
 .adm-top { background: var(--navy); color: #fff; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; padding: 10px 24px; }
 .adm-top .adm-brand { color: #fff; }
-.adm-top .adm-brand img { background: #fff; border-radius: 6px; padding: 2px; }
+.adm-top .adm-brand img { object-fit: contain; }
 .adm-tabs { display: flex; gap: 4px; }
 .adm-tabs button { background: none; border: 0; color: #d5deea; font: inherit; font-weight: 600; padding: 10px 14px; border-radius: 8px; cursor: pointer; min-height: 44px; }
 .adm-tabs button[aria-current] { background: rgba(255,255,255,.12); color: #fff; }
@@ -56,7 +56,7 @@ body.adm { background: var(--bg-soft); min-height: 100vh; }
 .adm-table .cell { padding: 6px 8px !important; font-size: 14px !important; }
 .rowlink { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--navy); cursor: pointer; text-align: left; }
 .rowlink:hover { color: var(--blue); text-decoration: underline; }
-.pill { display: inline-block; font-size: 11px; font-weight: 700; background: var(--blue-soft); color: #0b4a8f; padding: 2px 8px; border-radius: 10px; }
+.pill { display: inline-block; font-size: 11px; font-weight: 700; background: var(--blue-soft); color: var(--blue); padding: 2px 8px; border-radius: 10px; }
 
 .badge-s { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px; white-space: nowrap; }
 .s-publicerad { background: #e3f4e8; color: #1d6b34; }
