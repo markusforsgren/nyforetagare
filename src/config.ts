@@ -57,51 +57,44 @@ export const LAN = [
 
 export const lanName = (slug?: string) => LAN.find((l) => l.slug === slug)?.name ?? '';
 
+// Kategorier i tjänstekatalogen. Företag som erbjuder tjänster till andra företag väljer en av dessa.
+export const TJANST_KATEGORIER = [
+  'Hemsida & webb',
+  'Redovisning',
+  'Marknadsföring',
+  'Juridik',
+  'Försäkring',
+  'Bank & finansiering',
+  'Tryck & profil',
+  'IT & teknik',
+  'Rekrytering & HR',
+  'Coaching & utbildning',
+  'Övrigt',
+] as const;
+
 // Företagstjänster som visas på startsidan, /foretagstjanster och länssidorna.
 // "utvald: true" lyfts fram först.
 // "lan": lista med län-slugs, eller ['hela-sverige'] för leverantörer som tar uppdrag överallt.
-export const SERVICES: {
+export type Service = {
   name: string; category: string; area: string; text: string;
   price: string; link: string; utvald: boolean; lan: string[];
-}[] = [
+  cta?: string; logo?: string;
+};
+export const SERVICES: Service[] = [
   {
     name: 'M Webbutveckling',
     category: 'Hemsida & webb',
     area: 'Hela Sverige',
     lan: ['hela-sverige'],
     text: 'Startpaket för nystartade: hemsida, domän och synlighet på Google till fast pris.',
-    price: 'Från [PRIS] kr', // TODO
+    price: '', // fyll i t.ex. 'Från 4 900 kr' så visas det på kortet
     link: 'https://mwebbutveckling.se',
     utvald: true,
   },
-  {
-    name: '[Redovisningsbyrå]',
-    category: 'Redovisning',
-    area: '[Ort]',
-    lan: ['dalarna'],
-    text: '[Kort beskrivning av erbjudandet.]',
-    price: '',
-    link: '',
-    utvald: false,
-  },
-  {
-    name: '[Marknadsbyrå]',
-    category: 'Marknadsföring',
-    area: '[Ort]',
-    lan: ['gavleborg'],
-    text: '[Kort beskrivning av erbjudandet.]',
-    price: '',
-    link: '',
-    utvald: false,
-  },
 ];
 
-// Företag som visas under "Företagare i fokus" (startsidan) och på sitt läns sida.
-// "link" kan peka på en intervju, t.ex. /artiklar/cafe-i-falun/
-export const FEATURED_COMPANIES = [
-  { name: '[Företagsnamn]', meta: 'Café · Falun', lan: 'dalarna', text: '[En mening om vad företaget gör.]', link: '' },
-  { name: '[Företagsnamn]', meta: 'Bygg · Borlänge', lan: 'dalarna', text: '[En mening om vad företaget gör.]', link: '' },
-  { name: '[Företagsnamn]', meta: 'E-handel · Gävle', lan: 'gavleborg', text: '[En mening om vad företaget gör.]', link: '' },
-];
+// Manuella företag (används bara om inga företagsprofiler finns i databasen).
+// Företag skapar numera egna profiler på /foretag/konto/.
+export const FEATURED_COMPANIES: { name: string; meta: string; lan: string; text: string; link: string }[] = [];
 
 export const PARTNERS = ['En Företagares Vardag', 'Arvikamagasinet'];
