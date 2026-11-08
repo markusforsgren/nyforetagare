@@ -17,4 +17,4 @@ Tipsa vidare, dela andras inlägg och hjälp till när du kan. Det kommer tillba
 
 ## Var synlig
 
-Berätta vad du gör, ofta och tydligt. [Lista ditt företag](/lista-ditt-foretag/) på Nyföretagare så fler hittar dig.
+Berätta vad du gör, ofta och tydligt. [Skapa en företagsprofil](/foretag/konto/) på Nyföretagare så fler hittar dig.

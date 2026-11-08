@@ -17,4 +17,4 @@ Att starta företag är roligt, men det kan också vara ensamt. Många frågor d
 
 ## Vill du vara med?
 
-[Lista ditt företag](/lista-ditt-foretag/) gratis, tipsa oss om en historia eller hör av dig om du vill driva Nyföretagare i din kommun.
+[Skapa en företagsprofil](/foretag/konto/) gratis, tipsa oss om en historia eller hör av dig om du vill driva Nyföretagare i din kommun.
