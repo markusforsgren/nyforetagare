@@ -5,6 +5,8 @@ import ServiceCard from '../../components/ServiceCard.astro';
 import LanPicker from '../../components/LanPicker.astro';
 import Newsletter from '../../components/Newsletter.astro';
 import { getPosts } from '../../lib/posts';
+import { getCompanies, asService } from '../../lib/companies';
+import CompanyCard from '../../components/CompanyCard.astro';
 import { LAN, SERVICES, FEATURED_COMPANIES } from '../../config';
 
 export async function getStaticPaths() {
@@ -13,8 +15,9 @@ export async function getStaticPaths() {
 
 const { lan } = Astro.props;
 const posts = (await getPosts()).filter((p) => p.data.lan === lan.slug);
-const companies = FEATURED_COMPANIES.filter((c) => c.lan === lan.slug);
-const services = SERVICES
+const dbCompanies = (await getCompanies()).filter((c) => c.lan === lan.slug);
+const companies = dbCompanies.length ? [] : FEATURED_COMPANIES.filter((c) => c.lan === lan.slug);
+const services = [...SERVICES, ...dbCompanies.filter((c) => c.tjanstekategori).map(asService)]
   .filter((s) => s.lan.includes(lan.slug) || s.lan.includes('hela-sverige'))
   .sort((a, b) => Number(b.utvald) - Number(a.utvald));
 ---
@@ -39,7 +42,8 @@ const services = SERVICES
         <h2 class="h2" style="font-size:24px">Inga intervjuer från {lan.name} ännu</h2>
         <p style="margin:0">Känner du en företagare här som borde synas? Tipsa oss.</p>
         <div class="chips-row">
-          <a href="/lista-ditt-foretag/" class="btn btn-primary">Tipsa om ett företag</a>
+          <a href="/foretag/konto/" class="btn btn-primary">Skapa företagsprofil</a>
+          <a href="/lista-ditt-foretag/" class="btn btn-outline">Tipsa om ett företag</a>
           {!lan.redaktor && <a href="/om-oss/#lokal-partner" class="btn btn-outline">Bli lokal partner i {lan.name}</a>}
         </div>
       </div>
@@ -47,11 +51,12 @@ const services = SERVICES
   </section>
 
   <!-- Företag -->
-  {companies.length > 0 && (
+  {(dbCompanies.length > 0 || companies.length > 0) && (
     <section class="soft">
       <div class="wrap section">
         <h2 class="h2" style="margin-bottom:24px">Företag i {lan.name}</h2>
         <div class="grid">
+          {dbCompanies.map((c) => <CompanyCard c={c} />)}
           {companies.map((f) => (
             <article class="card">
               <div class="logo-ph">Logga</div>
