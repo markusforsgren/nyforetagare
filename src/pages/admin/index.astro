@@ -14,10 +14,10 @@ const taxonomy = JSON.stringify({
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Redaktion – Nyföretagare</title>
-  <link rel="icon" type="image/png" href="/img/mark.png" />
+  <link rel="icon" type="image/png" href="/img/favicon-64.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body class="adm" data-taxonomy={taxonomy}>
 
@@ -29,7 +29,7 @@ const taxonomy = JSON.stringify({
   <!-- Inloggning -->
   <section id="v-login" class="adm-center" hidden>
     <form id="f-login" class="adm-card adm-auth">
-      <div class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="34" /><span>Nyföretagare</span></div>
+      <div class="adm-brand"><img src="/img/mark.png" alt="" width="40" height="32" /><span>Nyföretagare</span></div>
       <h1>Logga in i redaktionen</h1>
       <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
       <label>Lösenord<input type="password" name="password" required autocomplete="current-password" /></label>
@@ -41,7 +41,7 @@ const taxonomy = JSON.stringify({
   <!-- Välj lösenord (inbjudan / återställning) -->
   <section id="v-setpw" class="adm-center" hidden>
     <form id="f-setpw" class="adm-card adm-auth">
-      <div class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="34" /><span>Nyföretagare</span></div>
+      <div class="adm-brand"><img src="/img/mark.png" alt="" width="40" height="32" /><span>Nyföretagare</span></div>
       <h1>Välj ditt lösenord</h1>
       <p class="muted" style="margin:0">Minst 10 tecken.</p>
       <label>Nytt lösenord<input type="password" name="p1" required minlength="10" autocomplete="new-password" /></label>
@@ -53,7 +53,7 @@ const taxonomy = JSON.stringify({
   <!-- Appen -->
   <section id="v-app" hidden>
     <header class="adm-top">
-      <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="32" height="30" /><span>Redaktion</span></a>
+      <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="29" /><span>Redaktion</span></a>
       <nav class="adm-tabs" aria-label="Redaktionen">
         <button type="button" data-tab="articles" aria-current="page">Artiklar</button>
         <button type="button" data-tab="companies" id="tab-companies" hidden>Företag <span id="pending-count" class="count" hidden></span></button>
