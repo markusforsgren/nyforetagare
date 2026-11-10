@@ -29,7 +29,7 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
         <form id="f-register" class="form">
           <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
           <label>Lösenord <span class="hint">(minst 10 tecken)</span><input type="password" name="password" required minlength="10" autocomplete="new-password" /></label>
-          <label class="k-check"><input type="checkbox" name="ok" required /> <span>Jag godkänner att Nyföretagare sparar uppgifterna för att visa vår profil. <a href="/integritet/">Läs mer</a></span></label>
+          <label class="k-check"><input type="checkbox" name="ok" required /> <span>Jag godkänner <a href="/anvandarvillkor/" target="_blank">användarvillkoren</a> och har läst <a href="/integritetspolicy/" target="_blank">integritetspolicyn</a>.</span></label>
           <button class="btn btn-primary" type="submit">Skapa konto</button>
         </form>
         <form id="f-login" class="form" hidden>
@@ -123,6 +123,25 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
           <p class="hint" id="k-save-hint">Nya profiler granskas innan de syns på sajten.</p>
         </aside>
       </form>
+
+      <section class="card bordered k-account" aria-labelledby="k-acc-h">
+        <h2 id="k-acc-h">Ditt konto och dina uppgifter</h2>
+        <div class="k-acc-row">
+          <div>
+            <strong>Ladda ner dina uppgifter</strong>
+            <p class="muted" style="margin:4px 0 0">En fil med din profil, dina inlägg, kommentarer och meddelanden.</p>
+          </div>
+          <button type="button" class="btn btn-outline btn-sm" id="b-export">Ladda ner</button>
+        </div>
+        <div class="k-acc-row">
+          <div>
+            <strong>Radera konto</strong>
+            <p class="muted" style="margin:4px 0 0">Raderar ditt konto, din företagsprofil, logga, inlägg, kommentarer och meddelanden. Det går inte att ångra.</p>
+          </div>
+          <button type="button" class="btn btn-sm k-danger" id="b-delete-acc">Radera konto</button>
+        </div>
+        <p class="muted small" style="margin:0">Läs mer i vår <a href="/integritetspolicy/">integritetspolicy</a>.</p>
+      </section>
     </section>
   </div>
 
@@ -182,6 +201,12 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
       busy(btn, false);
       if (error) return toast(/registered|exists/i.test(error.message) ? 'Det finns redan ett konto med den adressen. Logga in i stället.' : error.message, 'err');
       if (data.session) { session = data.session; return enterApp(); }
+      // Supabase skickar inget mejl om adressen redan har ett konto (identities blir tom)
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        (document.querySelector('[data-ktab=login]') as HTMLButtonElement).click();
+        ($('#f-login') as HTMLFormElement).email.value = email;
+        return toast('Det finns redan ett konto med den adressen. Logga in med ditt lösenord.', 'err');
+      }
       $('#k-check-email').textContent = email;
       show('k-check');
     });
@@ -357,6 +382,57 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
         const m = String(e.message || e);
         toast(/check constraint.*webbplats/.test(m) ? 'Webbplatsen måste börja med https://' : /epost/.test(m) ? 'Ogiltig e-postadress.' : 'Kunde inte spara: ' + m, 'err');
       } finally { busy(btn, false); }
+    });
+
+    // ---------- Ladda ner uppgifter (dataportabilitet) ----------
+    $('#b-export').addEventListener('click', async () => {
+      const btn = $('#b-export') as HTMLButtonElement;
+      busy(btn, true);
+      try {
+        const { data: u } = await sb.auth.getUser();
+        const id = u.user!.id;
+        const [c, p, k, m] = await Promise.all([
+          sb.from('companies').select('*').eq('owner_id', id).maybeSingle(),
+          sb.from('posts').select('*').eq('author_id', id),
+          sb.from('comments').select('*').eq('author_id', id),
+          sb.from('messages').select('*').or(`sender_id.eq.${id},recipient_id.eq.${id}`),
+        ]);
+        const dump = {
+          exporterad: new Date().toISOString(),
+          konto: { id, email: u.user!.email, skapad: u.user!.created_at },
+          foretagsprofil: c.data ?? null,
+          inlagg: p.data ?? [],
+          kommentarer: k.data ?? [],
+          meddelanden: m.data ?? [],
+        };
+        const blob = new Blob([JSON.stringify(dump, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `nyforetagare-mina-uppgifter-${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      } catch (e: any) { toast('Kunde inte hämta uppgifterna.', 'err'); }
+      finally { busy(btn, false); }
+    });
+
+    // ---------- Radera konto ----------
+    $('#b-delete-acc').addEventListener('click', async () => {
+      const ans = prompt('Detta raderar ditt konto och allt du publicerat. Skriv RADERA för att bekräfta.');
+      if (ans === null) return;
+      if (ans.trim().toUpperCase() !== 'RADERA') return toast('Kontot raderades inte. Du måste skriva RADERA.', 'err');
+      const btn = $('#b-delete-acc') as HTMLButtonElement;
+      busy(btn, true);
+      try {
+        const { data: s } = await sb.auth.getSession();
+        const r = await fetch('/api/cms', { method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${s.session?.access_token}` }, body: JSON.stringify({ action: 'deleteAccount', confirm: 'RADERA' }) });
+        const body = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(body.error || 'Något gick fel.');
+        await sb.auth.signOut();
+        company = null;
+        show('k-auth');
+        toast('Ditt konto är raderat.');
+      } catch (e: any) { toast(e.message, 'err'); }
+      finally { busy(btn, false); }
     });
 
     start();
