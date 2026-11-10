@@ -153,12 +153,15 @@ const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })))
       $('#cm-more').hidden = posts.length < PAGE;
     }
 
+    const reportLink = (typ: string, id: string) =>
+      `mailto:kontakt@nyforetagare.se?subject=${encodeURIComponent(`Rapport: ${typ} ${id}`)}&body=${encodeURIComponent(`Jag vill rapportera ett ${typ} på Nyföretagare.\n\nLänk: ${location.origin}/community/#${id}\nId: ${id}\n\nVarför:\n`)}`;
+
     function postHtml(p: Post, nComments: number) {
       const m = members.get(p.author_id);
       const meta = [m?.bransch, lanName(p.lan)].filter(Boolean).join(' · ');
       const canDelete = me && (p.author_id === me || isAdmin);
       const canMsg = isMember && me && p.author_id !== me && m;
-      return `<article class="card bordered post" data-id="${p.id}" data-author="${p.author_id}">
+      return `<article class="card bordered post" id="${p.id}" data-id="${p.id}" data-author="${p.author_id}">
         <header class="post-head">
           ${avatar(m)}
           <div class="post-who">${memberName(m)}<span class="muted small">${esc(meta)}${meta ? ' · ' : ''}${timeAgo(p.created_at)}</span></div>
@@ -168,6 +171,7 @@ const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })))
         <footer class="post-actions">
           <button type="button" data-act="comments" aria-expanded="false">Kommentarer (<span class="n">${nComments}</span>)</button>
           ${canMsg ? `<a href="/community/chatt/?till=${p.author_id}">Skicka meddelande</a>` : ''}
+          ${me && p.author_id !== me ? `<a href="${reportLink('inlägg', p.id)}" class="report">Rapportera</a>` : ''}
           ${canDelete ? '<button type="button" data-act="del" class="danger">Ta bort</button>' : ''}
         </footer>
         <div class="comments" hidden></div>
@@ -183,6 +187,7 @@ const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })))
           <div>${memberName(m)} <span class="muted small">${timeAgo(c.created_at)}</span></div>
           <div class="comment-body">${richText(c.body)}</div>
           ${canDelete ? '<button type="button" data-act="cdel" class="danger small-btn">Ta bort</button>' : ''}
+          ${me && c.author_id !== me ? `<a href="${reportLink('kommentar', c.id)}" class="report small">Rapportera</a>` : ''}
         </div>
       </div>`;
     }
