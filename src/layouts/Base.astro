@@ -1,4 +1,5 @@
 ---
+import '@fontsource-variable/inter';
 import '../styles/global.css';
 import { SITE, CATEGORIES } from '../config';
 
@@ -37,12 +38,6 @@ const nav = [
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="sv_SE" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
     <div class="topbar">
@@ -104,7 +99,9 @@ const nav = [
           <a href="/om-oss/">Om oss</a>
           <a href={`mailto:${SITE.email}`}>{SITE.email}</a>
           <a href={SITE.facebook} rel="noopener">Facebook</a>
-          <a href="/integritet/">Integritet</a>
+          <a href="/anvandarvillkor/">Användarvillkor</a>
+          <a href="/integritetspolicy/">Integritetspolicy</a>
+          <a href="/cookies/">Cookies</a>
         </div>
       </div>
       <div class="wrap bottom">© {new Date().getFullYear()} Nyföretagare drivs av {SITE.company} · Org.nr {SITE.orgnr}</div>
