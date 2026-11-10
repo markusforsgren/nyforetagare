@@ -1,0 +1,27 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { SITE } from '../config';
+---
+<Legal title="Cookies" updated="10 november 2026" description="Så använder Nyföretagare cookies och lokal lagring.">
+  <p><strong>Kort sagt: vi använder inga spårnings- eller reklamcookies.</strong> Därför visar vi ingen cookiebanner.</p>
+
+  <h2>Det här lagrar vi i din webbläsare</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Namn</th><th>Typ</th><th>Syfte</th><th>Hur länge</th></tr></thead>
+      <tbody>
+        <tr><td><code>sb-…-auth-token</code></td><td>Lokal lagring</td><td>Håller dig inloggad på ditt konto. Sparas bara om du loggar in.</td><td>Tills du loggar ut</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Lagringen är nödvändig för att inloggningen ska fungera, och kräver därför inte samtycke enligt lagen om elektronisk kommunikation. Den används inte för att följa dig mellan webbplatser.</p>
+
+  <h2>Tredje part</h2>
+  <p>Vi laddar inte in typsnitt, annonser eller analysverktyg från tredje part. Typsnitt och bilder levereras från vår egen server. Länkar till andra webbplatser (t.ex. företagens egna sajter) följer deras egna cookieregler.</p>
+
+  <h2>Om vi ändrar detta</h2>
+  <p>Om vi i framtiden vill använda till exempel besöksstatistik som kräver samtycke, frågar vi dig först och uppdaterar den här sidan.</p>
+
+  <h2>Frågor</h2>
+  <p>Kontakta <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+</Legal>

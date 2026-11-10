@@ -1,0 +1,51 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { SITE } from '../config';
+---
+<Legal title="Användarvillkor" updated="10 november 2026" description="Villkor för att använda Nyföretagare.">
+  <p>De här villkoren gäller när du använder nyforetagare.se (”Nyföretagare”, ”tjänsten”). Tjänsten drivs av {SITE.company}, org.nr {SITE.orgnr} (”vi”). Genom att skapa ett konto eller använda tjänsten godkänner du villkoren.</p>
+
+  <h2>1. Tjänsten</h2>
+  <p>Nyföretagare är en mötesplats för företagare med artiklar och reportage, företagsprofiler, en tjänstekatalog, ett community med inlägg och kommentarer samt privata meddelanden mellan medlemmar. Det mesta är gratis. Vi kan ändra, lägga till eller ta bort funktioner.</p>
+
+  <h2>2. Konto</h2>
+  <ul>
+    <li>Du måste vara minst 18 år och ha rätt att företräda det företag du registrerar.</li>
+    <li>Uppgifterna du lämnar ska vara korrekta och hållas uppdaterade.</li>
+    <li>Du ansvarar för att hålla ditt lösenord hemligt och för allt som görs från ditt konto.</li>
+    <li>Ett konto per person. Företagsprofiler granskas av oss innan de publiceras, och vi kan neka en profil utan att ange skäl.</li>
+  </ul>
+
+  <h2>3. Ditt innehåll</h2>
+  <p>Du äger det du publicerar, till exempel din företagsprofil, inlägg, kommentarer och bilder. Genom att publicera ger du oss rätt att visa, lagra och sprida innehållet inom tjänsten så länge det finns kvar där. Du ansvarar för att du har rätt att publicera innehållet, till exempel bilder och logotyper.</p>
+
+  <h2>4. Det här är inte tillåtet</h2>
+  <ul>
+    <li>Olagligt innehåll, hot, trakasserier, hets mot folkgrupp eller kränkande uttalanden om andra.</li>
+    <li>Spam, massutskick, upprepad reklam i flödet eller vilseledande erbjudanden.</li>
+    <li>Att utge sig för att vara någon annan eller ett annat företag.</li>
+    <li>Att samla in andra medlemmars uppgifter, till exempel för utskick, utan deras samtycke.</li>
+    <li>Att försöka kringgå tjänstens säkerhet eller belasta den på ett onormalt sätt.</li>
+  </ul>
+
+  <h2>5. Moderering och rapportering</h2>
+  <p>Ser du något som bryter mot villkoren eller mot lag kan du rapportera det med knappen ”Rapportera” eller till <a href={`mailto:${SITE.email}`}>{SITE.email}</a>. Vi går igenom rapporter så snart vi kan. Vi kan ta bort innehåll och stänga av eller radera konton som bryter mot villkoren. När vi tar bort något du publicerat meddelar vi dig normalt och förklarar varför, om det inte finns skäl att låta bli.</p>
+
+  <h2>6. Annonser och sponsrat innehåll</h2>
+  <p>Sponsrat innehåll och annonser märks tydligt. Vi säljer inte länkar i redaktionella artiklar.</p>
+
+  <h2>7. Ansvar</h2>
+  <p>Innehållet i artiklar och community är allmän information och inte juridisk, ekonomisk eller annan professionell rådgivning. Vi ansvarar inte för innehåll som medlemmar publicerar eller för avtal och affärer mellan medlemmar. Vi strävar efter att tjänsten ska fungera, men kan inte lova att den alltid är tillgänglig eller felfri. Vårt ansvar är begränsat i den utsträckning lagen tillåter.</p>
+
+  <h2>8. Avsluta kontot</h2>
+  <p>Du kan när som helst radera ditt konto under <a href="/foretag/konto/">Företagskonto</a>. Då raderas din profil, dina inlägg, kommentarer och meddelanden. Läs mer i vår <a href="/integritetspolicy/">integritetspolicy</a>.</p>
+
+  <h2>9. Ändringar</h2>
+  <p>Vi kan uppdatera villkoren. Vid större ändringar meddelar vi registrerade medlemmar i god tid innan de börjar gälla.</p>
+
+  <h2>10. Lag och tvist</h2>
+  <p>Svensk lag gäller. Tvister avgörs av svensk allmän domstol.</p>
+
+  <h2>Kontakt</h2>
+  <p>{SITE.company}, org.nr {SITE.orgnr}<br /><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+</Legal>

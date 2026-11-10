@@ -1,0 +1,56 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { SITE } from '../config';
+---
+<Legal title="Integritetspolicy" updated="10 november 2026" description="Så hanterar Nyföretagare dina personuppgifter.">
+  <p>Vi värnar om din integritet. Här beskriver vi vilka personuppgifter vi behandlar, varför, hur länge och vilka rättigheter du har enligt dataskyddsförordningen (GDPR).</p>
+
+  <h2>Personuppgiftsansvarig</h2>
+  <p>{SITE.company}, org.nr {SITE.orgnr}, är personuppgiftsansvarig för behandlingen på nyforetagare.se. Kontakt: <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+
+  <h2>Vilka uppgifter vi behandlar, varför och med vilket stöd</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Uppgifter</th><th>Ändamål</th><th>Rättslig grund</th><th>Hur länge</th></tr></thead>
+      <tbody>
+        <tr><td>E-post och lösenord (lösenordet lagras krypterat och kan inte läsas av oss)</td><td>Skapa och sköta ditt konto, logga in</td><td>Avtal</td><td>Tills du raderar kontot</td></tr>
+        <tr><td>Företagsprofil: namn, bransch, ort, län, beskrivning, logga, webbplats, kontaktuppgifter, org.nr</td><td>Visa ditt företag på sajten och granska profilen</td><td>Avtal</td><td>Tills du raderar kontot eller profilen</td></tr>
+        <tr><td>Inlägg, kommentarer och privata meddelanden</td><td>Communityn och chatten</td><td>Avtal</td><td>Tills du eller mottagaren raderar sitt konto, eller innehållet tas bort</td></tr>
+        <tr><td>Uppgifter i formulär (namn, e-post, telefon, meddelande)</td><td>Besvara ditt ärende</td><td>Berättigat intresse</td><td>Upp till 12 månader efter avslutat ärende</td></tr>
+        <tr><td>E-post för nyhetsbrev</td><td>Skicka nyhetsbrevet</td><td>Samtycke</td><td>Tills du avregistrerar dig</td></tr>
+        <tr><td>Tekniska loggar (t.ex. IP-adress, tidpunkt)</td><td>Säkerhet, felsökning och att förhindra missbruk</td><td>Berättigat intresse</td><td>Normalt högst 90 dagar</td></tr>
+        <tr><td>Rapporter om innehåll</td><td>Moderering och att följa lag</td><td>Rättslig förpliktelse / berättigat intresse</td><td>Så länge ärendet kräver</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Det du publicerar i en godkänd företagsprofil och i communityns flöde är offentligt och kan läsas av alla besökare. Privata meddelanden kan bara läsas av avsändaren och mottagaren. Vi läser inte privata meddelanden, utom när det behövs för att utreda en rapport om missbruk eller för att följa lag.</p>
+
+  <h2>Vem vi delar uppgifter med</h2>
+  <p>Vi säljer aldrig personuppgifter. Vi använder leverantörer som behandlar uppgifter för vår räkning (personuppgiftsbiträden):</p>
+  <ul>
+    <li><strong>Supabase</strong>: databas, inloggning och lagring av bilder.</li>
+    <li><strong>Netlify</strong>: drift av webbplatsen och formulär.</li>
+    <li><strong>GitHub</strong>: lagring av sajtens kod och redaktionella artiklar.</li>
+    <li><strong>E-posttjänst</strong> för att skicka bekräftelsemejl och lösenordsåterställning.</li>
+  </ul>
+  <p>Vissa leverantörer kan behandla uppgifter utanför EU/EES. I så fall sker överföringen med stöd av EU-kommissionens standardavtalsklausuler eller annat skydd som GDPR godkänner. Vi kan också lämna ut uppgifter när lag kräver det, till exempel till myndigheter.</p>
+
+  <h2>Dina rättigheter</h2>
+  <ul>
+    <li><strong>Tillgång och dataportabilitet:</strong> ladda ner dina uppgifter under <a href="/foretag/konto/">Företagskonto</a>, eller kontakta oss.</li>
+    <li><strong>Rättelse:</strong> ändra dina uppgifter själv i ditt konto.</li>
+    <li><strong>Radering:</strong> radera ditt konto själv under Företagskonto. Då raderas profil, logga, inlägg, kommentarer och meddelanden.</li>
+    <li><strong>Begränsning och invändning:</strong> du kan begära att vi begränsar eller slutar med viss behandling.</li>
+    <li><strong>Återkalla samtycke:</strong> till exempel avregistrera dig från nyhetsbrevet.</li>
+  </ul>
+  <p>Kontakta <a href={`mailto:${SITE.email}`}>{SITE.email}</a> för att använda dina rättigheter. Vi svarar inom en månad. Är du missnöjd med hur vi hanterar dina uppgifter kan du klaga till Integritetsskyddsmyndigheten (IMY), <a href="https://www.imy.se" rel="noopener">imy.se</a>.</p>
+
+  <h2>Säkerhet</h2>
+  <p>Vi skyddar uppgifterna med krypterad anslutning (HTTPS), krypterade lösenord, behörighetsstyrning i databasen så att ingen kan läsa eller ändra andras uppgifter, säkerhetsinställningar på webbplatsen och begränsningar mot spam och missbruk.</p>
+
+  <h2>Cookies</h2>
+  <p>Se vår <a href="/cookies/">cookiepolicy</a>.</p>
+
+  <h2>Ändringar</h2>
+  <p>Vi kan uppdatera policyn. Datumet överst visar när den senast ändrades. Vid större ändringar meddelar vi registrerade medlemmar.</p>
+</Legal>
