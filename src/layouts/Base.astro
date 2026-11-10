@@ -107,7 +107,31 @@ const nav = [
           <a href="/integritet/">Integritet</a>
         </div>
       </div>
-      <div class="wrap bottom">© {new Date().getFullYear()} Nyföretagare</div>
+      <div class="wrap bottom">© {new Date().getFullYear()} Nyföretagare drivs av {SITE.company} · Org.nr {SITE.orgnr}</div>
     </footer>
+    <script>
+      // Innehåll glider in när man scrollar. Avstängt om användaren valt reducerad rörelse.
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!reduce && 'IntersectionObserver' in window) {
+        const sel = '.hero-main, .latest, .cats a, .card, .acard, .split > *, .section-head';
+        const els = Array.from(document.querySelectorAll<HTMLElement>(sel)).filter((el) => !el.closest('.intro'));
+        const io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            (e.target as HTMLElement).classList.add('in');
+            io.unobserve(e.target);
+          });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+        els.forEach((el) => {
+          const r = el.getBoundingClientRect();
+          if (r.top > window.innerHeight * 0.92) { // bara det som ligger under skärmen
+            el.classList.add('rv');
+            const siblings = el.parentElement ? Array.from(el.parentElement.children).filter((c) => c.matches(sel)) : [];
+            el.style.transitionDelay = `${Math.min(siblings.indexOf(el), 5) * 70}ms`;
+            io.observe(el);
+          }
+        });
+      }
+    </script>
   </body>
 </html>
