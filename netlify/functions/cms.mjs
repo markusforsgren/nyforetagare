@@ -27,6 +27,7 @@ const env = () => ({
   dir: (process.env.ARTICLES_DIR || 'src/content/artiklar').replace(/\/$/, ''),
   imgDir: (process.env.IMAGES_DIR || 'public/img/uploads').replace(/\/$/, ''),
   siteUrl: (process.env.SITE_URL || process.env.URL || '').replace(/\/$/, ''),
+  buildHook: process.env.NETLIFY_BUILD_HOOK || '',
 });
 
 class HttpError extends Error {
@@ -282,6 +283,82 @@ async function updateUser(sb, me, input) {
   return { ok: true };
 }
 
+// ---------- Företag ----------
+const COMPANY_FIELDS = 'id,slug,namn,bransch,orgnr,lan,ort,kort,beskrivning,tjanster,tjanstekategori,webbplats,epost,telefon,logo_url,status,avslag_orsak,utvald,created_at,updated_at,owner_id';
+
+async function triggerBuild(e, reason) {
+  if (!e.buildHook) { console.warn('NETLIFY_BUILD_HOOK saknas – sajten byggs inte om automatiskt.'); return false; }
+  const res = await fetch(`${e.buildHook}?trigger_title=${encodeURIComponent(reason)}`, { method: 'POST', body: '{}' }).catch(() => null);
+  return !!res?.ok;
+}
+
+async function listCompanies(sb) {
+  const { data, error } = await sb.from('companies').select(COMPANY_FIELDS).order('created_at', { ascending: false });
+  if (error) fail(500, 'Kunde inte hämta företag.');
+  // Lägg till kontots e-post så admin vet vem som registrerat
+  const ids = data.map((c) => c.owner_id);
+  const emails = {};
+  if (ids.length) {
+    const { data: users } = await sb.auth.admin.listUsers({ perPage: 1000 });
+    for (const u of users?.users || []) emails[u.id] = u.email;
+  }
+  return data.map(({ owner_id, ...c }) => ({ ...c, konto: emails[owner_id] || '' }));
+}
+
+async function updateCompany(e, sb, input) {
+  if (!input.id) fail(400, 'Företag saknas.');
+  const patch = {};
+  if (['pending', 'approved', 'rejected'].includes(input.status)) patch.status = input.status;
+  if (typeof input.utvald === 'boolean') patch.utvald = input.utvald;
+  if (patch.status === 'rejected') patch.avslag_orsak = clean(input.avslag_orsak, 300) || null;
+  if (patch.status === 'approved') patch.avslag_orsak = null;
+  if (!Object.keys(patch).length) fail(400, 'Inget att ändra.');
+  const { data: before } = await sb.from('companies').select('status,utvald,namn').eq('id', input.id).maybeSingle();
+  if (!before) fail(404, 'Företaget finns inte.');
+  const { error } = await sb.from('companies').update(patch).eq('id', input.id);
+  if (error) fail(500, 'Kunde inte spara företaget.');
+  // Bygg om om något som syns publikt ändrats
+  const visibleChange = before.status === 'approved' || patch.status === 'approved';
+  const rebuilt = visibleChange ? await triggerBuild(e, `Företag: ${before.namn} (${patch.status || 'utvald'})`) : false;
+  return { ok: true, rebuilt };
+}
+
+// Ett godkänt företag har sparat ändringar -> bygg om sajten
+async function companyChanged(req, e) {
+  const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!jwt) fail(401, 'Du är inte inloggad.');
+  const sb = adminClient(e);
+  const { data, error } = await sb.auth.getUser(jwt);
+  if (error || !data?.user) fail(401, 'Sessionen har gått ut.');
+  const { data: c } = await sb.from('companies').select('namn,status,updated_at').eq('owner_id', data.user.id).maybeSingle();
+  if (!c || c.status !== 'approved') return { rebuilt: false };
+  // Bara precis efter en sparning (skydd mot upprepade anrop)
+  if (Date.now() - new Date(c.updated_at).getTime() > 2 * 60 * 1000) return { rebuilt: false };
+  return { rebuilt: await triggerBuild(e, `Företag uppdaterat: ${c.namn}`) };
+}
+
+// ---------- Radera eget konto (GDPR) ----------
+async function deleteAccount(req, e, input) {
+  const jwt = (req.headers.get('authorization') || '').replace(/^Bearer\s+/i, '');
+  if (!jwt) fail(401, 'Du är inte inloggad.');
+  if (input.confirm !== 'RADERA') fail(400, 'Skriv RADERA för att bekräfta.');
+  const sb = adminClient(e);
+  const { data, error } = await sb.auth.getUser(jwt);
+  if (error || !data?.user) fail(401, 'Sessionen har gått ut. Logga in igen.');
+  const uid = data.user.id;
+  const { data: prof } = await sb.from('profiles').select('roll').eq('id', uid).maybeSingle();
+  if (prof?.roll === 'admin') fail(403, 'Ett admin-konto kan inte raderas här. Be en annan admin ta bort behörigheten först.');
+  const { data: company } = await sb.from('companies').select('status,namn').eq('owner_id', uid).maybeSingle();
+  // Ta bort loggor i användarens mapp
+  const { data: files } = await sb.storage.from('logos').list(uid, { limit: 1000 });
+  if (files?.length) await sb.storage.from('logos').remove(files.map((f) => `${uid}/${f.name}`));
+  // Radera användaren – profil, företag, inlägg, kommentarer och meddelanden raderas automatiskt (on delete cascade)
+  const { error: dErr } = await sb.auth.admin.deleteUser(uid);
+  if (dErr) fail(500, 'Kunde inte radera kontot. Kontakta oss så hjälper vi dig.');
+  if (company?.status === 'approved') await triggerBuild(e, `Konto raderat: ${company.namn}`);
+  return { ok: true };
+}
+
 // ---------- Handler ----------
 export default async (req) => {
   const e = env();
@@ -295,6 +372,8 @@ export default async (req) => {
     for (const k of ['supaUrl', 'serviceKey', 'ghToken', 'repo']) if (!e[k]) fail(500, `Miljövariabel saknas: ${k}`);
 
     const input = await req.json().catch(() => ({}));
+    if (input.action === 'companyChanged') return json(await companyChanged(req, e));
+    if (input.action === 'deleteAccount') return json(await deleteAccount(req, e, input));
     const { sb, user, prof } = await authenticate(req, e);
 
     switch (input.action) {
@@ -313,6 +392,12 @@ export default async (req) => {
       case 'updateUser':
         if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await updateUser(sb, user, input.user || {}));
+      case 'companies':
+        if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
+        return json(await listCompanies(sb));
+      case 'updateCompany':
+        if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
+        return json(await updateCompany(e, sb, input.company || {}));
       default: fail(400, 'Okänd åtgärd.');
     }
   } catch (err) {
