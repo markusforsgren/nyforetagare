@@ -7,7 +7,9 @@ export const SITE = {
   tagline: 'Vi lyfter Sveriges företagare!',
   description:
     'Nyheter, reportage, inspiration och tjänster för dig som vill starta, driver eller vill utveckla företag.',
-  email: 'hej@nyforetagare.se', // TODO: rätt kontaktadress
+  email: 'kontakt@nyforetagare.se',
+  company: 'Today Media Group AB',
+  orgnr: '559373-5227',
   facebook: 'https://www.facebook.com/nyforetagare.se/',
 };
 
@@ -97,4 +99,3 @@ export const SERVICES: Service[] = [
 // Företag skapar numera egna profiler på /foretag/konto/.
 export const FEATURED_COMPANIES: { name: string; meta: string; lan: string; text: string; link: string }[] = [];
 
-export const PARTNERS = ['En Företagares Vardag', 'Arvikamagasinet'];
