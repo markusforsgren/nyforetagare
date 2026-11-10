@@ -8,7 +8,7 @@ import ServiceCard from '../components/ServiceCard.astro';
 import { getPosts, formatDate } from '../lib/posts';
 import { getCompanies, asService } from '../lib/companies';
 import CompanyCard from '../components/CompanyCard.astro';
-import { CATEGORIES, SERVICES, FEATURED_COMPANIES, PARTNERS, categoryName } from '../config';
+import { CATEGORIES, SERVICES, FEATURED_COMPANIES, categoryName } from '../config';
 
 const posts = await getPosts();
 const top = posts.find((p) => p.data.toppnyhet) ?? posts[0];
@@ -25,6 +25,28 @@ const services = [
 ].slice(0, 3);
 ---
 <Base>
+  <!-- Toppsektion med rörlig bakgrund -->
+  <section class="intro" aria-label="Om Nyföretagare">
+    <div class="intro-bg" aria-hidden="true">
+      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span>
+    </div>
+    <div class="wrap intro-inner">
+      <div class="intro-text">
+        <span class="intro-eyebrow">Starta · Driva · Växa</span>
+        <h1 class="intro-title">Vi lyfter Sveriges <span class="hl">företagare</span></h1>
+        <p class="intro-lead">Nyheter, reportage, kunskap och ett nätverk av företagare – lokalt i ditt län och i hela Sverige.</p>
+        <div class="intro-cta">
+          <a href="/foretag/konto/" class="btn btn-bright">Skapa företagsprofil</a>
+          <a href="/community/" class="btn btn-ghost">Gå med i communityn</a>
+        </div>
+      </div>
+      <div class="intro-mark" aria-hidden="true">
+        <span class="mark-glow"></span>
+        <img src="/img/mark.png" alt="" width="400" height="320" />
+      </div>
+    </div>
+  </section>
+
   <!-- Toppnyhet + senaste -->
   {top && (
     <section class="wrap hero">
@@ -127,11 +149,6 @@ const services = [
     </section>
   )}
 
-  <!-- Partners -->
-  <section class="wrap partners" aria-label="Samarbetspartners">
-    <span class="muted" style="font-weight:600">I samarbete med</span>
-    {PARTNERS.map((p) => <span class="p">{p}</span>)}
-  </section>
 
   <Newsletter />
 </Base>
