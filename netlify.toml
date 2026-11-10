@@ -10,6 +10,32 @@
   # Paketen tas med som vanliga node_modules i stället för att buntas
   external_node_modules = ["@supabase/supabase-js", "yaml"]
 
+# ---------------------------------------------------------------
+#  Säkerhetsheaders för hela sajten
+# ---------------------------------------------------------------
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests"
+    Strict-Transport-Security = "max-age=31536000"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+    Cross-Origin-Opener-Policy = "same-origin"
+
+# Inloggade sidor ska aldrig cachas eller indexeras
+[[headers]]
+  for = "/foretag/konto/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+[[headers]]
+  for = "/community/chatt/*"
+  [headers.values]
+    Cache-Control = "no-store"
+    X-Robots-Tag = "noindex, nofollow"
+
 # Adminpanelen ska aldrig cachas eller indexeras
 [[headers]]
   for = "/admin/*"
@@ -17,3 +43,13 @@
     X-Robots-Tag = "noindex, nofollow"
     Cache-Control = "no-store"
     X-Frame-Options = "DENY"
+
+# Gamla adressen till integritetssidan
+[[redirects]]
+  from = "/integritet/"
+  to = "/integritetspolicy/"
+  status = 301
+[[redirects]]
+  from = "/integritet"
+  to = "/integritetspolicy/"
+  status = 301

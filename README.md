@@ -176,6 +176,31 @@ Företag skapar själva ett konto på `/foretag/konto/`, fyller i sin profil och
 
 Inget mer behövs i Netlify.
 
+## 10. GDPR, juridik och säkerhet
+
+**Sidor:** /anvandarvillkor/, /integritetspolicy/, /cookies/ (länkade i sidfoten och vid registrering). Texterna är utkast – låt en jurist läsa dem innan sajten marknadsförs brett. Uppdatera datumet högst upp när något ändras.
+
+**Användarnas rättigheter (inbyggt i /foretag/konto/):**
+- *Ladda ner mina uppgifter* – JSON med företagsprofil, inlägg, kommentarer och meddelanden.
+- *Radera konto* – skriv RADERA. Tar bort konto, profil, logotyp, inlägg, kommentarer och meddelanden direkt. Admin-konton kan inte raderas den vägen.
+- Övriga begäranden (rättelse, invändning) kommer till kontakt@nyforetagare.se – svara inom en månad.
+
+**Rapportera:** "Rapportera" på inlägg/kommentarer öppnar ett mejl till kontakt@. Moderera i Supabase → Table Editor.
+
+**Säkerhet i koden:**
+- Strikt säkerhetspolicy (CSP) och säkerhetsrubriker i `netlify.toml` – blockerar främmande skript och inbäddning av sajten.
+- Typsnittet ligger på egen server (ingen Google Fonts → inga IP-adresser till Google).
+- Radlås (RLS) i Supabase: varje användare kan bara ändra sitt eget. Hemliga nycklar finns bara i Netlify.
+- Admin, konto och chatt indexeras inte av sökmotorer.
+
+**Inställningar att slå på i Supabase (Authentication → Providers/Policies):**
+- Minsta lösenordslängd 10 tecken, krav på bokstäver + siffror.
+- "Leaked password protection" om det finns i er plan.
+- Begränsa antal inloggningsförsök (Rate limits) – standardvärdena räcker.
+- Egen SMTP (Resend) så bekräftelsemejl fungerar.
+
+**Avtal:** Godkänn personuppgiftsbiträdesavtal (DPA) hos Supabase och Netlify i deras inställningar. Välj EU-region i Supabase om projektet skapas om.
+
 ## Struktur
 
 ```
