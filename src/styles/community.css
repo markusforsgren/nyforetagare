@@ -93,3 +93,7 @@
   .chat.show-thread .chat-thread { display: flex; }
   .chat-back { display: inline-block; }
 }
+
+.post-actions .report, .comment .report { color: var(--muted); font-weight: 600; }
+.post-actions .report:hover, .comment .report:hover { color: #b3261e; }
+.post-actions .report + .danger { margin-left: 0; }

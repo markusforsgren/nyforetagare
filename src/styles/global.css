@@ -14,8 +14,8 @@
   --bg-soft: #eaf6ff;
   --placeholder: #d6e6f5;
   --radius: 12px;
-  --display: 'Inter', system-ui, sans-serif;
-  --body: 'Inter', system-ui, sans-serif;
+  --display: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --body: 'Inter Variable', 'Inter', system-ui, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -308,3 +308,14 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
   .header-cta .btn { min-height: 40px; padding: 0 14px; font-size: 14px; }
   .topbar nav { display: none; }
 }
+
+/* Juridiska sidor */
+.legal h1 { margin-bottom: 6px; }
+.legal-nav { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 10px 0 28px; padding-bottom: 16px; border-bottom: 1px solid var(--line); font-weight: 600; font-size: 15px; }
+.legal .prose { font-size: 17px; }
+.legal .prose h2 { font-size: 22px; }
+.table-wrap { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 10px; }
+.table-wrap table { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.45; }
+.table-wrap th { text-align: left; background: var(--bg-soft); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.table-wrap th, .table-wrap td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.table-wrap tr:last-child td { border-bottom: 0; }

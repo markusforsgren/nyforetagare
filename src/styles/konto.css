@@ -39,3 +39,10 @@
   .k-side { position: static; }
   .k-row { grid-template-columns: 1fr; }
 }
+
+.k-account { margin-top: 24px; gap: 16px; }
+.k-account h2 { font-size: 20px; }
+.k-acc-row { display: flex; flex-wrap: wrap; gap: 12px 24px; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid var(--line); }
+.k-acc-row > div { flex: 1 1 320px; }
+.k-danger { border: 2px solid #b3261e; color: #b3261e; background: #fff; }
+.k-danger:hover { background: #b3261e; color: #fff; }
