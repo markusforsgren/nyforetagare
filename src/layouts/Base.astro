@@ -1,7 +1,8 @@
 ---
 import '@fontsource-variable/inter';
 import '../styles/global.css';
-import { SITE, CATEGORIES } from '../config';
+import { SITE } from '../config';
+import { getMenu, usedCategories } from '../lib/posts';
 
 interface Props {
   title?: string;
@@ -13,14 +14,11 @@ const fullTitle = title ? `${title} – ${SITE.name}` : `${SITE.name} – ${SITE
 const path = Astro.url.pathname;
 const canonical = new URL(path, Astro.site);
 const ogImage = new URL(image, Astro.site);
-const nav = [
-  { href: '/artiklar/', label: 'Artiklar' },
-  ...CATEGORIES.map((c) => ({ href: `/kategori/${c.slug}/`, label: c.name })),
-  { href: '/foretag/', label: 'Företag' },
-  { href: '/community/', label: 'Community' },
-  { href: '/foretagstjanster/', label: 'Företagstjänster' },
-  { href: '/lan/', label: 'Lokalt' },
-];
+const menu = (await getMenu()).filter((g) => g.items.length > 0);
+const footerCats = (await usedCategories()).slice(0, 5);
+const HUBS = ['/starta/', '/driva/', '/utveckla/'];
+const isActive = (g: (typeof menu)[number]) =>
+  path.startsWith(g.href) || g.items.some((i) => path.startsWith(i.href));
 ---
 <!doctype html>
 <html lang="sv">
@@ -42,7 +40,7 @@ const nav = [
   <body>
     <div class="topbar">
       <div class="wrap">
-        <span class="claim">STARTA · DRIVA · VÄXA</span>
+        <span class="claim">STARTA · DRIVA · UTVECKLA</span>
         <nav aria-label="Genvägar">
           <a href="/om-oss/">Om oss</a>
           <a href="/om-oss/#annonsera">Annonsera</a>
@@ -60,12 +58,30 @@ const nav = [
         <div class="header-cta">
           <a href="/foretag/konto/" class="btn btn-outline">Företagskonto</a>
           <a href="/#nyhetsbrev" class="btn btn-primary">Få nyhetsbrevet</a>
+          <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="mainnav" aria-label="Meny">
+            <span></span><span></span><span></span>
+          </button>
         </div>
       </div>
-      <nav class="wrap mainnav" aria-label="Huvudmeny">
-        {nav.map((n) => (
-          <a href={n.href} aria-current={path.startsWith(n.href) ? 'page' : undefined}>{n.label}</a>
+      <nav class="wrap mainnav" id="mainnav" aria-label="Huvudmeny">
+        {menu.map((g, i) => (
+          <div class="dd">
+            <button type="button" class="dd-btn" aria-expanded="false" aria-controls={`dd-${i}`} data-active={isActive(g) ? '' : undefined}>
+              {g.label}<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="dd-panel" id={`dd-${i}`}>
+              {g.items.map((it) => <a href={it.href} aria-current={path === it.href ? 'page' : undefined}>{it.label}</a>)}
+              {HUBS.includes(g.href) && g.items.length > g.lankar.length && <a href={g.href} class="dd-all">Allt inom {g.label.toLowerCase()} →</a>}
+            </div>
+          </div>
         ))}
+        <a href="/lan/" class="nav-link" aria-current={path.startsWith('/lan/') ? 'page' : undefined}>Lokalt</a>
+        <div class="nav-mobile-extra">
+          <a href="/foretag/konto/" class="btn btn-primary">Företagskonto</a>
+          <a href="/om-oss/">Om oss</a>
+          <a href="/om-oss/#kontakt">Kontakt</a>
+          <a href="/#nyhetsbrev">Få nyhetsbrevet</a>
+        </div>
       </nav>
     </header>
 
@@ -82,7 +98,7 @@ const nav = [
         <div class="col">
           <span class="h">Innehåll</span>
           <a href="/artiklar/">Alla artiklar</a>
-          {CATEGORIES.slice(0, 4).map((c) => <a href={`/kategori/${c.slug}/`}>{c.name}</a>)}
+          {footerCats.map((c) => <a href={`/kategori/${c.slug}/`}>{c.name}</a>)}
         </div>
         <div class="col">
           <span class="h">För företag</span>
@@ -107,6 +123,38 @@ const nav = [
       <div class="wrap bottom">© {new Date().getFullYear()} Nyföretagare drivs av {SITE.company} · Org.nr {SITE.orgnr}</div>
     </footer>
     <script>
+      // Menyn: rullgardiner + mobilmeny
+      const nav = document.getElementById('mainnav');
+      const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle');
+      const dds = Array.from(document.querySelectorAll<HTMLElement>('.dd'));
+      const close = (except?: HTMLElement) => dds.forEach((d) => {
+        if (d === except) return;
+        d.classList.remove('open');
+        d.querySelector('.dd-btn')?.setAttribute('aria-expanded', 'false');
+      });
+      dds.forEach((d) => {
+        const b = d.querySelector<HTMLButtonElement>('.dd-btn')!;
+        b.addEventListener('click', () => {
+          const open = !d.classList.contains('open');
+          close(d);
+          d.classList.toggle('open', open);
+          b.setAttribute('aria-expanded', String(open));
+        });
+      });
+      document.addEventListener('click', (e) => { if (!(e.target as HTMLElement).closest('.dd')) close(); });
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const open = dds.find((d) => d.classList.contains('open'));
+        close();
+        open?.querySelector<HTMLButtonElement>('.dd-btn')?.focus();
+      });
+      toggle?.addEventListener('click', () => {
+        const open = !nav?.classList.contains('nav-open');
+        nav?.classList.toggle('nav-open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+        toggle.classList.toggle('x', open);
+      });
+
       // Innehåll glider in när man scrollar. Avstängt om användaren valt reducerad rörelse.
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduce && 'IntersectionObserver' in window) {
