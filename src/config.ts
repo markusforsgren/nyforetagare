@@ -4,7 +4,7 @@
 
 export const SITE = {
   name: 'Nyföretagare',
-  tagline: 'Vi lyfter Sveriges företagare!',
+  tagline: 'Sveriges nätverk för småföretagare',
   description:
     'Nyheter, reportage, inspiration och tjänster för dig som vill starta, driver eller vill utveckla företag.',
   email: 'kontakt@nyforetagare.se',
@@ -17,14 +17,43 @@ export const SITE = {
 // projektet -> Forms. Se README.
 
 // Kategorier. "slug" blir adressen: /kategori/<slug>
+// Ändra aldrig en befintlig slug – då försvinner artiklarna från kategorin. Namnet går bra att ändra.
+// En kategori syns i menyn först när minst en publicerad artikel ligger i den.
 export const CATEGORIES = [
+  // Starta
+  { slug: 'affarsideer', name: 'Affärsidéer' },
+  { slug: 'affarsplan', name: 'Affärsplan och budget' },
+  { slug: 'foretagsformer', name: 'Företagsformer och registrering' },
+  { slug: 'komma-igang', name: 'Checklistor för att komma igång' },
+  { slug: 'kapital', name: 'Finansiering och kapital' },
+  // Driva
+  { slug: 'ekonomi', name: 'Ekonomi, skatt och bokföring' },
+  { slug: 'marknadsforing', name: 'Marknadsföring och försäljning' },
+  { slug: 'juridik', name: 'Juridik och avtal' },
+  { slug: 'personal', name: 'Personal och arbetsgivarfrågor' },
+  { slug: 'digitala-verktyg', name: 'Digitala verktyg och AI' },
+  // Utveckla
+  { slug: 'affarsutveckling', name: 'Affärsutveckling och strategi' },
+  { slug: 'lonsamhet', name: 'Lönsamhet och prissättning' },
+  // Kunskap
   { slug: 'foretagsnyheter', name: 'Företagsnyheter' },
   { slug: 'reportage', name: 'Reportage' },
-  { slug: 'inspiration', name: 'Inspiration' },
-  { slug: 'affarsideer', name: 'Affärsidéer' },
-  { slug: 'kapital', name: 'Kapital & investerare' },
-  { slug: 'natverk', name: 'Nätverk' },
+  { slug: 'inspiration', name: 'Inspiration och företagsberättelser' },
+  { slug: 'guider', name: 'Guider' },
+  { slug: 'tips-verktyg', name: 'Tips och verktyg' },
+  // Nätverk
+  { slug: 'natverk', name: 'Nätverk och samarbeten' },
+  { slug: 'event', name: 'Event och webbinarier' },
 ] as const;
+
+// Huvudmenyn. "kategorier" visas bara om de har artiklar. "lankar" visas alltid.
+export const MENU: { label: string; href: string; kategorier: string[]; lankar: { href: string; label: string }[] }[] = [
+  { label: 'Starta', href: '/starta/', kategorier: ['affarsideer', 'affarsplan', 'foretagsformer', 'kapital', 'komma-igang'], lankar: [] },
+  { label: 'Driva', href: '/driva/', kategorier: ['ekonomi', 'marknadsforing', 'juridik', 'personal', 'digitala-verktyg'], lankar: [{ href: '/foretagstjanster/', label: 'Företagstjänster' }] },
+  { label: 'Utveckla', href: '/utveckla/', kategorier: ['affarsutveckling', 'lonsamhet', 'kapital'], lankar: [] },
+  { label: 'Kunskap', href: '/artiklar/', kategorier: ['foretagsnyheter', 'reportage', 'inspiration', 'guider', 'tips-verktyg'], lankar: [{ href: '/artiklar/', label: 'Alla artiklar' }] },
+  { label: 'Nätverk', href: '/community/', kategorier: ['natverk', 'event'], lankar: [{ href: '/community/', label: 'Community' }, { href: '/foretag/', label: 'Företagskatalog' }] },
+];
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
 

@@ -17,6 +17,7 @@ const artiklar = defineCollection({
     title: z.string(),
     ingress: z.string(),
     kategori: z.enum(kategorier),
+    fler_kategorier: z.array(z.enum(kategorier)).default([]), // artikeln syns även i dessa kategorier
     lan: z.enum(lan).optional(), // t.ex. dalarna. Utelämna för artiklar som gäller hela Sverige.
     ort: z.string().optional(), // t.ex. Falun
     datum: z.coerce.date(),
