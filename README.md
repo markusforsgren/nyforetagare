@@ -201,6 +201,14 @@ Inget mer behövs i Netlify.
 
 **Avtal:** Godkänn personuppgiftsbiträdesavtal (DPA) hos Supabase och Netlify i deras inställningar. Välj EU-region i Supabase om projektet skapas om.
 
+## 11. Menyn och kategorierna
+
+- Kategorier och menygrupper (Starta, Driva, Utveckla, Kunskap, Nätverk) finns i `src/config.ts` under `CATEGORIES` och `MENU`.
+- En kategori syns i menyn, sidfoten och på startsidan först när minst en publicerad artikel ligger i den. Grupper utan innehåll döljs.
+- I adminpanelen väljer redaktören en huvudkategori och kan under "Visa även i fler kategorier" lägga artikeln i upp till 6 till.
+- Namn på kategorier går att ändra fritt. Ändra aldrig en befintlig slug.
+- Områdessidor: /starta/, /driva/, /utveckla/.
+
 ## Struktur
 
 ```
