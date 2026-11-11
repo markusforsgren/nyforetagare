@@ -8,8 +8,21 @@ const paths: Record<string, string> = {
   affarsideer: '<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/>',
   kapital: '<path d="M4 20V10M10 20V6M16 20v-8M3 20h18M14 4h6v6M20 4l-7 7"/>',
   natverk: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
+  affarsplan: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 16v-3M12 16v-6M16 16v-4"/>',
+  foretagsformer: '<path d="M4 21V8l8-5 8 5v13M9 21v-6h6v6M3 21h18"/>',
+  'komma-igang': '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M8.5 11l2 2 4-4M8.5 17h7"/>',
+  ekonomi: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11h0M8 15h2M12 15h2M8 18h8"/>',
+  marknadsforing: '<path d="M4 10v4l3 .5V9.5zM7 9.5 18 5v14L7 14.5M10 15l1 5h2.5l-1-4.5"/>',
+  juridik: '<path d="M12 3v18M7 21h10M5 7h14M5 7l-2.5 6a3 3 0 0 0 5 0zM19 7l-2.5 6a3 3 0 0 0 5 0z"/>',
+  personal: '<circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-3.9 3.1-7 7-7s7 3.1 7 7"/>',
+  'digitala-verktyg': '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4M9 10l2 2 4-4"/>',
+  affarsutveckling: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
+  lonsamhet: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.6-1-1.7-1.5-3-1.5-1.7 0-3 .9-3 2.2 0 3 6 1.6 6 4.6 0 1.3-1.3 2.2-3 2.2-1.3 0-2.5-.6-3-1.6M12 6.5V8M12 16v1.5"/>',
+  guider: '<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21a2 2 0 0 1 2-2h13v2"/>',
+  'tips-verktyg': '<path d="M14.5 6.5a4 4 0 0 0-5.3 5.2L4 17l3 3 5.3-5.2a4 4 0 0 0 5.2-5.3l-2.3 2.3-2.4-.6-.6-2.4z"/>',
+  event: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M8 14h3"/>',
   tjanster: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
 };
 ---
 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0066D6" stroke-width="1.8"
-  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={paths[slug] ?? ''} />
+  stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={paths[slug] ?? '<circle cx="12" cy="12" r="8"/><path d="M9 12h6M12 9v6"/>'} />
