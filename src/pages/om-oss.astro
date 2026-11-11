@@ -2,18 +2,68 @@
 import Base from '../layouts/Base.astro';
 import { SITE } from '../config';
 ---
-<Base title="Om oss">
+<Base title="Så funkar Nyföretagare" description="Nyföretagare är Sveriges nätverk för småföretagare. Kunskap, nyheter och kontakter – lokalt i ditt län och i hela Sverige. Gratis att gå med.">
   <div class="wrap page-head stack">
     <span class="eyebrow">Om Nyföretagare</span>
-    <h1>Vi lyfter Sveriges företagare</h1>
-    <p class="lead" style="margin:0">Nyföretagare är en mötesplats för dig som vill starta, driver eller vill utveckla företag. Här hittar du nyheter, reportage, inspiration och tjänster, och en chans att synas.</p>
-    <p class="muted" style="margin:0">Nyföretagare drivs av {SITE.company}, org.nr {SITE.orgnr}.</p>
+    <h1>Sveriges nätverk för småföretagare</h1>
+    <p class="lead" style="margin:0">Nyföretagare är en mötesplats för dig som vill starta, driver eller vill utveckla ett företag. Vi samlar kunskap, nyheter och andra företagare på ett ställe – både i hela Sverige och lokalt i ditt län.</p>
+    <div class="intro-cta" style="margin-top:8px">
+      <a href="/foretag/konto/" class="btn btn-primary">Skapa gratis företagsprofil</a>
+      <a href="/artiklar/" class="btn btn-outline">Läs artiklarna</a>
+    </div>
   </div>
 
-  <div class="wrap grid" style="padding-bottom:56px">
+  <section class="soft" aria-labelledby="vad-du-far">
+    <div class="wrap section">
+      <h2 class="h2" id="vad-du-far" style="margin-bottom:24px">Det här får du</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Kunskap som går att använda</h3>
+          <p>Artiklar och guider om att starta, driva och utveckla företag – ekonomi, marknadsföring, juridik, finansiering och mycket mer.</p>
+          <a href="/artiklar/" class="push">Till artiklarna →</a>
+        </article>
+        <article class="card">
+          <h3>Synas med ditt företag</h3>
+          <p>Skapa en gratis företagsprofil med logga, beskrivning och kontaktuppgifter. Profilen granskas och visas sedan i företagskatalogen och i ditt län.</p>
+          <a href="/foretag/" class="push">Se företagskatalogen →</a>
+        </article>
+        <article class="card">
+          <h3>Ett nätverk av företagare</h3>
+          <p>I communityn ställer du frågor, tipsar och hittar samarbeten. Du kan också chatta direkt med andra företagare.</p>
+          <a href="/community/" class="push">Till communityn →</a>
+        </article>
+        <article class="card">
+          <h3>Lokalt i ditt län</h3>
+          <p>Intervjuer, företag och tjänster nära dig. Vi vill lyfta småföretagarna i hela landet – inte bara i storstäderna.</p>
+          <a href="/lan/" class="push">Välj ditt län →</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-labelledby="kom-igang">
+    <h2 class="h2" id="kom-igang" style="margin-bottom:24px">Kom igång på tre minuter</h2>
+    <ol class="steps">
+      <li><strong>Skapa ett konto</strong><span>Med e-post och lösenord. Det är gratis.</span></li>
+      <li><strong>Fyll i din företagsprofil</strong><span>Lägg till logga, vad ni gör och var ni finns.</span></li>
+      <li><strong>Var med i nätverket</strong><span>När profilen är godkänd syns ni i katalogen och kan skriva i communityn.</span></li>
+    </ol>
+    <div style="margin-top:24px"><a href="/foretag/konto/" class="btn btn-primary">Skapa gratis företagsprofil</a></div>
+  </section>
+
+  <section class="soft" id="vision" aria-labelledby="vision-h">
+    <div class="wrap section stack" style="max-width:820px">
+      <span class="eyebrow">Vår vision</span>
+      <h2 class="h2" id="vision-h">Fler företag som startar, överlever och växer</h2>
+      <p class="lead" style="margin:0">Att driva företag kan vara ensamt, och det är lätt att gå vilse bland regler, bidrag och råd. Vi vill göra vägen enklare – med kunskap som är lätt att förstå, kontakter som hjälper dig framåt och en plats där småföretagare syns.</p>
+      <p class="muted" style="margin:0">Nyföretagare drivs av {SITE.company}, org.nr {SITE.orgnr}.</p>
+    </div>
+  </section>
+
+  <div class="wrap grid section">
     <article class="card bordered" id="lokal-partner">
       <h3>Bli lokal partner</h3>
-      <p>Vill du driva Nyföretagare i din stad eller kommun och lyfta företagen där? Hör av dig så berättar vi mer.</p>
+      <p>Vill du driva Nyföretagare i ditt län och lyfta företagen där? Hör av dig så berättar vi mer.</p>
     </article>
     <article class="card bordered" id="annonsera">
       <h3>Annonsera</h3>
@@ -38,6 +88,7 @@ import { SITE } from '../config';
         <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
         <label>Ärende
           <select name="arende">
+            <option>Fråga om Nyföretagare</option>
             <option>Bli lokal partner</option>
             <option>Annonsera</option>
             <option>Tips till redaktionen</option>

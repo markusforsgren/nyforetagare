@@ -5,12 +5,13 @@ import CategoryIcon from '../components/CategoryIcon.astro';
 import Newsletter from '../components/Newsletter.astro';
 import LanPicker from '../components/LanPicker.astro';
 import ServiceCard from '../components/ServiceCard.astro';
-import { getPosts, formatDate } from '../lib/posts';
+import { getPosts, formatDate, usedCategories } from '../lib/posts';
 import { getCompanies, asService } from '../lib/companies';
 import CompanyCard from '../components/CompanyCard.astro';
-import { CATEGORIES, SERVICES, FEATURED_COMPANIES, categoryName } from '../config';
+import { SERVICES, FEATURED_COMPANIES, categoryName } from '../config';
 
 const posts = await getPosts();
+const cats = await usedCategories();
 const top = posts.find((p) => p.data.toppnyhet) ?? posts[0];
 const rest = posts.filter((p) => p !== top);
 const latest = rest.slice(0, 5);
@@ -32,12 +33,12 @@ const services = [
     </div>
     <div class="wrap intro-inner">
       <div class="intro-text">
-        <span class="intro-eyebrow">Starta · Driva · Växa</span>
-        <h1 class="intro-title">Vi lyfter Sveriges <span class="hl">företagare</span></h1>
-        <p class="intro-lead">Nyheter, reportage, kunskap och ett nätverk av företagare – lokalt i ditt län och i hela Sverige.</p>
+        <span class="intro-eyebrow">Starta · Driva · Utveckla</span>
+        <h1 class="intro-title">Sveriges nätverk för <span class="hl">småföretagare</span></h1>
+        <p class="intro-lead">Kunskap, nyheter och kontakter – lokalt i ditt län och i hela Sverige.</p>
         <div class="intro-cta">
-          <a href="/foretag/konto/" class="btn btn-bright">Skapa företagsprofil</a>
-          <a href="/community/" class="btn btn-ghost">Gå med i communityn</a>
+          <a href="/om-oss/" class="btn btn-bright">Så funkar Nyföretagare</a>
+          <a href="/foretag/konto/" class="btn btn-ghost">Skapa gratis företagsprofil</a>
         </div>
       </div>
       <div class="intro-mark" aria-hidden="true">
@@ -73,7 +74,7 @@ const services = [
   <!-- Kategorier -->
   <section class="soft" aria-label="Kategorier">
     <div class="wrap section cats" style="padding-top:40px;padding-bottom:40px">
-      {CATEGORIES.map((c) => (
+      {cats.map((c) => (
         <a href={`/kategori/${c.slug}/`}><CategoryIcon slug={c.slug} />{c.name}</a>
       ))}
       <a href="/foretagstjanster/"><CategoryIcon slug="tjanster" />Företagstjänster</a>

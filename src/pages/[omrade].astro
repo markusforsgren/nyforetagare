@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import ArticleCard from '../components/ArticleCard.astro';
+import CategoryIcon from '../components/CategoryIcon.astro';
+import { getPosts, inCategory } from '../lib/posts';
+import { CATEGORIES, MENU } from '../config';
+
+// Områdessidor: /starta/, /driva/, /utveckla/
+const INTRO: Record<string, string> = {
+  starta: 'Från idé till registrerat företag – affärsplan, företagsform, finansiering och allt du behöver för att komma igång.',
+  driva: 'Ekonomi, marknadsföring, juridik och personal – kunskap och verktyg för vardagen som företagare.',
+  utveckla: 'Strategi, lönsamhet och kapital för dig som vill ta nästa steg med ditt företag.',
+};
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return MENU.filter((g) => ['/starta/', '/driva/', '/utveckla/'].includes(g.href)).map((g) => {
+    const cats = g.kategorier
+      .map((s) => CATEGORIES.find((c) => c.slug === s)!)
+      .map((c) => ({ ...c, count: posts.filter((p) => inCategory(p, c.slug)).length }))
+      .filter((c) => c.count > 0);
+    return {
+      params: { omrade: g.href.replaceAll('/', '') },
+      props: { g, cats, posts: posts.filter((p) => g.kategorier.some((s) => inCategory(p, s))) },
+    };
+  });
+}
+const { g, cats, posts } = Astro.props;
+const key = g.href.replaceAll('/', '');
+---
+<Base title={g.label} description={INTRO[key]}>
+  <div class="wrap page-head stack">
+    <span class="eyebrow">{g.label}</span>
+    <h1>{g.label === 'Starta' ? 'Starta företag' : g.label === 'Driva' ? 'Driva företag' : 'Utveckla företaget'}</h1>
+    <p class="lead" style="margin:0">{INTRO[key]}</p>
+  </div>
+  {(cats.length > 0 || g.lankar.length > 0) && (
+    <section class="soft" aria-label="Ämnen">
+      <div class="wrap section cats" style="padding-top:32px;padding-bottom:32px">
+        {cats.map((c) => <a href={`/kategori/${c.slug}/`}><CategoryIcon slug={c.slug} />{c.name}</a>)}
+        {g.lankar.map((l) => <a href={l.href}><CategoryIcon slug="tjanster" />{l.label}</a>)}
+      </div>
+    </section>
+  )}
+  <div class="wrap section">
+    {posts.length > 0
+      ? <div class="grid">{posts.map((p) => <ArticleCard post={p} showIngress />)}</div>
+      : <p class="lead">Här kommer det snart artiklar. <a href="/artiklar/">Se alla artiklar</a>.</p>}
+  </div>
+</Base>
