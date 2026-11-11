@@ -2,9 +2,10 @@
 import '@fontsource-variable/inter';
 import '../../styles/global.css';
 import '../../styles/admin.css';
-import { CATEGORIES, LAN } from '../../config';
+import { CATEGORIES, LAN, MENU } from '../../config';
 const taxonomy = JSON.stringify({
   kategorier: CATEGORIES.map((c) => ({ slug: c.slug, name: c.name })),
+  grupper: MENU.map((g) => ({ label: g.label, kategorier: g.kategorier })),
   lan: LAN.map((l) => ({ slug: l.slug, name: l.name })),
 });
 ---
@@ -132,6 +133,10 @@ const taxonomy = JSON.stringify({
 
           <aside class="adm-card adm-col adm-side">
             <label>Kategori<select name="kategori" required></select></label>
+            <details class="extra-cats" id="extra-cats">
+              <summary>Visa även i fler kategorier <span id="extra-count"></span></summary>
+              <div id="extra-list"></div>
+            </details>
             <label>Län<select name="lan"><option value="">Hela Sverige</option></select></label>
             <label>Ort<input name="ort" maxlength="80" placeholder="t.ex. Falun" /></label>
             <label>Datum<input type="date" name="datum" required /></label>
@@ -210,7 +215,7 @@ const taxonomy = JSON.stringify({
     import { createClient, type Session } from '@supabase/supabase-js';
     import { marked } from 'marked';
 
-    type Tax = { kategorier: { slug: string; name: string }[]; lan: { slug: string; name: string }[] };
+    type Tax = { kategorier: { slug: string; name: string }[]; grupper: { label: string; kategorier: string[] }[]; lan: { slug: string; name: string }[] };
     const TAX: Tax = JSON.parse(document.body.dataset.taxonomy || '{}');
     const lanName = (s: string) => TAX.lan.find((l) => l.slug === s)?.name || '';
     const katName = (s: string) => TAX.kategorier.find((k) => k.slug === s)?.name || s;
@@ -240,7 +245,33 @@ const taxonomy = JSON.stringify({
     // ---------- Fyll listor ----------
     const fillOptions = (sel: HTMLSelectElement, items: { slug: string; name: string }[]) =>
       items.forEach((i) => sel.add(new Option(i.name, i.slug)));
-    fillOptions($('select[name=kategori]'), TAX.kategorier);
+    // Kategorier grupperade som i menyn (Starta, Driva …)
+    {
+      const sel = $('select[name=kategori]') as HTMLSelectElement;
+      const seen = new Set<string>();
+      TAX.grupper.forEach((g) => {
+        const og = document.createElement('optgroup');
+        og.label = g.label;
+        g.kategorier.filter((k) => !seen.has(k)).forEach((k) => { seen.add(k); og.append(new Option(katName(k), k)); });
+        if (og.children.length) sel.append(og);
+      });
+      TAX.kategorier.filter((k) => !seen.has(k.slug)).forEach((k) => sel.add(new Option(k.name, k.slug)));
+      $('#extra-list').innerHTML = TAX.kategorier
+        .map((k) => `<label class="check"><input type="checkbox" name="fler" value="${k.slug}" /> ${esc(k.name)}</label>`)
+        .join('');
+    }
+    const extraBoxes = () => Array.from(document.querySelectorAll<HTMLInputElement>('#extra-list input'));
+    const syncExtra = () => {
+      const main = (form.kategori as HTMLSelectElement).value;
+      extraBoxes().forEach((cb) => {
+        cb.disabled = cb.value === main || !current?.canEdit;
+        if (cb.value === main) cb.checked = false;
+        (cb.parentElement as HTMLElement).hidden = cb.value === main;
+      });
+      const n = extraBoxes().filter((cb) => cb.checked).length;
+      $('#extra-count').textContent = n ? `(${n})` : '';
+    };
+    const setExtra = (list: string[]) => { extraBoxes().forEach((cb) => (cb.checked = list.includes(cb.value))); syncExtra(); };
     fillOptions($('select[name=lan]'), TAX.lan);
     fillOptions($('#flt-lan'), TAX.lan);
     $('#invite-lan').innerHTML = TAX.lan
@@ -419,6 +450,8 @@ const taxonomy = JSON.stringify({
     // ---------- Editor ----------
     const form = $('#p-edit') as HTMLFormElement;
     let current: { isNew: boolean; sha?: string; utkast: boolean; granskning: boolean; canEdit: boolean; slug?: string } = { isNew: true, utkast: true, granskning: false, canEdit: true };
+    form.kategori.addEventListener('change', syncExtra);
+    $('#extra-list').addEventListener('change', syncExtra);
     let dirty = false;
     let slugTouched = false;
     form.addEventListener('input', () => (dirty = true));
@@ -458,6 +491,7 @@ const taxonomy = JSON.stringify({
         form.datum.value = today();
         form.skribent.value = me?.namn || '';
         form.kategori.value = 'reportage';
+        setExtra([]);
         if (me?.lan.length) form.lan.value = me.lan[0];
         setImage('');
         applyEditorState();
@@ -475,6 +509,7 @@ const taxonomy = JSON.stringify({
         form.slug.value = slug;
         form.ingress.value = a.ingress || '';
         form.kategori.value = a.kategori || '';
+        setExtra(Array.isArray(a.fler_kategorier) ? a.fler_kategorier : []);
         form.lan.value = a.lan || '';
         form.ort.value = a.ort || '';
         form.datum.value = a.datum || today();
@@ -536,6 +571,7 @@ const taxonomy = JSON.stringify({
         title: form.title.value,
         ingress: form.ingress.value,
         kategori: form.kategori.value,
+        fler_kategorier: extraBoxes().filter((cb) => cb.checked).map((cb) => cb.value),
         lan: form.lan.value,
         ort: form.ort.value,
         datum: form.datum.value,
