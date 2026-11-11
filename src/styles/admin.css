@@ -122,3 +122,8 @@ body.adm { background: var(--bg-soft); min-height: 100vh; }
   .c-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; }
   .c-dl { grid-template-columns: 1fr; }
 }
+
+.extra-cats { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; margin-top: -4px; }
+.extra-cats summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--navy); }
+.extra-cats #extra-list { display: grid; gap: 6px; margin-top: 10px; max-height: 260px; overflow-y: auto; }
+.extra-cats .check { font-size: 14px; }
