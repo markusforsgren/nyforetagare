@@ -1,14 +1,14 @@
 ---
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
-import { getPosts } from '../../lib/posts';
+import { getPosts, inCategory } from '../../lib/posts';
 import { CATEGORIES } from '../../config';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
   return CATEGORIES.map((c) => ({
     params: { slug: c.slug },
-    props: { name: c.name, posts: posts.filter((p) => p.data.kategori === c.slug) },
+    props: { name: c.name, posts: posts.filter((p) => inCategory(p, c.slug)) },
   }));
 }
 const { name, posts } = Astro.props;
@@ -21,6 +21,6 @@ const { name, posts } = Astro.props;
   <div class="wrap" style="padding-bottom:64px">
     {posts.length > 0
       ? <div class="grid">{posts.map((p) => <ArticleCard post={p} showIngress />)}</div>
-      : <p class="lead">Inga artiklar här ännu. <a href="/artiklar/">Se alla artiklar</a>.</p>}
+      : <p class="lead">Här kommer det snart artiklar. <a href="/artiklar/">Se alla artiklar</a>.</p>}
   </div>
 </Base>
