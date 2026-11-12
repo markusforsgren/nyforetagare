@@ -4,6 +4,7 @@ ingress: Att anställa behöver inte bli så kostsamt som du tror. Med statliga 
 kategori: reportage
 datum: 2026-11-12
 skribent: Redaktör
+bild: /img/uploads/statliga-stod-kan-gora-det-enklare-att-anstalla-1794511492315.jpg
 utkast: true
 skapad_av: markusforsgren0@gmail.com
 ---
