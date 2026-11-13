@@ -7,7 +7,7 @@ ort: Lenhovda
 datum: 2026-11-12
 skribent: Redaktör
 bild: /img/uploads/fran-tom-lokal-till-levande-motesplats-sa-foddes-mackan-i-le-1794511936352.jpg
-utkast: true
+utkast: false
 skapad_av: markusforsgren0@gmail.com
 ---
 
