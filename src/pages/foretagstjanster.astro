@@ -12,7 +12,8 @@ const categories = [...new Set(services.map((s) => s.category))];
   <div class="wrap page-head stack">
     <span class="eyebrow">Företagstjänster</span>
     <h1>Hitta rätt hjälp för ditt företag</h1>
-    <p class="lead" style="margin:0">Hemsida, redovisning, marknadsföring och mer. Leverantörer som är vana vid nystartade.</p>
+    <p class="lead" style="margin:0">Hemsida, redovisning, marknadsföring och mer. Här listas medlemmar som säljer tjänster till andra företag.</p>
+    <p class="muted" style="margin:0">Alla medlemmar kan synas här – välj vilken tjänst du erbjuder i din profil. Vill du se alla medlemsföretag? <a href="/foretag/">Till företagskatalogen →</a></p>
     <div class="chips">{categories.map((c) => <span>{c}</span>)}</div>
   </div>
   <div class="wrap grid" style="padding-bottom:56px">
@@ -22,9 +23,9 @@ const categories = [...new Set(services.map((s) => s.category))];
     <div class="wrap section split">
       <div class="stack">
         <h2 class="h2">Erbjuder du tjänster till företagare?</h2>
-        <p class="lead" style="margin:0">Skapa en företagsprofil, välj vilken tjänst du erbjuder och syns här för nystartade som letar efter hjälp.</p>
+        <p class="lead" style="margin:0">Bli medlem gratis, välj vilken tjänst du erbjuder i din profil och syns här för företagare som letar efter hjälp.</p>
       </div>
-      <div><a href="/foretag/konto/" class="btn btn-dark">Skapa företagsprofil</a></div>
+      <div><a href="/foretag/konto/" class="btn btn-dark">Bli medlem – gratis</a></div>
     </div>
   </section>
 </Base>
