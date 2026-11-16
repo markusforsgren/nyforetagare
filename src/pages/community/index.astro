@@ -11,8 +11,8 @@ const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })))
     <div class="cm-head">
       <div>
         <span class="eyebrow">Community</span>
-        <h1>Företagare hjälper företagare</h1>
-        <p class="lead" style="margin:0">Ställ frågor, dela tips och hitta samarbeten med andra företagare.</p>
+        <h1>Community för småföretagare</h1>
+        <p class="lead" style="margin:0">Fråga, tipsa och hitta samarbeten. Alla kan läsa – bli medlem gratis för att skriva och chatta.</p>
       </div>
       <a href="/community/chatt/" class="btn btn-outline" id="cm-msgs" hidden>Meddelanden <span class="unread" id="cm-unread" hidden></span></a>
     </div>
@@ -21,12 +21,12 @@ const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })))
       <div class="cm-feedcol">
         <!-- Skrivruta / inloggningsuppmaning -->
         <div id="cm-guest" class="card bordered cm-cta" hidden>
-          <p style="margin:0"><strong>Vill du vara med?</strong> Skapa en gratis företagsprofil eller logga in för att skriva inlägg, kommentera och chatta med andra företagare.</p>
-          <a href="/foretag/konto/" class="btn btn-primary">Skapa profil / logga in</a>
+          <p style="margin:0"><strong>Vill du vara med?</strong> Bli medlem gratis för att skriva inlägg, kommentera och chatta med andra företagare. Det tar två minuter.</p>
+          <a href="/foretag/konto/" class="btn btn-primary">Bli medlem – gratis</a>
         </div>
         <div id="cm-pending" class="card bordered cm-cta" hidden>
-          <p style="margin:0"><strong>Nästan klart!</strong> Du kan skriva i communityn när din företagsprofil är godkänd.</p>
-          <a href="/foretag/konto/" class="btn btn-outline">Till din profil</a>
+          <p style="margin:0"><strong>Nästan klart!</strong> Fyll i din profil så kan du börja skriva i communityn direkt.</p>
+          <a href="/foretag/konto/" class="btn btn-outline">Fyll i din profil</a>
         </div>
 
         <form id="cm-compose" class="card bordered cm-compose" hidden>
@@ -65,7 +65,7 @@ const lanJson = JSON.stringify(LAN.map((l) => ({ slug: l.slug, name: l.name })))
         <div class="card bordered">
           <h2 style="font-size:18px">Så funkar communityn</h2>
           <ul class="cm-rules">
-            <li>Alla kan läsa. Medlemmar med godkänd företagsprofil kan skriva.</li>
+            <li>Alla kan läsa. Medlemmar kan skriva – medlemskapet är gratis.</li>
             <li>Var hjälpsam och saklig. Ingen ren reklam i flödet.</li>
             <li>Vill du prata enskilt? Skicka ett meddelande.</li>
           </ul>
