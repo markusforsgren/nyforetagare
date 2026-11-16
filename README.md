@@ -209,6 +209,14 @@ Inget mer behövs i Netlify.
 - Namn på kategorier går att ändra fritt. Ändra aldrig en befintlig slug.
 - Områdessidor: /starta/, /driva/, /utveckla/.
 
+## 12. Län, forum och medlemskap
+
+- **Länsansvarig och Facebookgrupp:** fyll i `redaktor`, `epost`, `telefon` och `facebook` per län i `LAN` i `src/config.ts`. Tom e-post visar kontakt@nyforetagare.se.
+- **Kommunsök:** alla 290 kommuner finns i `src/data/kommuner.ts`.
+- **Öppen community:** kör `supabase/oppen-forum.sql` i Supabase. Då kan alla som skapat en profil skriva direkt; profilsidan visas i katalogen först när den är godkänd. Nekar du en profil kan den inte längre skriva.
+- **Lokal partner:** intresseanmälningar kommer via Netlify Forms (formuläret "lokal-partner").
+- **InvestMatch:** visas överst i kategorin Investering (/kategori/investering/) med ir@investmatch.se tills investmatch.se är klar.
+
 ## Struktur
 
 ```
