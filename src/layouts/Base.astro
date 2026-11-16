@@ -45,6 +45,7 @@ const isActive = (g: (typeof menu)[number]) =>
           <a href="/om-oss/">Om oss</a>
           <a href="/om-oss/#annonsera">Annonsera</a>
           <a href="/om-oss/#kontakt">Kontakt</a>
+          <a href="/foretag/konto/">Logga in</a>
         </nav>
       </div>
     </div>
@@ -56,7 +57,7 @@ const isActive = (g: (typeof menu)[number]) =>
           <span>Nyföretagare</span>
         </a>
         <div class="header-cta">
-          <a href="/foretag/konto/" class="btn btn-outline">Företagskonto</a>
+          <a href="/foretag/konto/" class="btn btn-outline">Bli medlem <span class="free">gratis</span></a>
           <a href="/#nyhetsbrev" class="btn btn-primary">Få nyhetsbrevet</a>
           <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="mainnav" aria-label="Meny">
             <span></span><span></span><span></span>
@@ -70,14 +71,15 @@ const isActive = (g: (typeof menu)[number]) =>
               {g.label}<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
             <div class="dd-panel" id={`dd-${i}`}>
-              {g.items.map((it) => <a href={it.href} aria-current={path === it.href ? 'page' : undefined}>{it.label}</a>)}
+              {g.items.map((it) => <a href={it.href} aria-current={path === it.href ? 'page' : undefined}>{it.label}{it.desc && <small>{it.desc}</small>}</a>)}
               {HUBS.includes(g.href) && g.items.length > g.lankar.length && <a href={g.href} class="dd-all">Allt inom {g.label.toLowerCase()} →</a>}
             </div>
           </div>
         ))}
-        <a href="/lan/" class="nav-link" aria-current={path.startsWith('/lan/') ? 'page' : undefined}>Lokalt</a>
+        <a href="/lan/" class="nav-link" aria-current={path.startsWith('/lan/') ? 'page' : undefined}>Ditt län</a>
         <div class="nav-mobile-extra">
-          <a href="/foretag/konto/" class="btn btn-primary">Företagskonto</a>
+          <a href="/foretag/konto/" class="btn btn-primary">Bli medlem – gratis</a>
+          <a href="/foretag/konto/">Logga in</a>
           <a href="/om-oss/">Om oss</a>
           <a href="/om-oss/#kontakt">Kontakt</a>
           <a href="/#nyhetsbrev">Få nyhetsbrevet</a>
@@ -102,13 +104,14 @@ const isActive = (g: (typeof menu)[number]) =>
         </div>
         <div class="col">
           <span class="h">För företag</span>
-          <a href="/foretag/konto/">Skapa företagsprofil</a>
-          <a href="/foretag/">Alla företag</a>
+          <a href="/foretag/konto/">Bli medlem – gratis</a>
+          <a href="/foretag/">Företagskatalog</a>
           <a href="/community/">Community</a>
           <a href="/foretagstjanster/">Företagstjänster</a>
-          <a href="/lan/">Lokalt – välj län</a>
+          <a href="/lan/">Nyföretagare i ditt län</a>
+          <a href="/kategori/investering/">Investering – InvestMatch</a>
           <a href="/om-oss/#annonsera">Annonsera</a>
-          <a href="/om-oss/#lokal-partner">Bli lokal partner</a>
+          <a href="/lokal-partner/">Bli lokal partner</a>
         </div>
         <div class="col">
           <span class="h">Nyföretagare</span>
