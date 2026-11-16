@@ -35,6 +35,7 @@ export const CATEGORIES = [
   // Utveckla
   { slug: 'affarsutveckling', name: 'Affärsutveckling och strategi' },
   { slug: 'lonsamhet', name: 'Lönsamhet och prissättning' },
+  { slug: 'investering', name: 'Investering' }, // här ligger även InvestMatch
   // Kunskap
   { slug: 'foretagsnyheter', name: 'Företagsnyheter' },
   { slug: 'reportage', name: 'Reportage' },
@@ -42,18 +43,33 @@ export const CATEGORIES = [
   { slug: 'guider', name: 'Guider' },
   { slug: 'tips-verktyg', name: 'Tips och verktyg' },
   // Nätverk
-  { slug: 'natverk', name: 'Nätverk och samarbeten' },
+  { slug: 'natverk', name: 'Samarbeten och nätverkande' },
   { slug: 'event', name: 'Event och webbinarier' },
 ] as const;
 
 // Huvudmenyn. "kategorier" visas bara om de har artiklar. "lankar" visas alltid.
-export const MENU: { label: string; href: string; kategorier: string[]; lankar: { href: string; label: string }[] }[] = [
+// "desc" är en kort förklaring som visas under länken i rullgardinen.
+type MenuLink = { href: string; label: string; desc?: string };
+export const MENU: { label: string; href: string; kategorier: string[]; lankar: MenuLink[] }[] = [
   { label: 'Starta', href: '/starta/', kategorier: ['affarsideer', 'affarsplan', 'foretagsformer', 'kapital', 'komma-igang'], lankar: [] },
-  { label: 'Driva', href: '/driva/', kategorier: ['ekonomi', 'marknadsforing', 'juridik', 'personal', 'digitala-verktyg'], lankar: [{ href: '/foretagstjanster/', label: 'Företagstjänster' }] },
-  { label: 'Utveckla', href: '/utveckla/', kategorier: ['affarsutveckling', 'lonsamhet', 'kapital'], lankar: [] },
-  { label: 'Kunskap', href: '/artiklar/', kategorier: ['foretagsnyheter', 'reportage', 'inspiration', 'guider', 'tips-verktyg'], lankar: [{ href: '/artiklar/', label: 'Alla artiklar' }] },
-  { label: 'Nätverk', href: '/community/', kategorier: ['natverk', 'event'], lankar: [{ href: '/community/', label: 'Community' }, { href: '/foretag/', label: 'Företagskatalog' }] },
+  { label: 'Driva', href: '/driva/', kategorier: ['ekonomi', 'marknadsforing', 'juridik', 'personal', 'digitala-verktyg'],
+    lankar: [{ href: '/foretagstjanster/', label: 'Företagstjänster', desc: 'Hitta redovisning, webb, juridik med mera' }] },
+  { label: 'Utveckla', href: '/utveckla/', kategorier: ['affarsutveckling', 'lonsamhet', 'kapital'],
+    lankar: [{ href: '/kategori/investering/', label: 'Investering', desc: 'InvestMatch – matchning mellan investerare och företag' }] },
+  { label: 'Artiklar', href: '/artiklar/', kategorier: ['foretagsnyheter', 'reportage', 'inspiration', 'guider', 'tips-verktyg'],
+    lankar: [{ href: '/artiklar/', label: 'Alla artiklar' }] },
+  { label: 'Nätverk', href: '/community/', kategorier: ['natverk', 'event'],
+    lankar: [
+      { href: '/community/', label: 'Community', desc: 'Fråga, tipsa och chatta med andra företagare' },
+      { href: '/foretag/', label: 'Företagskatalog', desc: 'Alla medlemsföretag – sök på ort och bransch' },
+    ] },
 ];
+
+// Korta förklaringar till kategorier i menyn (valfritt)
+export const CATEGORY_DESC: Record<string, string> = {
+  natverk: 'Artiklar om nätverkande och företag som samarbetar',
+  event: 'Kommande träffar, mässor och webbinarier',
+};
 
 export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
 
@@ -61,29 +77,31 @@ export const categoryName = (slug: string) =>
   CATEGORIES.find((c) => c.slug === slug)?.name ?? slug;
 
 // Län. "slug" blir adressen: /lan/<slug>
-// "redaktor" = lokal partner som driver länet (lämna tomt om ingen).
+// "redaktor" = lokal partner som ansvarar för länet (lämna tomt om ingen).
+// "epost" / "telefon" = kontaktuppgifter som visas på länssidan. Tom e-post = kontakt@nyforetagare.se.
+// "facebook" = länk till länets Facebookgrupp.
 export const LAN = [
-  { slug: 'blekinge', name: 'Blekinge', full: 'Blekinge län', redaktor: '' },
-  { slug: 'dalarna', name: 'Dalarna', full: 'Dalarnas län', redaktor: 'Markus Forsgren' },
-  { slug: 'gotland', name: 'Gotland', full: 'Gotlands län', redaktor: '' },
-  { slug: 'gavleborg', name: 'Gävleborg', full: 'Gävleborgs län', redaktor: '' },
-  { slug: 'halland', name: 'Halland', full: 'Hallands län', redaktor: '' },
-  { slug: 'jamtland', name: 'Jämtland', full: 'Jämtlands län', redaktor: '' },
-  { slug: 'jonkoping', name: 'Jönköping', full: 'Jönköpings län', redaktor: '' },
-  { slug: 'kalmar', name: 'Kalmar', full: 'Kalmar län', redaktor: '' },
-  { slug: 'kronoberg', name: 'Kronoberg', full: 'Kronobergs län', redaktor: '' },
-  { slug: 'norrbotten', name: 'Norrbotten', full: 'Norrbottens län', redaktor: '' },
-  { slug: 'skane', name: 'Skåne', full: 'Skåne län', redaktor: '' },
-  { slug: 'stockholm', name: 'Stockholm', full: 'Stockholms län', redaktor: '' },
-  { slug: 'sodermanland', name: 'Södermanland', full: 'Södermanlands län', redaktor: '' },
-  { slug: 'uppsala', name: 'Uppsala', full: 'Uppsala län', redaktor: '' },
-  { slug: 'varmland', name: 'Värmland', full: 'Värmlands län', redaktor: '' },
-  { slug: 'vasterbotten', name: 'Västerbotten', full: 'Västerbottens län', redaktor: '' },
-  { slug: 'vasternorrland', name: 'Västernorrland', full: 'Västernorrlands län', redaktor: '' },
-  { slug: 'vastmanland', name: 'Västmanland', full: 'Västmanlands län', redaktor: '' },
-  { slug: 'vastra-gotaland', name: 'Västra Götaland', full: 'Västra Götalands län', redaktor: '' },
-  { slug: 'orebro', name: 'Örebro', full: 'Örebro län', redaktor: '' },
-  { slug: 'ostergotland', name: 'Östergötland', full: 'Östergötlands län', redaktor: '' },
+  { slug: 'blekinge', name: 'Blekinge', full: 'Blekinge län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'dalarna', name: 'Dalarna', full: 'Dalarnas län', redaktor: 'Markus Forsgren', epost: '', telefon: '', facebook: '' },
+  { slug: 'gotland', name: 'Gotland', full: 'Gotlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'gavleborg', name: 'Gävleborg', full: 'Gävleborgs län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'halland', name: 'Halland', full: 'Hallands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'jamtland', name: 'Jämtland', full: 'Jämtlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'jonkoping', name: 'Jönköping', full: 'Jönköpings län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'kalmar', name: 'Kalmar', full: 'Kalmar län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'kronoberg', name: 'Kronoberg', full: 'Kronobergs län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'norrbotten', name: 'Norrbotten', full: 'Norrbottens län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'skane', name: 'Skåne', full: 'Skåne län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'stockholm', name: 'Stockholm', full: 'Stockholms län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'sodermanland', name: 'Södermanland', full: 'Södermanlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'uppsala', name: 'Uppsala', full: 'Uppsala län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'varmland', name: 'Värmland', full: 'Värmlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'vasterbotten', name: 'Västerbotten', full: 'Västerbottens län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'vasternorrland', name: 'Västernorrland', full: 'Västernorrlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'vastmanland', name: 'Västmanland', full: 'Västmanlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'vastra-gotaland', name: 'Västra Götaland', full: 'Västra Götalands län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'orebro', name: 'Örebro', full: 'Örebro län', redaktor: '', epost: '', telefon: '', facebook: '' },
+  { slug: 'ostergotland', name: 'Östergötland', full: 'Östergötlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
 ] as const;
 
 export const lanName = (slug?: string) => LAN.find((l) => l.slug === slug)?.name ?? '';
