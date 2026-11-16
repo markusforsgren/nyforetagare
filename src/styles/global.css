@@ -219,6 +219,8 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 
 /* Län */
 .lan-picker { display: flex; flex-wrap: wrap; gap: 12px; }
+.lan-picker input { flex: 1 1 220px; min-height: 48px; padding: 0 14px; border: 1px solid var(--field); border-radius: 8px; font: inherit; background: #fff; color: var(--ink); }
+.lan-picker-msg { flex: 0 0 100%; margin: 0; font-size: 14px; color: #b3261e; }
 .lan-picker select { flex: 1 1 220px; min-height: 48px; padding: 0 14px; border: 1px solid var(--field); border-radius: 8px; font: inherit; background: #fff; color: var(--ink); }
 .lan-head { display: flex; flex-wrap: wrap; gap: 24px; justify-content: space-between; align-items: flex-end; }
 .lan-head .lan-picker { flex: 0 1 380px; }
@@ -361,3 +363,21 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
   .header-cta .btn-outline { display: none; }
   .nav-mobile-extra .btn { color: #fff; justify-content: center; margin: 4px 0 8px; padding: 0 18px; }
 }
+
+/* Menybeskrivningar och gratis-märke */
+.dd-panel a small { display: block; margin-top: 2px; font-size: 13px; font-weight: 500; color: var(--muted); line-height: 1.35; }
+.dd-panel { min-width: 300px; }
+.btn .free { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 10px; background: var(--green); color: var(--navy); font-size: 12px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
+
+/* Länssidan: ansvarig, Facebookgrupp, kommuner */
+.lan-contact { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-top: 24px; }
+.lan-contact .card { gap: 8px; }
+.lan-contact h2 { font-size: 18px; margin: 0; }
+.lan-contact p { margin: 0; }
+.lan-contact .who { font-weight: 700; color: var(--navy); font-size: 17px; }
+.lan-found { margin: 14px 0 0; padding: 10px 14px; border-radius: 10px; background: #e3f4e8; color: #1d6b34; font-weight: 600; }
+.kommun-list { display: flex; flex-wrap: wrap; gap: 6px 8px; margin: 0; padding: 0; list-style: none; }
+.kommun-list li { padding: 4px 12px; border-radius: 14px; background: #fff; border: 1px solid var(--line); font-size: 14px; }
+.kommun-list li.hit { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+.investmatch { gap: 14px; padding: 32px; }
