@@ -47,7 +47,7 @@ const initials = c.namn.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpp
         {c.telefon && <a href={`tel:${c.telefon.replace(/[^\d+]/g, '')}`} class="btn btn-outline">Ring {c.telefon}</a>}
         {web && <a href={c.webbplats!} rel="noopener nofollow" target="_blank" class="linklike">{web} ↗</a>}
         <a href={`/community/chatt/?till=${c.owner_id}`} class="btn btn-outline">Skicka meddelande</a>
-        <p class="hint" style="margin:0">Meddelanden kan skickas av medlemmar i communityn.</p>
+        <p class="hint" style="margin:0">Meddelanden kan skickas av medlemmar.</p>
         {c.tjanstekategori && <p class="muted" style="margin:0">Finns i tjänstekatalogen under <a href="/foretagstjanster/">{c.tjanstekategori}</a>.</p>}
         {c.lan && <p class="muted" style="margin:0">Fler företag i <a href={`/lan/${c.lan}/`}>{lanName(c.lan)}</a>.</p>}
       </aside>

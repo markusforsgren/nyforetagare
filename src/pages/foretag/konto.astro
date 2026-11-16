@@ -3,7 +3,7 @@ import Base from '../../layouts/Base.astro';
 import '../../styles/konto.css';
 import { LAN, TJANST_KATEGORIER } from '../../config';
 ---
-<Base title="Företagskonto" description="Skapa och hantera ditt företags profil på Nyföretagare.">
+<Base title="Bli medlem – gratis" description="Bli medlem i Nyföretagare gratis. Skapa en profil, syns i företagskatalogen och var med i communityn.">
   <div class="konto wrap">
     <div id="k-toast" class="toast" role="status" aria-live="polite" hidden></div>
 
@@ -12,18 +12,20 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
     <!-- Logga in / skapa konto -->
     <section id="k-auth" hidden>
       <div class="k-intro">
-        <span class="eyebrow">Gratis för företag</span>
-        <h1>Syns på Nyföretagare</h1>
-        <p class="lead">Skapa en företagsprofil och nå kunder, samarbetspartners och andra företagare i ditt län.</p>
+        <span class="eyebrow">Medlemskap · 0 kr</span>
+        <h1>Bli medlem – det är gratis</h1>
+        <p class="lead">Skapa en profil för ditt företag – eller för företaget du ska starta – och bli en del av Sveriges nätverk för småföretagare.</p>
         <ul class="k-points">
+          <li>Skriv, fråga och tipsa i communityn och chatta med andra medlemmar</li>
           <li>Egen profilsida med logga, beskrivning och kontaktuppgifter</li>
-          <li>Synlig på ditt läns sida och i företagslistan</li>
-          <li>Erbjuder du tjänster till andra företag? Syns i tjänstekatalogen</li>
+          <li>Synlig i företagskatalogen och på ditt läns sida</li>
+          <li>Erbjuder du tjänster till andra företag? Syns under Företagstjänster</li>
         </ul>
+        <p class="muted" style="margin:0">Inga avgifter, ingen bindningstid. Du kan radera ditt konto när du vill.</p>
       </div>
       <div class="card bordered k-box">
         <div class="k-tabs" role="tablist">
-          <button type="button" role="tab" data-ktab="register" aria-selected="true">Skapa konto</button>
+          <button type="button" role="tab" data-ktab="register" aria-selected="true">Bli medlem</button>
           <button type="button" role="tab" data-ktab="login" aria-selected="false">Logga in</button>
         </div>
         <form id="f-register" class="form">
@@ -62,7 +64,7 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
     <section id="k-app" hidden>
       <div class="k-head">
         <div>
-          <span class="eyebrow">Företagskonto</span>
+          <span class="eyebrow">Ditt medlemskonto</span>
           <h1 id="k-title">Din företagsprofil</h1>
           <p class="muted" style="margin:0" id="k-user"></p>
         </div>
@@ -76,7 +78,7 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
 
       <form id="f-company" class="k-grid" novalidate>
         <div class="card bordered form k-main">
-          <label>Företagets namn *<input name="namn" required minlength="2" maxlength="120" /></label>
+          <label>Företagets namn * <span class="hint">(inget företag än? skriv ditt namn eller idéns arbetsnamn)</span><input name="namn" required minlength="2" maxlength="120" /></label>
           <div class="k-row">
             <label>Bransch<input name="bransch" maxlength="80" placeholder="t.ex. Café, Bygg, Redovisning" /></label>
             <label>Organisationsnummer <span class="hint">(visas inte)</span><input name="orgnr" maxlength="20" placeholder="556677-8899" /></label>
@@ -246,7 +248,7 @@ import { LAN, TJANST_KATEGORIER } from '../../config';
     // ---------- Profil ----------
     const form = $('#f-company') as HTMLFormElement;
     const STATUS: Record<string, [string, string]> = {
-      pending: ['k-pending', 'Din profil granskas. Den syns på sajten så snart den är godkänd, oftast inom ett dygn.'],
+      pending: ['k-pending', 'Välkommen som medlem! Du kan redan skriva i communityn. Din profilsida granskas och syns i företagskatalogen när den är godkänd, oftast inom ett dygn.'],
       approved: ['k-approved', 'Din profil är publicerad. Ändringar du sparar syns på sajten inom några minuter.'],
       rejected: ['k-rejected', 'Profilen godkändes inte.'],
     };

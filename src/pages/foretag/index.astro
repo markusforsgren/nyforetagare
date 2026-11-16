@@ -7,15 +7,16 @@ import { LAN } from '../../config';
 const companies = await getCompanies();
 const lanWithCompanies = LAN.filter((l) => companies.some((c) => c.lan === l.slug));
 ---
-<Base title="Företag" description="Företag och företagare som syns på Nyföretagare.">
+<Base title="Företagskatalog" description="Alla medlemsföretag på Nyföretagare. Sök på namn, ort, län och bransch.">
   <div class="wrap page-head">
     <div class="lan-head">
       <div class="stack" style="gap:10px">
-        <span class="eyebrow">Företag</span>
-        <h1>Företagen på Nyföretagare</h1>
-        <p class="lead" style="margin:0">Hitta företag nära dig, nya kunder och samarbetspartners.</p>
+        <span class="eyebrow">Företagskatalog</span>
+        <h1>Medlemsföretagen</h1>
+        <p class="lead" style="margin:0">Alla företag som är medlemmar i Nyföretagare. Hitta företag nära dig, kunder och samarbetspartners.</p>
+        <p class="muted" style="margin:0">Letar du efter hjälp, till exempel redovisning eller hemsida? <a href="/foretagstjanster/">Se Företagstjänster →</a></p>
       </div>
-      <a href="/foretag/konto/" class="btn btn-primary">Skapa företagsprofil</a>
+      <a href="/foretag/konto/" class="btn btn-primary">Bli medlem – gratis</a>
     </div>
   </div>
 
@@ -38,7 +39,7 @@ const lanWithCompanies = LAN.filter((l) => companies.some((c) => c.lan === l.slu
       <div class="empty">
         <h2 class="h2" style="font-size:24px">Bli ett av de första företagen här</h2>
         <p style="margin:0">Skapa en gratis profil och syns för kunder och andra företagare i ditt län.</p>
-        <div class="chips-row"><a href="/foretag/konto/" class="btn btn-primary">Skapa företagsprofil</a></div>
+        <div class="chips-row"><a href="/foretag/konto/" class="btn btn-primary">Bli medlem – gratis</a></div>
       </div>
     )}
   </div>
