@@ -7,13 +7,16 @@ import Newsletter from '../../components/Newsletter.astro';
 import { getPosts } from '../../lib/posts';
 import { getCompanies, asService } from '../../lib/companies';
 import CompanyCard from '../../components/CompanyCard.astro';
-import { LAN, SERVICES, FEATURED_COMPANIES } from '../../config';
+import { LAN, SERVICES, FEATURED_COMPANIES, SITE } from '../../config';
+import { KOMMUNER } from '../../data/kommuner';
 
 export async function getStaticPaths() {
   return LAN.map((l) => ({ params: { slug: l.slug }, props: { lan: l } }));
 }
 
 const { lan } = Astro.props;
+const kommuner = KOMMUNER[lan.slug] ?? [];
+const epost = lan.epost || SITE.email;
 const posts = (await getPosts()).filter((p) => p.data.lan === lan.slug);
 const dbCompanies = (await getCompanies()).filter((c) => c.lan === lan.slug);
 const companies = dbCompanies.length ? [] : FEATURED_COMPANIES.filter((c) => c.lan === lan.slug);
@@ -21,30 +24,61 @@ const services = [...SERVICES, ...dbCompanies.filter((c) => c.tjanstekategori).m
   .filter((s) => s.lan.includes(lan.slug) || s.lan.includes('hela-sverige'))
   .sort((a, b) => Number(b.utvald) - Number(a.utvald));
 ---
-<Base title={`Företagare i ${lan.name}`} description={`Intervjuer, företag och tjänster i ${lan.full}.`}>
+<Base title={`Nyföretagare i ${lan.name}`} description={`Lokala nyheter, företag och tjänster i ${lan.full}.`}>
   <div class="wrap page-head">
     <div class="lan-head">
       <div class="stack" style="gap:10px">
-        <span class="eyebrow">Lokalt · {lan.full}</span>
-        <h1>Företagarna i {lan.name}</h1>
-        {lan.redaktor && <p class="muted" style="margin:0;font-size:16px">Lokal redaktör: <strong style="color:var(--ink)">{lan.redaktor}</strong></p>}
+        <span class="eyebrow">Nyföretagare i ditt län · {lan.full}</span>
+        <h1>Nyföretagare {lan.name}</h1>
+        <p class="muted" style="margin:0;font-size:16px">Lokala nyheter, företag och tjänster i {kommuner.length} {kommuner.length === 1 ? 'kommun' : 'kommuner'}.</p>
       </div>
       <LanPicker current={lan.slug} id="lan-val-top" />
+    </div>
+    <p class="lan-found" id="lan-found" hidden></p>
+
+    <div class="lan-contact">
+      {lan.redaktor ? (
+        <article class="card bordered">
+          <h2>Ansvarig i {lan.name}</h2>
+          <p class="who">{lan.redaktor}</p>
+          <p><a href={`mailto:${epost}?subject=${encodeURIComponent(`Nyföretagare ${lan.name}`)}`}>{epost}</a></p>
+          {lan.telefon && <p><a href={`tel:${lan.telefon.replace(/[^+\d]/g, '')}`}>{lan.telefon}</a></p>}
+          <p class="muted small">Tipsa om lokala företag och nyheter, eller hör av dig om samarbeten.</p>
+        </article>
+      ) : (
+        <article class="card bordered">
+          <h2>Vi söker en lokal partner i {lan.name}</h2>
+          <p>Vill du driva Nyföretagare i ditt län och lyfta företagarna här?</p>
+          <a href="/lokal-partner/" class="push">Så funkar det att bli lokal partner →</a>
+        </article>
+      )}
+      <article class="card bordered">
+        <h2>Facebookgrupp</h2>
+        {lan.facebook ? (
+          <>
+            <p>Gå med i <strong>Nyföretagare {lan.name}</strong> – lokala tips, frågor och evenemang.</p>
+            <a href={lan.facebook} rel="noopener" target="_blank" class="btn btn-outline btn-sm push">Gå med i gruppen ↗</a>
+          </>
+        ) : (
+          <p class="muted">Länets Facebookgrupp startar snart. Följ oss så länge på <a href={SITE.facebook} rel="noopener" target="_blank">Facebook</a>.</p>
+        )}
+      </article>
     </div>
   </div>
 
   <!-- Artiklar -->
   <section class="wrap" style="padding-bottom:56px">
+    <h2 class="h2" style="margin-bottom:20px">Lokala nyheter</h2>
     {posts.length > 0 ? (
       <div class="grid">{posts.map((p) => <ArticleCard post={p} showIngress />)}</div>
     ) : (
       <div class="empty">
-        <h2 class="h2" style="font-size:24px">Inga intervjuer från {lan.name} ännu</h2>
+        <h2 class="h2" style="font-size:24px">Inga lokala nyheter från {lan.name} ännu</h2>
         <p style="margin:0">Känner du en företagare här som borde synas? Tipsa oss.</p>
         <div class="chips-row">
-          <a href="/foretag/konto/" class="btn btn-primary">Skapa företagsprofil</a>
+          <a href="/foretag/konto/" class="btn btn-primary">Bli medlem – gratis</a>
           <a href="/lista-ditt-foretag/" class="btn btn-outline">Tipsa om ett företag</a>
-          {!lan.redaktor && <a href="/om-oss/#lokal-partner" class="btn btn-outline">Bli lokal partner i {lan.name}</a>}
+          {!lan.redaktor && <a href="/lokal-partner/" class="btn btn-outline">Bli lokal partner i {lan.name}</a>}
         </div>
       </div>
     )}
@@ -80,5 +114,28 @@ const services = [...SERVICES, ...dbCompanies.filter((c) => c.tjanstekategori).m
     <div class="grid">{services.map((s) => <ServiceCard s={s} />)}</div>
   </section>
 
+  <!-- Kommuner -->
+  <section class="soft">
+    <div class="wrap section">
+      <h2 class="h2" style="margin-bottom:16px">Kommuner i {lan.full}</h2>
+      <ul class="kommun-list" id="kommun-list">{kommuner.map((k) => <li>{k}</li>)}</ul>
+    </div>
+  </section>
+
   <Newsletter />
 </Base>
+
+<script>
+  // Visar vilken kommun man sökte på
+  const k = new URLSearchParams(location.search).get('kommun');
+  const list = document.getElementById('kommun-list');
+  const found = document.getElementById('lan-found');
+  if (k && list && found) {
+    const li = Array.from(list.children).find((x) => x.textContent === k);
+    if (li) {
+      li.classList.add('hit');
+      found.textContent = `${k} ligger i ${document.querySelector('.lan-head .eyebrow')?.textContent?.split('· ')[1] ?? 'det här länet'}. Här är allt lokalt för dig.`;
+      found.hidden = false;
+    }
+  }
+</script>
