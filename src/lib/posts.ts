@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { CATEGORIES, MENU } from '../config';
+import { CATEGORIES, MENU, CATEGORY_DESC } from '../config';
 
 /** Alla publicerade artiklar, nyast först. */
 export async function getPosts() {
@@ -28,7 +28,7 @@ export async function getMenu() {
   return MENU.map((g) => {
     const kats = g.kategorier.filter((s) => used.has(s)).map((s) => {
       const c = CATEGORIES.find((x) => x.slug === s)!;
-      return { href: `/kategori/${c.slug}/`, label: c.name };
+      return { href: `/kategori/${c.slug}/`, label: c.name as string, desc: CATEGORY_DESC[c.slug] };
     });
     return { ...g, items: [...g.lankar, ...kats] };
   });
