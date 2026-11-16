@@ -117,12 +117,12 @@ export function parseMd(text) {
   return { fm, body: m[2].replace(/^\r?\n/, '') };
 }
 
-const FIELD_ORDER = ['title', 'ingress', 'kategori', 'lan', 'ort', 'datum', 'skribent', 'bild', 'toppnyhet', 'utkast', 'granskning', 'skapad_av'];
+const FIELD_ORDER = ['title', 'ingress', 'kategori', 'fler_kategorier', 'lan', 'ort', 'datum', 'skribent', 'bild', 'toppnyhet', 'utkast', 'granskning', 'skapad_av'];
 export function toMd(fm, body) {
   const out = {};
   for (const k of FIELD_ORDER) {
     const v = fm[k];
-    if (v === undefined || v === null || v === '') continue;
+    if (v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length)) continue;
     if ((k === 'toppnyhet' || k === 'granskning') && v === false) continue;
     out[k] = v;
   }
@@ -136,6 +136,9 @@ function validateArticle(a) {
     title: clean(a.title, 200),
     ingress: clean(a.ingress, 600),
     kategori: clean(a.kategori, 40),
+    fler_kategorier: Array.isArray(a.fler_kategorier)
+      ? [...new Set(a.fler_kategorier.map((k) => clean(k, 40)))].filter((k) => k && k !== clean(a.kategori, 40)).slice(0, 6)
+      : [],
     lan: clean(a.lan, 40) || undefined,
     ort: clean(a.ort, 80) || undefined,
     datum: clean(a.datum, 10),
@@ -147,6 +150,7 @@ function validateArticle(a) {
   if (!fm.title) fail(400, 'Rubrik saknas.');
   if (!fm.ingress) fail(400, 'Ingress saknas.');
   if (!KATEGORIER.includes(fm.kategori)) fail(400, 'Välj en kategori.');
+  if (fm.fler_kategorier.some((k) => !KATEGORIER.includes(k))) fail(400, 'Okänd kategori.');
   if (fm.lan && !LAN_SLUGS.includes(fm.lan)) fail(400, 'Okänt län.');
   if (!DATE_RE.test(fm.datum)) fail(400, 'Datum ska vara ÅÅÅÅ-MM-DD.');
   if (fm.bild && !/^\/img\/[\w\-./]+$/.test(fm.bild)) fail(400, 'Ogiltig bildsökväg.');
@@ -167,7 +171,7 @@ async function listArticles(e, prof) {
       const { fm } = parseMd(x.object?.text || '');
       return {
         slug: x.name.replace(/\.md$/, ''),
-        title: fm.title || x.name, kategori: fm.kategori || '', lan: fm.lan || '', ort: fm.ort || '',
+        title: fm.title || x.name, kategori: fm.kategori || '', fler_kategorier: Array.isArray(fm.fler_kategorier) ? fm.fler_kategorier : [], lan: fm.lan || '', ort: fm.ort || '',
         datum: fm.datum || '', skribent: fm.skribent || '', utkast: fm.utkast === true,
         granskning: fm.granskning === true, toppnyhet: fm.toppnyhet === true,
         skapad_av: fm.skapad_av || '', canEdit: canEdit(prof, fm),
