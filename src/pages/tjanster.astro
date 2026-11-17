@@ -1,0 +1,117 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../config';
+
+// Våra tjänster. Ändra texterna här. "id" används i länkar och i formuläret.
+const foretag = [
+  {
+    id: 'strategisk-partner',
+    titel: 'Strategisk partner och bollplank',
+    text: 'Vi blir ert bollplank när ni ska fatta beslut, växa eller tänka om. Regelbundna samtal om affärsidé, prissättning, försäljning och nästa steg – med människor som själva driver företag.',
+    punkter: ['Återkommande samtal på distans eller på plats', 'Hjälp att prioritera och sätta mål', 'Kontakter i vårt nätverk när ni behöver dem'],
+  },
+  {
+    id: 'marknadsforing',
+    titel: 'Marknadsföring',
+    text: 'Vi hjälper er att synas där era kunder finns – i sociala medier, i ert län och hos oss.',
+    punkter: ['Plan för sociala medier och innehåll', 'Kampanjer och lanseringar', 'Lokal synlighet via Nyföretagare'],
+  },
+  {
+    id: 'hemsida',
+    titel: 'Hemsida och digital närvaro',
+    text: 'Snygga, snabba hemsidor som fungerar i mobilen och går att uppdatera själv. Vi fixar även domän, e-post och att ni hittas på Google.',
+    punkter: ['Ny hemsida eller ett lyft av den ni har', 'Domän, e-post och Google-profil', 'Drift och support efter lansering'],
+  },
+  {
+    id: 'annonsering',
+    titel: 'Annonsering',
+    text: 'Nå småföretagare och de som ska starta – i hela Sverige eller i ett län.',
+    punkter: ['Annonser på sajten', 'Plats i nyhetsbrevet', 'Lokal annonsering per län'],
+  },
+  {
+    id: 'reportage',
+    titel: 'Sponsrade reportage',
+    text: 'Vi skriver en intervju eller artikel om ert företag, publicerad hos oss och delad i våra kanaler. Tydligt märkt som samarbete.',
+    punkter: ['Intervju och text av vår redaktion', 'Publicering på sajten och i länet', 'Delning i sociala medier'],
+  },
+];
+const ovriga = [
+  { id: 'natverkspartner', titel: 'För nätverk och föreningar', text: 'Lokala företagarnätverk syns hos oss med medlemmar, träffar och reportage. Era medlemmar får gratis profiler och ni når fler.', lank: '/om-oss/#kontakt', lanktext: 'Bli nätverkspartner →' },
+  { id: 'lokal-partner', titel: 'Bli lokal partner', text: 'Driv Nyföretagare i ditt län och bli den lokala kontaktpersonen för företagarna där.', lank: '/lokal-partner/', lanktext: 'Så funkar det →' },
+];
+---
+<Base title="Våra tjänster" description="Nyföretagare hjälper småföretag med strategi, marknadsföring, hemsidor, annonsering och reportage. Kontakta oss för offert.">
+  <div class="wrap page-head stack">
+    <span class="eyebrow">Våra tjänster</span>
+    <h1>Vi hjälper ditt företag att växa</h1>
+    <p class="lead" style="margin:0">Medlemskapet är gratis. Vill du ha mer hjälp kan vi vara ert bollplank, sköta marknadsföringen, bygga hemsidan eller lyfta er hos våra läsare.</p>
+    <div class="intro-cta" style="margin-top:8px">
+      <a href="#offert" class="btn btn-primary">Begär offert</a>
+      <a href="/foretag/konto/" class="btn btn-outline">Bli medlem – gratis</a>
+    </div>
+  </div>
+
+  <section class="soft" aria-labelledby="for-foretag">
+    <div class="wrap section">
+      <h2 class="h2" id="for-foretag" style="margin-bottom:24px">För företag</h2>
+      <div class="svc-grid">
+        {foretag.map((t) => (
+          <article class="card svc" id={t.id}>
+            <h3>{t.titel}</h3>
+            <p>{t.text}</p>
+            <ul>{t.punkter.map((p) => <li>{p}</li>)}</ul>
+            <a href={`#offert`} data-tjanst={t.titel} class="push svc-cta">Kontakta oss för offert →</a>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section" aria-label="Fler sätt att samarbeta">
+    <div class="grid">
+      {ovriga.map((t) => (
+        <article class="card bordered" id={t.id}>
+          <h3>{t.titel}</h3>
+          <p>{t.text}</p>
+          <a href={t.lank} class="push">{t.lanktext}</a>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section class="soft" id="offert">
+    <div class="wrap section split" style="align-items:flex-start">
+      <div class="stack">
+        <h2 class="h2">Begär offert</h2>
+        <p class="lead" style="margin:0">Berätta kort vad ni behöver, så hör vi av oss inom två arbetsdagar. Det kostar inget att fråga.</p>
+        <p class="muted" style="margin:0">Eller mejla <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.</p>
+      </div>
+      <form class="form" name="offert" method="POST" action="/tack/" data-netlify="true" netlify-honeypot="bot-field">
+        <input type="hidden" name="form-name" value="offert" />
+        <p hidden><label>Lämna tomt <input name="bot-field" /></label></p>
+        <label>Namn<input name="namn" required autocomplete="name" /></label>
+        <label>Företag<input name="foretag" autocomplete="organization" /></label>
+        <label>E-post<input type="email" name="email" required autocomplete="email" /></label>
+        <label>Telefon<input type="tel" name="telefon" autocomplete="tel" /></label>
+        <label>Tjänst
+          <select name="tjanst" id="offert-tjanst">
+            {[...foretag, ...ovriga].map((t) => <option>{t.titel}</option>)}
+            <option>Vet inte än – vill prata</option>
+          </select>
+        </label>
+        <label>Vad behöver ni hjälp med?<textarea name="meddelande" required></textarea></label>
+        <div><button type="submit" class="btn btn-primary">Skicka</button></div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  // Förväljer tjänsten i formuläret när man klickar på "Kontakta oss för offert"
+  document.querySelectorAll<HTMLAnchorElement>('[data-tjanst]').forEach((a) =>
+    a.addEventListener('click', () => {
+      const sel = document.getElementById('offert-tjanst') as HTMLSelectElement | null;
+      if (sel) sel.value = a.dataset.tjanst!;
+    }),
+  );
+</script>
