@@ -1,7 +1,7 @@
 ---
 import '@fontsource-variable/inter';
 import '../styles/global.css';
-import { SITE } from '../config';
+import { SITE, ANALYTICS } from '../config';
 import { getMenu, usedCategories } from '../lib/posts';
 
 interface Props {
@@ -36,6 +36,9 @@ const isActive = (g: (typeof menu)[number]) =>
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:locale" content="sv_SE" />
+    {ANALYTICS.umamiWebsiteId && (
+      <script is:inline defer src={ANALYTICS.src} data-website-id={ANALYTICS.umamiWebsiteId} data-do-not-track="true" data-exclude-search="true"></script>
+    )}
   </head>
   <body>
     <div class="topbar">
@@ -57,8 +60,8 @@ const isActive = (g: (typeof menu)[number]) =>
           <span>Nyföretagare</span>
         </a>
         <div class="header-cta">
-          <a href="/foretag/konto/" class="btn btn-outline">Bli medlem <span class="free">gratis</span></a>
-          <a href="/#nyhetsbrev" class="btn btn-primary">Få nyhetsbrevet</a>
+          <a href="/foretag/konto/" class="btn btn-outline" data-umami-event="Bli medlem (meny)">Bli medlem <span class="free">gratis</span></a>
+          <a href="/#nyhetsbrev" class="btn btn-primary" data-umami-event="Nyhetsbrev (meny)">Få nyhetsbrevet</a>
           <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="mainnav" aria-label="Meny">
             <span></span><span></span><span></span>
           </button>
