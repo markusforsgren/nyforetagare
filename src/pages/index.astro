@@ -1,17 +1,15 @@
 ---
 import Base from '../layouts/Base.astro';
 import ArticleCard from '../components/ArticleCard.astro';
-import CategoryIcon from '../components/CategoryIcon.astro';
 import Newsletter from '../components/Newsletter.astro';
 import LanPicker from '../components/LanPicker.astro';
 import ServiceCard from '../components/ServiceCard.astro';
-import { getPosts, formatDate, usedCategories } from '../lib/posts';
+import { getPosts, formatDate } from '../lib/posts';
 import { getCompanies, asService } from '../lib/companies';
 import CompanyCard from '../components/CompanyCard.astro';
 import { SERVICES, FEATURED_COMPANIES, categoryName } from '../config';
 
 const posts = await getPosts();
-const cats = await usedCategories();
 const top = posts.find((p) => p.data.toppnyhet) ?? posts[0];
 const rest = posts.filter((p) => p !== top);
 const latest = rest.slice(0, 5);
@@ -70,16 +68,6 @@ const services = [
       </aside>
     </section>
   )}
-
-  <!-- Kategorier -->
-  <section class="soft" aria-label="Kategorier">
-    <div class="wrap section cats" style="padding-top:40px;padding-bottom:40px">
-      {cats.map((c) => (
-        <a href={`/kategori/${c.slug}/`}><CategoryIcon slug={c.slug} />{c.name}</a>
-      ))}
-      <a href="/foretagstjanster/"><CategoryIcon slug="tjanster" />Företagstjänster</a>
-    </div>
-  </section>
 
   <!-- Lokalt -->
   <section class="wrap section split">
