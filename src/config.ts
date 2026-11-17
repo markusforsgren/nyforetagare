@@ -16,6 +16,13 @@ export const SITE = {
 // Formulären hanteras av Netlify Forms. Inskick syns i Netlify under
 // projektet -> Forms. Se README.
 
+// Besöksstatistik med Umami (cookiefri). Klistra in ditt Website ID från umami.is.
+// Tomt = ingen statistik laddas. "src" ändras bara om ni byter till EU-servern eller egen server.
+export const ANALYTICS = {
+  umamiWebsiteId: '1b2393d6-a4c6-42ef-a686-ce2c6293b623',
+  src: 'https://cloud.umami.is/script.js',
+};
+
 // Kategorier. "slug" blir adressen: /kategori/<slug>
 // Ändra aldrig en befintlig slug – då försvinner artiklarna från kategorin. Namnet går bra att ändra.
 // En kategori syns i menyn först när minst en publicerad artikel ligger i den.
