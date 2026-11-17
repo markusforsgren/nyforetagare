@@ -17,6 +17,17 @@ const more = rest.slice(5, 8).length ? rest.slice(5, 8) : rest.slice(0, 3);
 const companies = await getCompanies();
 // Utvalda företag först, sedan de senast uppdaterade
 const focus = [...companies].sort((a, b) => Number(b.utvald) - Number(a.utvald) || b.updated_at.localeCompare(a.updated_at)).slice(0, 3);
+// Rullande remsa: senaste artiklar och nya medlemsföretag, nyast först
+const ticker = [
+  ...posts.slice(0, 8).map((p) => ({ typ: 'Artikel', text: p.data.title, href: `/artiklar/${p.id}/`, d: p.data.datum.toISOString() })),
+  ...[...companies].sort((a, b) => b.updated_at.localeCompare(a.updated_at)).slice(0, 6)
+    .map((c) => ({ typ: 'Nytt företag', text: `${c.namn}${c.ort ? ', ' + c.ort : ''}`, href: `/foretag/${c.slug}/`, d: c.updated_at })),
+].sort((a, b) => b.d.localeCompare(a.d)).slice(0, 12);
+const stats = [
+  { n: posts.length, t: 'artiklar' },
+  { n: companies.length, t: 'medlemsföretag' },
+  { n: 21, t: 'län' },
+].filter((x) => x.n >= 5); // små siffror visas inte
 const services = [
   ...SERVICES.filter((s) => s.utvald),
   ...companies.filter((c) => c.tjanstekategori).map(asService),
@@ -24,27 +35,21 @@ const services = [
 ].slice(0, 3);
 ---
 <Base>
-  <!-- Toppsektion med rörlig bakgrund -->
-  <section class="intro" aria-label="Om Nyföretagare">
-    <div class="intro-bg" aria-hidden="true">
-      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span>
-    </div>
-    <div class="wrap intro-inner">
-      <div class="intro-text">
-        <span class="intro-eyebrow">Starta · Driva · Utveckla</span>
-        <h1 class="intro-title">Sveriges nätverk för <span class="hl">småföretagare</span></h1>
-        <p class="intro-lead">Kunskap, nyheter och kontakter – lokalt i ditt län och i hela Sverige.</p>
-        <div class="intro-cta">
-          <a href="/om-oss/" class="btn btn-bright" data-umami-event="Så funkar (startsida)">Så funkar Nyföretagare</a>
-          <a href="/foretag/konto/" class="btn btn-ghost" data-umami-event="Bli medlem (startsida)">Bli medlem – gratis</a>
-        </div>
-      </div>
-      <div class="intro-mark" aria-hidden="true">
-        <span class="mark-glow"></span>
-        <img src="/img/mark.png" alt="" width="400" height="320" />
+  <!-- Rullande remsa med det senaste -->
+  {ticker.length > 0 && (
+    <div class="ticker" aria-label="Senaste nytt">
+      <span class="ticker-label">Senaste</span>
+      <div class="ticker-view">
+        <ul class="ticker-track" style={`--dur:${Math.max(30, ticker.length * 7)}s`}>
+          {[...ticker, ...ticker].map((t, i) => (
+            <li aria-hidden={i >= ticker.length ? 'true' : undefined}>
+              <a href={t.href} tabindex={i >= ticker.length ? -1 : undefined}><b>{t.typ}</b>{t.text}</a>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
-  </section>
+  )}
 
   <!-- Toppnyhet + senaste -->
   {top && (
@@ -68,6 +73,31 @@ const services = [
       </aside>
     </section>
   )}
+
+  <!-- Toppsektion med rörlig bakgrund -->
+  <section class="intro" aria-label="Om Nyföretagare">
+    <div class="intro-bg" aria-hidden="true">
+      <span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="blob b4"></span>
+    </div>
+    <div class="wrap intro-inner">
+      <div class="intro-text">
+        <span class="intro-eyebrow">Starta · Driva · Utveckla</span>
+        <h1 class="intro-title">Sveriges nätverk för <span class="hl">småföretagare</span></h1>
+        <p class="intro-lead">Kunskap, nyheter och kontakter – lokalt i ditt län och i hela Sverige.</p>
+        <ul class="intro-stats">
+          {stats.map((x) => <li><strong>{x.n}</strong><span>{x.t}</span></li>)}
+        </ul>
+        <div class="intro-cta">
+          <a href="/om-oss/" class="btn btn-bright" data-umami-event="Så funkar (startsida)">Så funkar Nyföretagare</a>
+          <a href="/foretag/konto/" class="btn btn-ghost" data-umami-event="Bli medlem (startsida)">Bli medlem – gratis</a>
+        </div>
+      </div>
+      <div class="intro-mark" aria-hidden="true">
+        <span class="mark-glow"></span>
+        <img src="/img/mark.png" alt="" width="400" height="320" />
+      </div>
+    </div>
+  </section>
 
   <!-- Lokalt -->
   <section class="wrap section split">
@@ -138,6 +168,38 @@ const services = [
     </section>
   )}
 
+  <!-- Bli uppringd -->
+  <section class="wrap section" id="bli-uppringd">
+    <div class="callback">
+      <div class="stack" style="gap:10px">
+        <span class="eyebrow" style="color:var(--green)">Personlig kontakt</span>
+        <h2 class="h2" style="color:#fff;margin:0">Vill du bli uppringd?</h2>
+        <p style="margin:0;max-width:560px">Berätta kort vad du funderar på, så ringer någon av oss upp dig. Det kostar ingenting.</p>
+        <div><button type="button" class="btn btn-bright" id="cb-open" aria-expanded="false" aria-controls="cb-form" data-umami-event="Bli uppringd (öppna)">Ja, ring mig</button></div>
+      </div>
+      <form class="form callback-form" id="cb-form" name="bli-uppringd" method="POST" action="/tack/" data-netlify="true" netlify-honeypot="bot-field" hidden>
+        <input type="hidden" name="form-name" value="bli-uppringd" />
+        <p hidden><label>Lämna tomt <input name="bot-field" /></label></p>
+        <label>Namn<input name="namn" required autocomplete="name" /></label>
+        <label>Telefon<input type="tel" name="telefon" required autocomplete="tel" /></label>
+        <label>E-post<input type="email" name="email" autocomplete="email" /></label>
+        <label>Företag (om du har)<input name="foretag" autocomplete="organization" /></label>
+        <label>Vad behöver du hjälp med?<textarea name="behov" required></textarea></label>
+        <div><button type="submit" class="btn btn-bright" data-umami-event="Bli uppringd (skickad)">Skicka</button></div>
+      </form>
+    </div>
+  </section>
 
   <Newsletter />
 </Base>
+
+<script>
+  const btn = document.getElementById('cb-open');
+  const form = document.getElementById('cb-form');
+  btn?.addEventListener('click', () => {
+    if (!form) return;
+    form.hidden = !form.hidden;
+    btn.setAttribute('aria-expanded', String(!form.hidden));
+    if (!form.hidden) (form.querySelector('input[name=namn]') as HTMLInputElement | null)?.focus();
+  });
+</script>
