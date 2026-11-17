@@ -2,6 +2,9 @@
 title: Enskild firma eller aktiebolag – vad passar när du startar?
 ingress: Valet av bolagsform påverkar ditt ansvar, din skatt och hur mycket administration du får. Här är grunderna.
 kategori: foretagsnyheter
+fler_kategorier:
+  - foretagsformer
+  - guider
 datum: 2026-10-28
 ---
 

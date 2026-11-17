@@ -2,6 +2,9 @@
 title: Fem misstag nystartade gör med sin första hemsida
 ingress: En hemsida behöver inte vara dyr eller avancerad. Men några vanliga misstag gör att den aldrig ger några kunder.
 kategori: inspiration
+fler_kategorier:
+  - digitala-verktyg
+  - marknadsforing
 datum: 2026-10-30
 skribent: M Webbutveckling
 ---
