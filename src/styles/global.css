@@ -108,7 +108,7 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 /* Toppnyhet */
 .hero { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 40px; padding-top: 32px; padding-bottom: 48px; }
 .hero-main { display: flex; flex-direction: column; gap: 14px; }
-.hero-main img { width: 100%; height: 420px; object-fit: cover; border-radius: var(--radius); }
+.hero-main img { width: 100%; height: 340px; object-fit: cover; border-radius: var(--radius); }
 .hero-main h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; letter-spacing: -0.01em; }
 .hero-main h1 a { color: var(--navy); }
 .latest h2 { font-size: 20px; font-weight: 800; padding-bottom: 12px; border-bottom: 3px solid var(--navy); margin-bottom: 4px; }
@@ -179,7 +179,7 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 /* Artikel */
 .article { max-width: 760px; margin: 0 auto; padding: 40px 24px 64px; }
 .article h1 { font-size: clamp(30px, 4.5vw, 44px); font-weight: 800; margin: 14px 0 16px; }
-.article .cover { width: 100%; max-height: 460px; object-fit: cover; border-radius: var(--radius); margin: 24px 0; }
+.article .cover { width: 100%; max-height: 380px; object-fit: cover; border-radius: var(--radius); margin: 24px 0; }
 .prose { font-size: 18px; line-height: 1.7; color: #1f2a3a; }
 .prose h2 { font-size: 26px; margin: 36px 0 12px; }
 .prose h3 { font-size: 21px; margin: 28px 0 10px; }
@@ -389,3 +389,54 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 .svc p { margin: 0; }
 .svc ul { margin: 4px 0 8px; padding-left: 20px; display: grid; gap: 4px; color: var(--text); font-size: 15px; }
 .svc-cta { font-weight: 700; }
+
+/* Ämnesområden på startsidan */
+.omraden { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 20px; }
+.omrade { display: flex; flex-direction: column; gap: 14px; padding: 24px; background: #fff; border-radius: var(--radius); transition: box-shadow .2s ease, transform .2s ease; }
+.omrade:hover { box-shadow: 0 12px 30px rgba(11,35,68,.10); transform: translateY(-2px); }
+.omrade-head { display: flex; gap: 14px; align-items: flex-start; color: var(--navy); }
+.omrade-head:hover { text-decoration: none; }
+.omrade-head strong { display: block; font-size: 22px; font-weight: 800; line-height: 1.2; }
+.omrade-head small { display: block; margin-top: 4px; font-size: 14px; color: var(--muted); line-height: 1.4; }
+.omrade-ikon { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 12px; background: var(--bg, #EAF6FF); }
+.omrade ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; border-top: 1px solid var(--line); padding-top: 10px; }
+.omrade li a { display: block; padding: 7px 0; color: var(--navy); font-weight: 600; font-size: 15px; }
+.omrade li a:hover { color: #0066D6; text-decoration: none; }
+.omrade-all { margin-top: auto; font-weight: 700; font-size: 14px; color: #0066D6; }
+@media (max-width: 1000px) { .omraden { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .omraden { grid-template-columns: 1fr; } }
+
+/* Rullande remsa */
+.ticker { display: flex; align-items: stretch; background: #fff; border-bottom: 1px solid var(--line); font-size: 14px; overflow: hidden; }
+.ticker-label { flex: 0 0 auto; display: flex; align-items: center; padding: 0 16px; background: var(--green); color: var(--navy); font-weight: 800; text-transform: uppercase; letter-spacing: .06em; font-size: 12px; }
+.ticker-view { flex: 1; overflow: hidden; mask-image: linear-gradient(90deg, transparent, #000 24px, #000 calc(100% - 24px), transparent); }
+.ticker-track { display: flex; width: max-content; margin: 0; padding: 0; list-style: none; animation: tick var(--dur, 60s) linear infinite; }
+.ticker:hover .ticker-track, .ticker:focus-within .ticker-track { animation-play-state: paused; }
+.ticker li { flex: 0 0 auto; }
+.ticker a { display: inline-flex; gap: 8px; align-items: baseline; padding: 11px 28px 11px 0; color: var(--navy); font-weight: 600; white-space: nowrap; }
+.ticker a::before { content: '•'; color: var(--green); margin-right: 4px; }
+.ticker a b { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #0066D6; }
+@keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticker-view { overflow-x: auto; }
+  .ticker-track { animation: none; }
+}
+
+/* Siffror i toppsektionen */
+.intro-stats { display: flex; flex-wrap: wrap; gap: 12px 32px; margin: 4px 0 6px; padding: 0; list-style: none; }
+.intro-stats li { display: flex; flex-direction: column; animation: rise .8s ease-out both; }
+.intro-stats li:nth-child(2) { animation-delay: .1s; }
+.intro-stats li:nth-child(3) { animation-delay: .2s; }
+.intro-stats strong { font-size: 32px; font-weight: 800; color: var(--green); line-height: 1.1; }
+.intro-stats span { font-size: 14px; color: rgba(255,255,255,.8); }
+
+/* Bli uppringd */
+.callback { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; padding: 40px; border-radius: var(--radius); background: var(--navy); color: #fff; }
+.callback-form { max-width: none; background: #fff; color: var(--ink); padding: 24px; border-radius: 12px; }
+.callback-form[hidden] { display: none; }
+@media (max-width: 860px) { .callback { grid-template-columns: 1fr; padding: 28px 20px; } }
+
+.im-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 6px 0; }
+.im-box { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 22px; border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); }
+.im-box h3 { margin: 0; color: #fff; font-size: 19px; }
+.im-box p { margin: 0; color: rgba(255,255,255,.85); }
