@@ -2,7 +2,7 @@
 import Legal from '../layouts/Legal.astro';
 import { SITE } from '../config';
 ---
-<Legal title="Integritetspolicy" updated="10 november 2026" description="Så hanterar Nyföretagare dina personuppgifter.">
+<Legal title="Integritetspolicy" updated="17 november 2026" description="Så hanterar Nyföretagare dina personuppgifter.">
   <p>Vi värnar om din integritet. Här beskriver vi vilka personuppgifter vi behandlar, varför, hur länge och vilka rättigheter du har enligt dataskyddsförordningen (GDPR).</p>
 
   <h2>Personuppgiftsansvarig</h2>
@@ -20,6 +20,7 @@ import { SITE } from '../config';
         <tr><td>E-post för nyhetsbrev</td><td>Skicka nyhetsbrevet</td><td>Samtycke</td><td>Tills du avregistrerar dig</td></tr>
         <tr><td>Tekniska loggar (t.ex. IP-adress, tidpunkt)</td><td>Säkerhet, felsökning och att förhindra missbruk</td><td>Berättigat intresse</td><td>Normalt högst 90 dagar</td></tr>
         <tr><td>Rapporter om innehåll</td><td>Moderering och att följa lag</td><td>Rättslig förpliktelse / berättigat intresse</td><td>Så länge ärendet kräver</td></tr>
+        <tr><td>Anonym besöksstatistik: vilka sidor som besöks, land, typ av enhet och webbläsare, vilken sida du kom från. Inga cookies och ingen IP-adress sparas.</td><td>Förstå hur webbplatsen används och förbättra den</td><td>Berättigat intresse</td><td>Upp till 6 månader hos statistikleverantören</td></tr>
       </tbody>
     </table>
   </div>
@@ -31,6 +32,7 @@ import { SITE } from '../config';
     <li><strong>Supabase</strong>: databas, inloggning och lagring av bilder.</li>
     <li><strong>Netlify</strong>: drift av webbplatsen och formulär.</li>
     <li><strong>GitHub</strong>: lagring av sajtens kod och redaktionella artiklar.</li>
+    <li><strong>Umami</strong>: anonym besöksstatistik utan cookies (se <a href="/cookies/">Cookies</a>).</li>
     <li><strong>E-posttjänst</strong> för att skicka bekräftelsemejl och lösenordsåterställning.</li>
   </ul>
   <p>Vissa leverantörer kan behandla uppgifter utanför EU/EES. I så fall sker överföringen med stöd av EU-kommissionens standardavtalsklausuler eller annat skydd som GDPR godkänner. Vi kan också lämna ut uppgifter när lag kräver det, till exempel till myndigheter.</p>
