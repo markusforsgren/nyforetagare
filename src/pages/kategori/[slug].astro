@@ -22,10 +22,22 @@ const { slug } = Astro.params;
   {slug === 'investering' && (
     <section class="wrap" style="padding-bottom:32px" id="investmatch">
       <div class="card dark investmatch">
-        <span class="eyebrow" style="color:var(--green)">InvestMatch · Lanseras snart</span>
-        <h2 class="h2" style="color:#fff;margin:0">Matchning mellan investerare och företag</h2>
-        <p style="margin:0;max-width:680px">InvestMatch kopplar ihop företag som söker kapital med investerare som letar efter nya bolag. Tjänsten byggs just nu och lanseras på investmatch.se. Söker du kapital eller vill du investera? Anmäl intresse redan nu.</p>
-        <div><a href="mailto:ir@investmatch.se?subject=Intresseanm%C3%A4lan%20InvestMatch" class="btn btn-bright">Mejla ir@investmatch.se</a></div>
+        <span class="eyebrow" style="color:var(--green)">InvestMatch · Egen webbplats lanseras snart</span>
+        <h2 class="h2" style="color:#fff;margin:0">Vi sammanför företag som söker kapital med investerare</h2>
+        <p style="margin:0;max-width:720px">InvestMatch är vår matchningstjänst för entreprenörer och företag som behöver kapital för att växa – och för privatpersoner, affärsänglar och bolag som vill investera i nya företag. Tjänsten får en egen webbplats, investmatch.se. Anmäl intresse redan nu så hör vi av oss.</p>
+        <div class="im-grid">
+          <div class="im-box">
+            <h3>Söker du kapital?</h3>
+            <p>Berätta kort om företaget, hur mycket kapital ni söker och vad det ska användas till.</p>
+            <a href="mailto:ir@investmatch.se?subject=S%C3%B6ker%20kapital%20%E2%80%93%20InvestMatch" class="btn btn-bright" data-umami-event="InvestMatch: Sök kapital">Sök kapital</a>
+          </div>
+          <div class="im-box">
+            <h3>Vill du investera?</h3>
+            <p>Berätta vilka branscher och vilken storlek på investering du är intresserad av.</p>
+            <a href="mailto:ir@investmatch.se?subject=Bli%20investerare%20%E2%80%93%20InvestMatch" class="btn btn-ghost" data-umami-event="InvestMatch: Bli investerare">Bli investerare</a>
+          </div>
+        </div>
+        <p class="small" style="margin:0;opacity:.8">Kontakt: <a href="mailto:ir@investmatch.se" style="color:#fff">ir@investmatch.se</a></p>
       </div>
     </section>
   )}
