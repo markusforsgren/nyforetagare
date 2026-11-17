@@ -217,6 +217,15 @@ Inget mer behövs i Netlify.
 - **Lokal partner:** intresseanmälningar kommer via Netlify Forms (formuläret "lokal-partner").
 - **InvestMatch:** visas överst i kategorin Investering (/kategori/investering/) med ir@investmatch.se tills investmatch.se är klar.
 
+## 13. Besöksstatistik (Umami)
+
+1. Skapa ett gratis konto på umami.is (Hobby). Välj EU-region om det går.
+2. Lägg till webbplatsen nyforetagare.se och kopiera "Website ID".
+3. Klistra in det i `ANALYTICS.umamiWebsiteId` i `src/config.ts`. Byter du till EU-servern, ändra även `src`.
+4. Ladda upp och vänta på bygget. Statistiken syns i Umami inom några minuter.
+
+Umami använder inga cookies, så ingen cookie-banner behövs. Knappar med `data-umami-event` räknas som händelser (Bli medlem, offertförfrågan, lokal partner).
+
 ## Struktur
 
 ```
