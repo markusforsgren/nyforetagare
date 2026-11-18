@@ -40,7 +40,7 @@ const services = [
     <div class="ticker" aria-label="Senaste nytt">
       <span class="ticker-label">Senaste</span>
       <div class="ticker-view">
-        <ul class="ticker-track" style={`--dur:${Math.max(30, ticker.length * 7)}s`}>
+        <ul class="ticker-track" style={`--dur:${Math.max(60, ticker.length * 15)}s`}>
           {[...ticker, ...ticker].map((t, i) => (
             <li aria-hidden={i >= ticker.length ? 'true' : undefined}>
               <a href={t.href} tabindex={i >= ticker.length ? -1 : undefined}><b>{t.typ}</b>{t.text}</a>
