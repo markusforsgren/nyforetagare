@@ -64,3 +64,21 @@ const related = posts.filter((p) => p.id !== post.id && inCategory(p, kategori))
   )}
   <Newsletter />
 </Base>
+
+<script>
+  // Bilder i texten: visa bildtexten (det som står inom hakparenteserna) under bilden
+  document.querySelectorAll<HTMLImageElement>('.prose p > img:only-child').forEach((img) => {
+    const p = img.parentElement!;
+    if (p.textContent?.trim()) return;
+    const fig = document.createElement('figure');
+    img.loading = 'lazy';
+    fig.append(img);
+    const alt = img.alt.trim();
+    if (alt && !/^(bild|skriv bildtext här)$/i.test(alt)) {
+      const cap = document.createElement('figcaption');
+      cap.textContent = alt;
+      fig.append(cap);
+    }
+    p.replaceWith(fig);
+  });
+</script>
