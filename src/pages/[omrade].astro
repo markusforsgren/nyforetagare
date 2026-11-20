@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import ArticleCard from '../components/ArticleCard.astro';
 import CategoryIcon from '../components/CategoryIcon.astro';
+import KategoriMeny from '../components/KategoriMeny.astro';
 import { getPosts, inCategory } from '../lib/posts';
 import { CATEGORIES, MENU } from '../config';
 
@@ -33,6 +34,7 @@ const key = g.href.replaceAll('/', '');
     <span class="eyebrow">{g.label}</span>
     <h1>{g.label === 'Starta' ? 'Starta företag' : g.label === 'Driva' ? 'Driva företag' : 'Utveckla företaget'}</h1>
     <p class="lead" style="margin:0">{INTRO[key]}</p>
+    <div><KategoriMeny /></div>
   </div>
   {(cats.length > 0 || g.lankar.length > 0) && (
     <section class="soft" aria-label="Ämnen">
