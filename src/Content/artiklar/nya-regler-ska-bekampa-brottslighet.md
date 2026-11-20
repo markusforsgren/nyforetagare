@@ -4,7 +4,8 @@ ingress: Sedan den 1 juli 2026 gäller nya regler för vem som får ta del av up
 kategori: reportage
 datum: 2026-11-12
 skribent: Redaktör
-utkast: true
+bild: /img/uploads/nya-regler-ska-bekampa-brottslighet-1795182542800.jpg
+utkast: false
 skapad_av: markusforsgren0@gmail.com
 ---
 
@@ -17,3 +18,6 @@ Vilka uppgifter som får lämnas ut elektroniskt styrs därmed av användarens r
 Registret, som förs av Bolagsverket, innehåller information om vilka fysiska personer som ytterst äger eller kontrollerar ett företag. Syftet är att öka insynen i företagens ägarförhållanden och försvåra att företag används för penningtvätt och finansiering av terrorism.
 
 Mer information om de nya reglerna finns på Skatteverkets hemsida.
+
+
+Bild: Pixabay
