@@ -233,6 +233,9 @@ Umami använder inga cookies, så ingen cookie-banner behövs. Knappar med `data
 - Texterna sparas i `src/data/sidtexter.json` i GitHub. Varje sparning blir en commit med namnet på den som ändrade, så allt går att ångra i GitHub.
 - Vilka fält som syns styrs av `src/data/sidtexter-schema.ts`. Vill du göra fler texter redigerbara: lägg till fältet i båda filerna och använd `TEXTER.<del>.<fält>` på sidan.
 - Bilder laddas upp till `public/img/uploads/` och förminskas automatiskt.
+- **Bildbank:** knappen Bildbank i artikellistan, vid artikelns huvudbild och vid bildfälten i Sidtexter visar alla bilder i `public/img`. Ladda upp flera på en gång och återanvänd dem i artiklar.
+- **Bild mitt i texten:** knappen *Infoga bild* i verktygsraden öppnar bildbanken och lägger in bilden där markören står. Texten inom hakparenteserna, `![Bildtext](/img/...)`, visas som bildtext under bilden.
+- Artikellistan hittar artiklar i både `src/Content/artiklar` och `src/content/artiklar` (även undermappar). Nya artiklar hamnar i `ARTICLES_DIR`.
 - Juridiska sidor (villkor, integritet, cookies) och formulär ändras fortfarande i koden.
 
 ## Struktur
