@@ -1,13 +1,14 @@
 ---
 import Base from '../layouts/Base.astro';
-import { LAN } from '../config';
+import { LAN, TEXTER } from '../config';
+const T = TEXTER.lokalpartner;
 const lediga = LAN.filter((l) => !l.redaktor);
 ---
 <Base title="Bli lokal partner" description="Driv Nyföretagare i ditt län. Lyft lokala företagare, bygg ett nätverk och bli länets kontaktperson.">
   <div class="wrap page-head stack">
     <span class="eyebrow">Lokal partner</span>
-    <h1>Driv Nyföretagare i ditt län</h1>
-    <p class="lead" style="margin:0">Som lokal partner är du Nyföretagares ansikte i ditt län. Du lyfter företagarna där du bor, bygger det lokala nätverket och blir den man vänder sig till.</p>
+    <h1>{T.rubrik}</h1>
+    <p class="lead" style="margin:0">{T.ingress}</p>
     <p class="muted" style="margin:0">{lediga.length} av {LAN.length} län söker just nu en lokal partner.</p>
   </div>
 
@@ -15,22 +16,12 @@ const lediga = LAN.filter((l) => !l.redaktor);
     <div class="wrap section">
       <h2 class="h2" id="lp-gor" style="margin-bottom:24px">Det här gör en lokal partner</h2>
       <div class="grid">
-        <article class="card">
-          <h3>Berättar om lokala företagare</h3>
-          <p>Skriver eller tipsar om intervjuer och nyheter från länet. Du får en egen inloggning till redaktionens publiceringsverktyg.</p>
-        </article>
-        <article class="card">
-          <h3>Driver länets nätverk</h3>
-          <p>Tar hand om länets Facebookgrupp och svarar på frågor från företagare och samarbetspartners i länet.</p>
-        </article>
-        <article class="card">
-          <h3>Skapar möten</h3>
-          <p>Tipsar om och ordnar gärna träffar, frukostar eller webbinarier tillsammans med lokala aktörer.</p>
-        </article>
-        <article class="card">
-          <h3>Bygger lokala samarbeten</h3>
-          <p>Kontakt med lokala företag, kommuner och organisationer som vill synas eller samarbeta.</p>
-        </article>
+        {T.gor.map((k) => (
+          <article class="card">
+            <h3>{k.titel}</h3>
+            <p>{k.text}</p>
+          </article>
+        ))}
       </div>
     </div>
   </section>
@@ -38,11 +29,9 @@ const lediga = LAN.filter((l) => !l.redaktor);
   <section class="wrap section" aria-labelledby="lp-far">
     <h2 class="h2" id="lp-far" style="margin-bottom:24px">Det här får du</h2>
     <ol class="steps">
-      <li><strong>Synlighet</strong><span>Ditt namn och dina kontaktuppgifter på länets sida, som Nyföretagares kontaktperson i länet.</span></li>
-      <li><strong>Nätverk</strong><span>Kontakt med företagare, kommuner och organisationer i länet – och med de andra lokala partnerna i landet.</span></li>
-      <li><strong>Stöd och verktyg</strong><span>Varumärket, plattformen, publiceringsverktyget och hjälp från redaktionen.</span></li>
+      {T.far.map((k) => <li><strong>{k.titel}</strong><span>{k.text}</span></li>)}
     </ol>
-    <p class="muted" style="margin-top:20px">Villkor och eventuell ersättning går vi igenom tillsammans när vi har pratats vid.</p>
+    <p class="muted" style="margin-top:20px">{T.villkor}</p>
   </section>
 
   <section class="soft" id="ansok">

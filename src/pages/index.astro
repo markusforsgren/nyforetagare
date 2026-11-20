@@ -7,7 +7,8 @@ import ServiceCard from '../components/ServiceCard.astro';
 import { getPosts, formatDate } from '../lib/posts';
 import { getCompanies, asService } from '../lib/companies';
 import CompanyCard from '../components/CompanyCard.astro';
-import { SERVICES, FEATURED_COMPANIES, categoryName } from '../config';
+import { SERVICES, FEATURED_COMPANIES, categoryName, TEXTER } from '../config';
+const T = TEXTER.startsida;
 
 const posts = await getPosts();
 const top = posts.find((p) => p.data.toppnyhet) ?? posts[0];
@@ -55,7 +56,7 @@ const services = [
   {top && (
     <section class="wrap hero">
       <article class="hero-main">
-        <img src={top.data.bild ?? '/img/hero_people.jpg'} alt={top.data.title} />
+        <img src={top.data.bild ?? TEXTER.allmant.standardbild} alt={top.data.title} />
         <span class="tag" style="align-self:flex-start">{categoryName(top.data.kategori)}</span>
         <h1><a href={`/artiklar/${top.id}/`}>{top.data.title}</a></h1>
         <p class="lead" style="margin:0">{top.data.ingress}</p>
@@ -81,15 +82,15 @@ const services = [
     </div>
     <div class="wrap intro-inner">
       <div class="intro-text">
-        <span class="intro-eyebrow">Starta · Driva · Utveckla</span>
-        <h1 class="intro-title">Sveriges nätverk för <span class="hl">småföretagare</span></h1>
-        <p class="intro-lead">Kunskap, nyheter och kontakter – lokalt i ditt län och i hela Sverige.</p>
+        <span class="intro-eyebrow">{T.etikett}</span>
+        <h1 class="intro-title">{T.rubrik} <span class="hl">{T.rubrik_markerad}</span></h1>
+        <p class="intro-lead">{T.ingress}</p>
         <ul class="intro-stats">
           {stats.map((x) => <li><strong>{x.n}</strong><span>{x.t}</span></li>)}
         </ul>
         <div class="intro-cta">
-          <a href="/om-oss/" class="btn btn-bright" data-umami-event="Så funkar (startsida)">Så funkar Nyföretagare</a>
-          <a href="/foretag/konto/" class="btn btn-ghost" data-umami-event="Bli medlem (startsida)">Bli medlem – gratis</a>
+          <a href="/om-oss/" class="btn btn-bright" data-umami-event="Så funkar (startsida)">{T.knapp1}</a>
+          <a href="/foretag/konto/" class="btn btn-ghost" data-umami-event="Bli medlem (startsida)">{T.knapp2}</a>
         </div>
       </div>
       <div class="intro-mark" aria-hidden="true">
@@ -101,11 +102,11 @@ const services = [
 
   <!-- Lokalt -->
   <section class="wrap section split">
-    <img src="/img/post_local.jpg" alt="Vi vill lyfta småföretagarna i din stad eller kommun" style="border-radius:12px;max-width:620px" loading="lazy" />
+    <img src={T.lokal_bild} alt={T.lokal_rubrik} style="border-radius:12px;max-width:620px" loading="lazy" />
     <div class="stack">
-      <span class="eyebrow">Nyföretagare i ditt län</span>
-      <h2 class="h2">Vi lyfter småföretagarna där du bor</h2>
-      <p class="lead" style="margin:0">Lokala nyheter, företag och tjänster nära dig. Sök på din kommun.</p>
+      <span class="eyebrow">{T.lokal_etikett}</span>
+      <h2 class="h2">{T.lokal_rubrik}</h2>
+      <p class="lead" style="margin:0">{T.lokal_text}</p>
       <LanPicker id="lan-val-start" />
       <a href="/lokal-partner/" style="font-weight:600">Vill du driva Nyföretagare i ditt län? Bli lokal partner →</a>
     </div>
@@ -116,8 +117,8 @@ const services = [
     <div class="wrap section">
       <div class="section-head">
         <div>
-          <h2 class="h2">Företagare i fokus</h2>
-          <p class="muted" style="margin:6px 0 0;font-size:16px">Företag som syns på Nyföretagare just nu.</p>
+          <h2 class="h2">{T.fokus_rubrik}</h2>
+          <p class="muted" style="margin:6px 0 0;font-size:16px">{T.fokus_text}</p>
         </div>
       </div>
       <div class="grid">
@@ -132,8 +133,8 @@ const services = [
             </article>
           ))}
         <article class="card dark">
-          <h3 style="font-size:22px">Vill ditt företag synas här?</h3>
-          <p>Bli medlem gratis och nå andra företagare och kunder.</p>
+          <h3 style="font-size:22px">{T.fokus_cta_rubrik}</h3>
+          <p>{T.fokus_cta_text}</p>
           <a href="/foretag/konto/" class="btn btn-bright push">Bli medlem – gratis</a>
         </article>
       </div>
@@ -143,9 +144,9 @@ const services = [
   <!-- Företagstjänster -->
   <section class="wrap section" style="display:flex;flex-wrap:wrap;gap:40px">
     <div class="stack" style="flex:1 1 320px;min-width:0">
-      <span class="eyebrow">Företagstjänster</span>
-      <h2 class="h2">Hitta rätt hjälp för ditt företag</h2>
-      <p class="lead" style="margin:0">Leverantörer som är vana vid nystartade. Kontakta dem direkt.</p>
+      <span class="eyebrow">{T.tjanster_etikett}</span>
+      <h2 class="h2">{T.tjanster_rubrik}</h2>
+      <p class="lead" style="margin:0">{T.tjanster_text}</p>
       <div><a href="/foretagstjanster/" class="btn btn-outline">Alla tjänster</a></div>
     </div>
     <div class="grid" style="flex:2 1 560px;min-width:0">
@@ -172,10 +173,10 @@ const services = [
   <section class="wrap section" id="bli-uppringd">
     <div class="callback">
       <div class="stack" style="gap:10px">
-        <span class="eyebrow" style="color:var(--green)">Personlig kontakt</span>
-        <h2 class="h2" style="color:#fff;margin:0">Vill du bli uppringd?</h2>
-        <p style="margin:0;max-width:560px">Berätta kort vad du funderar på, så ringer någon av oss upp dig. Det kostar ingenting.</p>
-        <div><button type="button" class="btn btn-bright" id="cb-open" aria-expanded="false" aria-controls="cb-form" data-umami-event="Bli uppringd (öppna)">Ja, ring mig</button></div>
+        <span class="eyebrow" style="color:var(--green)">{T.uppringd_etikett}</span>
+        <h2 class="h2" style="color:#fff;margin:0">{T.uppringd_rubrik}</h2>
+        <p style="margin:0;max-width:560px">{T.uppringd_text}</p>
+        <div><button type="button" class="btn btn-bright" id="cb-open" aria-expanded="false" aria-controls="cb-form" data-umami-event="Bli uppringd (öppna)">{T.uppringd_knapp}</button></div>
       </div>
       <form class="form callback-form" id="cb-form" name="bli-uppringd" method="POST" action="/tack/" data-netlify="true" netlify-honeypot="bot-field" hidden>
         <input type="hidden" name="form-name" value="bli-uppringd" />
