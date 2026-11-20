@@ -513,11 +513,10 @@ export default async (req) => {
       case 'updateUser':
         if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await updateUser(sb, user, input.user || {}));
+      // Företag: alla redaktörer kan se och godkänna
       case 'companies':
-        if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await listCompanies(sb));
       case 'updateCompany':
-        if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await updateCompany(e, sb, input.company || {}));
       default: fail(400, 'Okänd åtgärd.');
     }
