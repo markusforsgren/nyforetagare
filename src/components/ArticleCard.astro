@@ -11,7 +11,7 @@ const { title, ingress, kategori, bild, lan } = post.data;
 ---
 <a href={`/artiklar/${post.id}/`} class="acard">
   {bild ? (
-    <img class="img" src={bild} alt="" loading="lazy" />
+    <img class="img" src={bild} alt={title} loading="lazy" />
   ) : (
     <div class={`img img-fallback cat-${kategori}`} aria-hidden="true">
       <img src="/img/mark.png" alt="" width="64" height="52" />
