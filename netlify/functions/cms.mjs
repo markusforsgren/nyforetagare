@@ -26,6 +26,7 @@ const env = () => ({
   branch: process.env.GITHUB_BRANCH || 'main',
   dir: (process.env.ARTICLES_DIR || 'src/content/artiklar').replace(/\/$/, ''),
   imgDir: (process.env.IMAGES_DIR || 'public/img/uploads').replace(/\/$/, ''),
+  textsPath: process.env.TEXTS_PATH || 'src/data/sidtexter.json',
   siteUrl: (process.env.SITE_URL || process.env.URL || '').replace(/\/$/, ''),
   buildHook: process.env.NETLIFY_BUILD_HOOK || '',
 });
@@ -253,6 +254,76 @@ async function uploadImage(e, prof, input) {
   return { path: '/' + path.replace(/^public\//, '') };
 }
 
+// ---------- Sidtexter (texter och bilder på sidorna) ----------
+// Strukturen i sidtexter.json är facit: bara fält som redan finns får sparas,
+// listor får nya rader och kategorier/län får nya poster med samma fält.
+const MAX_TEXT = 3000;
+const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
+
+function checkLeaf(key, value) {
+  const v = clean(value, MAX_TEXT);
+  if (!v) return '';
+  if (/bild$/.test(key) && !/^\/img\/[A-Za-z0-9/_.-]+\.(jpe?g|png|webp|svg)$/i.test(v)) fail(400, `Ogiltig bild i fältet "${key}".`);
+  if (key === 'facebook' && !/^https:\/\/[^\s"<>]+$/.test(v)) fail(400, 'Facebooklänken måste börja med https://');
+  if (key === 'epost' && !/^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(v)) fail(400, `Ogiltig e-postadress: ${v}`);
+  return v;
+}
+
+function mergeTexts(next, prev, key = '', depth = 0) {
+  if (depth > 5) fail(400, 'För djup struktur.');
+  if (typeof prev === 'string') return next === undefined ? prev : checkLeaf(key, next);
+  if (Array.isArray(prev)) {
+    if (next === undefined) return prev;
+    if (!Array.isArray(next) || next.length > 40) fail(400, `Listan "${key}" är ogiltig.`);
+    const tpl = prev[0] || {};
+    return next.map((row) => {
+      if (!isObj(row)) fail(400, `En rad i "${key}" är ogiltig.`);
+      const out = {};
+      for (const k of Object.keys(tpl)) out[k] = checkLeaf(k, row[k] ?? '');
+      return out;
+    });
+  }
+  if (isObj(prev)) {
+    if (next === undefined) return prev;
+    if (!isObj(next)) fail(400, `Delen "${key}" är ogiltig.`);
+    const out = {};
+    for (const k of Object.keys(prev)) out[k] = mergeTexts(next[k], prev[k], k, depth + 1);
+    // Kategorier och län: tillåt nya poster med samma fält som de befintliga
+    const vals = Object.values(prev);
+    if (vals.length > 3 && vals.every(isObj)) {
+      for (const k of Object.keys(next)) {
+        if (k in out || !/^[a-z0-9-]{1,40}$/.test(k)) continue;
+        out[k] = mergeTexts(next[k], Object.fromEntries(Object.keys(vals[0]).map((f) => [f, ''])), k, depth + 1);
+      }
+    }
+    return out;
+  }
+  return prev;
+}
+
+async function readTextsFile(e) {
+  const f = await getFile(e, e.textsPath);
+  if (!f?.content) fail(404, `Filen ${e.textsPath} finns inte i GitHub. Ladda upp den först.`);
+  return f;
+}
+async function getTexts(e) {
+  const f = await readTextsFile(e);
+  return { texts: JSON.parse(unb64(f.content)), sha: f.sha };
+}
+
+async function saveTexts(e, prof, input) {
+  const del = clean(input.del, 40);
+  const cur = await readTextsFile(e);
+  if (input.sha && input.sha !== cur.sha) fail(409, 'Någon annan har sparat sidtexterna under tiden. Ladda om fliken och gör ändringen igen.');
+  const prev = JSON.parse(unb64(cur.content));
+  if (!(del in prev)) fail(400, 'Okänd del av sidan.');
+  const next = { ...prev, [del]: mergeTexts(input.values, prev[del], del) };
+  const body = JSON.stringify(next, null, 2) + '\n';
+  if (body.length > 300_000) fail(400, 'Texterna är för stora.');
+  const res = await putFile(e, e.textsPath, Buffer.from(body).toString('base64'), `Sidtexter: ${del} (${prof.namn || prof.email})`, cur.sha);
+  return { ok: true, sha: res?.content?.sha };
+}
+
 // ---------- Användare (admin) ----------
 function cleanProfile(input) {
   const roll = input.roll === 'admin' ? 'admin' : 'redaktor';
@@ -387,6 +458,8 @@ export default async (req) => {
       case 'save': return json(await saveArticle(e, prof, input.article || {}));
       case 'delete': return json(await deleteArticle(e, prof, input.slug));
       case 'upload': return json(await uploadImage(e, prof, input));
+      case 'getTexts': return json(await getTexts(e));
+      case 'saveTexts': return json(await saveTexts(e, prof, input));
       case 'users':
         if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await listUsers(sb));
