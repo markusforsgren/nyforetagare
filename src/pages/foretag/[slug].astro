@@ -13,9 +13,19 @@ const { c, companies } = Astro.props as { c: Company; companies: Company[] };
 const paragraphs = (c.beskrivning || '').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
 const web = c.webbplats?.replace(/^https?:\/\//, '').replace(/\/$/, '');
 const related = companies.filter((x) => x.id !== c.id && x.lan && x.lan === c.lan).slice(0, 3);
+const schema = {
+  '@type': 'Organization',
+  name: c.namn,
+  description: c.kort || undefined,
+  url: c.webbplats || undefined,
+  logo: c.logo_url || undefined,
+  email: c.epost || undefined,
+  telephone: c.telefon || undefined,
+  address: c.ort ? { '@type': 'PostalAddress', addressLocality: c.ort, addressCountry: 'SE' } : undefined,
+};
 const initials = c.namn.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
 ---
-<Base title={c.namn} description={c.kort || `${c.namn} på Nyföretagare`} image={c.logo_url || undefined}>
+<Base title={`${c.namn}${c.ort ? ' – ' + c.ort : ''}`} description={c.kort || `${c.namn}${c.ort ? ' i ' + c.ort : ''} – medlemsföretag på Nyföretagare.`} image={c.logo_url || undefined} imageAlt={`${c.namn} logotyp`} type="profile" schema={schema}>
   <div class="wrap profile">
     <a href="/foretag/" class="back">← Alla företag</a>
     <header class="profile-head">
