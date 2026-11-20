@@ -70,7 +70,7 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 .topbar { background: var(--navy); color: #fff; font-size: 13px; }
 .topbar .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; padding-top: 8px; padding-bottom: 8px; }
 .topbar a { color: #fff; }
-.topbar .claim { font-family: var(--display); font-weight: 700; letter-spacing: 0.18em; }
+.topbar .claim { font-family: var(--display); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
 .topbar nav { display: flex; gap: 20px; }
 
 .site-header { border-bottom: 1px solid var(--line); background: #fff; }
