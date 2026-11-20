@@ -3,3 +3,5 @@ Disallow: /admin/
 Disallow: /foretag/konto/
 Disallow: /community/chatt/
 Disallow: /api/
+
+Sitemap: https://nyforetagare.se/sitemap-index.xml
