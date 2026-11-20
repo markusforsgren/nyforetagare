@@ -4,7 +4,7 @@ import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import Newsletter from '../../components/Newsletter.astro';
 import { getPosts, formatDate, inCategory } from '../../lib/posts';
-import { categoryName, lanName } from '../../config';
+import { categoryName, lanName, SITE } from '../../config';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -14,9 +14,32 @@ export async function getStaticPaths() {
 const { post, posts } = Astro.props;
 const { Content } = await render(post);
 const { title, ingress, kategori, datum, skribent, bild, lan, ort } = post.data;
+const url = new URL(`/artiklar/${post.id}/`, Astro.site).href;
+const schema = [
+  {
+    '@type': 'Article',
+    headline: title,
+    description: ingress,
+    datePublished: datum.toISOString(),
+    inLanguage: 'sv-SE',
+    mainEntityOfPage: url,
+    image: bild ? [new URL(bild, Astro.site).href] : undefined,
+    articleSection: categoryName(kategori),
+    author: skribent === 'Redaktionen' ? { '@type': 'Organization', name: SITE.name } : { '@type': 'Person', name: skribent },
+    publisher: { '@type': 'Organization', name: SITE.name, logo: { '@type': 'ImageObject', url: new URL('/img/logo-tile-512.png', Astro.site).href } },
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Artiklar', item: new URL('/artiklar/', Astro.site).href },
+      { '@type': 'ListItem', position: 2, name: categoryName(kategori), item: new URL(`/kategori/${kategori}/`, Astro.site).href },
+      { '@type': 'ListItem', position: 3, name: title },
+    ],
+  },
+];
 const related = posts.filter((p) => p.id !== post.id && inCategory(p, kategori)).slice(0, 3);
 ---
-<Base title={title} description={ingress} image={bild}>
+<Base title={title} description={ingress} image={bild} imageAlt={title} type="article" published={datum} schema={schema}>
   <article class="article">
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <a href={`/kategori/${kategori}/`} class="tag">{categoryName(kategori)}</a>
@@ -25,7 +48,7 @@ const related = posts.filter((p) => p.id !== post.id && inCategory(p, kategori))
     <h1>{title}</h1>
     <p class="lead" style="margin:0 0 12px">{ingress}</p>
     <p class="muted" style="margin:0">Av {skribent} · {formatDate(datum)}</p>
-    {bild && <img class="cover" src={bild} alt="" />}
+    {bild && <img class="cover" src={bild} alt={title} />}
     <div class="prose">
       <Content />
     </div>
