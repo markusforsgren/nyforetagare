@@ -1,0 +1,375 @@
+{
+  "allmant": {
+    "slogan": "Starta · Driva · Utveckla",
+    "tagline": "Sveriges nätverk för småföretagare",
+    "beskrivning": "Nyheter, reportage, inspiration och tjänster för dig som vill starta, driver eller vill utveckla företag.",
+    "facebook": "https://www.facebook.com/nyforetagare.se/",
+    "standardbild": "/img/hero_people.jpg"
+  },
+  "startsida": {
+    "etikett": "Starta · Driva · Utveckla",
+    "rubrik": "Sveriges nätverk för",
+    "rubrik_markerad": "småföretagare",
+    "ingress": "Kunskap, nyheter och kontakter – lokalt i ditt län och i hela Sverige.",
+    "knapp1": "Så funkar Nyföretagare",
+    "knapp2": "Bli medlem – gratis",
+    "lokal_etikett": "Nyföretagare i ditt län",
+    "lokal_rubrik": "Vi lyfter småföretagarna där du bor",
+    "lokal_text": "Lokala nyheter, företag och tjänster nära dig. Sök på din kommun.",
+    "lokal_bild": "/img/post_local.jpg",
+    "fokus_rubrik": "Företagare i fokus",
+    "fokus_text": "Företag som syns på Nyföretagare just nu.",
+    "fokus_cta_rubrik": "Vill ditt företag synas här?",
+    "fokus_cta_text": "Bli medlem gratis och nå andra företagare och kunder.",
+    "tjanster_etikett": "Företagstjänster",
+    "tjanster_rubrik": "Hitta rätt hjälp för ditt företag",
+    "tjanster_text": "Leverantörer som är vana vid nystartade. Kontakta dem direkt.",
+    "uppringd_etikett": "Personlig kontakt",
+    "uppringd_rubrik": "Vill du bli uppringd?",
+    "uppringd_text": "Berätta kort vad du funderar på, så ringer någon av oss upp dig. Det kostar ingenting.",
+    "uppringd_knapp": "Ja, ring mig",
+    "nyhetsbrev_rubrik": "Veckans bästa tips för företagare",
+    "nyhetsbrev_text": "Nyheter, reportage och verktyg direkt i inkorgen. Gratis."
+  },
+  "omoss": {
+    "rubrik": "Sveriges nätverk för småföretagare",
+    "ingress": "Nyföretagare är en mötesplats för dig som vill starta, driver eller vill utveckla ett företag. Vi samlar kunskap, nyheter och andra företagare på ett ställe – både i hela Sverige och lokalt i ditt län.",
+    "far_rubrik": "Det här får du",
+    "far": [
+      {
+        "titel": "Kunskap som går att använda",
+        "text": "Artiklar och guider om att starta, driva och utveckla företag – ekonomi, marknadsföring, juridik, finansiering och mycket mer."
+      },
+      {
+        "titel": "Synas med ditt företag",
+        "text": "Skapa en gratis företagsprofil med logga, beskrivning och kontaktuppgifter. Profilen granskas och visas sedan i företagskatalogen och i ditt län."
+      },
+      {
+        "titel": "Ett nätverk av företagare",
+        "text": "I communityn ställer du frågor, tipsar och hittar samarbeten. Du kan också chatta direkt med andra företagare."
+      },
+      {
+        "titel": "Nyföretagare i ditt län",
+        "text": "Intervjuer, företag och tjänster nära dig. Vi vill lyfta småföretagarna i hela landet – inte bara i storstäderna."
+      }
+    ],
+    "steg_rubrik": "Kom igång på tre minuter",
+    "steg": [
+      {
+        "titel": "Bli medlem",
+        "text": "Med e-post och lösenord. Det är gratis och utan bindningstid."
+      },
+      {
+        "titel": "Fyll i din företagsprofil",
+        "text": "Lägg till logga, vad ni gör och var ni finns."
+      },
+      {
+        "titel": "Var med i nätverket",
+        "text": "Skriv i communityn direkt. När profilen är godkänd syns ni även i företagskatalogen."
+      }
+    ],
+    "vision_rubrik": "Fler företag som startar, överlever och växer",
+    "vision_text": "Att driva företag kan vara ensamt, och det är lätt att gå vilse bland regler, bidrag och råd. Vi vill göra vägen enklare – med kunskap som är lätt att förstå, kontakter som hjälper dig framåt och en plats där småföretagare syns.",
+    "tips_text": "Känner du en företagare med en historia värd att berätta? Tipsa redaktionen.",
+    "kontakt_text": "Mejla oss eller använd formuläret."
+  },
+  "tjanster": {
+    "rubrik": "Vi hjälper ditt företag att växa",
+    "ingress": "Medlemskapet är gratis. Vill du ha mer hjälp kan vi vara ert bollplank, hjälpa till med marknadsföring och försäljning, bygga hemsidan, införa AI eller lyfta er hos våra läsare.",
+    "lista": [
+      {
+        "titel": "Strategisk partner och bollplank",
+        "text": "Vi blir ert bollplank när ni ska fatta beslut, växa eller tänka om. Regelbundna samtal om affärsidé, prissättning, försäljning och nästa steg – med människor som själva driver företag.",
+        "punkter": "Återkommande samtal på distans eller på plats\nHjälp att prioritera och sätta mål\nKontakter i vårt nätverk när ni behöver dem"
+      },
+      {
+        "titel": "Marknadsföring",
+        "text": "Vi hjälper er att synas där era kunder finns – i sociala medier, i ert län och hos oss.",
+        "punkter": "Plan för sociala medier och innehåll\nKampanjer och lanseringar\nLokal synlighet via Nyföretagare"
+      },
+      {
+        "titel": "Hemsida och digital närvaro",
+        "text": "Snygga, snabba hemsidor som fungerar i mobilen och går att uppdatera själv. Vi fixar även domän, e-post och att ni hittas på Google.",
+        "punkter": "Ny hemsida eller ett lyft av den ni har\nDomän, e-post och Google-profil\nDrift och support efter lansering"
+      },
+      {
+        "titel": "Försäljning och mötesbokning",
+        "text": "Hjälp att komma igång med eller öka försäljningen. Tillsammans med samarbetspartners kan vi boka möten, ringa kunder och ta hand om hela eller delar av säljarbetet.",
+        "punkter": "Säljplan och hjälp att komma igång\nMötesbokning och telefonförsäljning via partner\nFast pris, månadsavtal eller provision"
+      },
+      {
+        "titel": "AI-tjänster och automatisering",
+        "text": "Vi hjälper er att använda AI där det sparar tid – från texter och kampanjer till chattbotar på hemsidan och automatiserad administration.",
+        "punkter": "AI för marknadsföring och offerter\nChattbot på er hemsida\nGenomgång av era behov och utbildning"
+      },
+      {
+        "titel": "Annonsering",
+        "text": "Nå småföretagare och de som ska starta – i hela Sverige eller i ett län.",
+        "punkter": "Annonser på sajten\nPlats i nyhetsbrevet\nLokal annonsering per län"
+      },
+      {
+        "titel": "Sponsrade reportage",
+        "text": "Vi skriver en intervju eller artikel om ert företag, publicerad hos oss och delad i våra kanaler. Tydligt märkt som samarbete.",
+        "punkter": "Intervju och text av vår redaktion\nPublicering på sajten och i länet\nDelning i sociala medier"
+      }
+    ],
+    "offert_text": "Berätta kort vad ni behöver, så hör vi av oss inom två arbetsdagar. Det kostar inget att fråga."
+  },
+  "lokalpartner": {
+    "rubrik": "Driv Nyföretagare i ditt län",
+    "ingress": "Som lokal partner är du Nyföretagares ansikte i ditt län. Du lyfter företagarna där du bor, bygger det lokala nätverket och blir den man vänder sig till.",
+    "gor": [
+      {
+        "titel": "Berättar om lokala företagare",
+        "text": "Skriver eller tipsar om intervjuer och nyheter från länet. Du får en egen inloggning till redaktionens publiceringsverktyg."
+      },
+      {
+        "titel": "Driver länets nätverk",
+        "text": "Tar hand om länets Facebookgrupp och svarar på frågor från företagare och samarbetspartners i länet."
+      },
+      {
+        "titel": "Skapar möten",
+        "text": "Tipsar om och ordnar gärna träffar, frukostar eller webbinarier tillsammans med lokala aktörer."
+      },
+      {
+        "titel": "Bygger lokala samarbeten",
+        "text": "Kontakt med lokala företag, kommuner och organisationer som vill synas eller samarbeta."
+      }
+    ],
+    "far": [
+      {
+        "titel": "Synlighet",
+        "text": "Ditt namn och dina kontaktuppgifter på länets sida, som Nyföretagares kontaktperson i länet."
+      },
+      {
+        "titel": "Nätverk",
+        "text": "Kontakt med företagare, kommuner och organisationer i länet – och med de andra lokala partnerna i landet."
+      },
+      {
+        "titel": "Stöd och verktyg",
+        "text": "Varumärket, plattformen, publiceringsverktyget och hjälp från redaktionen."
+      }
+    ],
+    "villkor": "Villkor och eventuell ersättning går vi igenom tillsammans när vi har pratats vid."
+  },
+  "investmatch": {
+    "etikett": "InvestMatch · Egen webbplats lanseras snart",
+    "rubrik": "Vi sammanför företag som söker kapital med investerare",
+    "text": "InvestMatch är vår matchningstjänst för entreprenörer och företag som behöver kapital för att växa – och för privatpersoner, affärsänglar och bolag som vill investera i nya företag. Tjänsten får en egen webbplats, investmatch.se. Anmäl intresse redan nu så hör vi av oss.",
+    "kapital_rubrik": "Söker du kapital?",
+    "kapital_text": "Berätta kort om företaget, hur mycket kapital ni söker och vad det ska användas till.",
+    "investera_rubrik": "Vill du investera?",
+    "investera_text": "Berätta vilka branscher och vilken storlek på investering du är intresserad av.",
+    "epost": "ir@investmatch.se"
+  },
+  "kategorier": {
+    "affarsideer": {
+      "titel": "Affärsidéer – hitta och testa din idé",
+      "text": "Affärsidéer och tips för dig som funderar på att starta eget. Så hittar du en idé, testar den mot riktiga kunder och tar reda på om någon vill betala."
+    },
+    "affarsplan": {
+      "titel": "Affärsplan och budget – mallar och tips",
+      "text": "Så skriver du en affärsplan och gör en budget för ditt nya företag. Enkla mallar, exempel och vad banker och Arbetsförmedlingen vill se."
+    },
+    "foretagsformer": {
+      "titel": "Företagsformer och registrering",
+      "text": "Enskild firma, aktiebolag eller handelsbolag? Skillnaderna mellan företagsformerna och hur du registrerar ditt företag hos Bolagsverket och Skatteverket."
+    },
+    "komma-igang": {
+      "titel": "Starta företag – checklistor",
+      "text": "Checklistor och steg-för-steg-guider för dig som ska starta företag. Från idé och affärsplan till F-skatt, företagskonto och första kunden."
+    },
+    "kapital": {
+      "titel": "Finansiering och kapital för småföretag",
+      "text": "Starta eget-bidrag, lån från Almi och banken, stöd och investerare. Så finansierar du starten och tillväxten i ditt företag."
+    },
+    "ekonomi": {
+      "titel": "Ekonomi, skatt och bokföring för småföretag",
+      "text": "Moms, F-skatt, preliminärskatt, egenavgifter och bokföring förklarat på ett enkelt sätt för dig som driver eget företag."
+    },
+    "marknadsforing": {
+      "titel": "Marknadsföring och försäljning",
+      "text": "Så hittar du kunder, syns i sociala medier och på Google och säljer mer – även med liten eller ingen budget."
+    },
+    "juridik": {
+      "titel": "Juridik och avtal för småföretagare",
+      "text": "Avtal, villkor och regler som varje småföretagare behöver ha koll på. Kundavtal, samarbetsavtal, aktieägaravtal och GDPR."
+    },
+    "personal": {
+      "titel": "Personal och arbetsgivarfrågor",
+      "text": "Anställa din första medarbetare: arbetsgivaravgifter, växa-stödet, anställningsavtal och vad du behöver tänka på som ny arbetsgivare."
+    },
+    "digitala-verktyg": {
+      "titel": "Digitala verktyg och AI för småföretag",
+      "text": "AI-verktyg, hemsidor, bokföringsprogram och andra digitala verktyg som sparar tid och pengar för småföretagare."
+    },
+    "affarsutveckling": {
+      "titel": "Affärsutveckling och strategi",
+      "text": "Så utvecklar du ditt företag: när det är dags att växa, anställa, samarbeta eller ändra inriktning – och hur du sätter mål som håller."
+    },
+    "lonsamhet": {
+      "titel": "Lönsamhet och prissättning",
+      "text": "Så sätter du rätt pris, räknar fram ditt timpris och gör ditt företag mer lönsamt utan att jobba mer."
+    },
+    "investering": {
+      "titel": "Investering, riskkapital och InvestMatch",
+      "text": "Riskkapital, affärsänglar, crowdfunding och nyemission förklarat. Och InvestMatch – vår tjänst som sammanför företag som söker kapital med investerare."
+    },
+    "foretagsnyheter": {
+      "titel": "Företagsnyheter för småföretagare",
+      "text": "Nyheter för småföretagare i Sverige: nya regler, stöd, trender och det som händer på Nyföretagare."
+    },
+    "reportage": {
+      "titel": "Reportage om småföretagare",
+      "text": "Möt företagare från hela Sverige. Reportage och intervjuer om hur de startade, vad de lärt sig och vart de är på väg."
+    },
+    "inspiration": {
+      "titel": "Inspiration och företagsberättelser",
+      "text": "Berättelser från småföretagare som har gjort resan före dig – misstag, lärdomar och tips som inspirerar."
+    },
+    "guider": {
+      "titel": "Guider för småföretagare",
+      "text": "Praktiska guider steg för steg för dig som vill starta, driva eller utveckla företag. Skatt, avtal, marknadsföring, prissättning och mer."
+    },
+    "tips-verktyg": {
+      "titel": "Tips och verktyg för småföretag",
+      "text": "Konkreta tips, kalkyler och verktyg som gör vardagen som småföretagare enklare."
+    },
+    "natverk": {
+      "titel": "Samarbeten och nätverkande för företagare",
+      "text": "Så bygger du nätverk och hittar samarbetspartners som företagare – lokalt och i hela Sverige."
+    },
+    "event": {
+      "titel": "Event och webbinarier för företagare",
+      "text": "Kommande nätverksträffar, mässor, frukostmöten och webbinarier för småföretagare."
+    }
+  },
+  "lan": {
+    "blekinge": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "dalarna": {
+      "ansvarig": "Markus Forsgren",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "gotland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "gavleborg": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "halland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "jamtland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "jonkoping": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "kalmar": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "kronoberg": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "norrbotten": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "skane": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "stockholm": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "sodermanland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "uppsala": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "varmland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "vasterbotten": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "vasternorrland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "vastmanland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "vastra-gotaland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "orebro": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    },
+    "ostergotland": {
+      "ansvarig": "",
+      "epost": "",
+      "telefon": "",
+      "facebook": ""
+    }
+  }
+}
