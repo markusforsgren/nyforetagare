@@ -56,11 +56,13 @@ async function authenticate(req, e) {
 
 const isAdmin = (p) => p.roll === 'admin';
 const canPublish = (p) => isAdmin(p) || p.publicera === true;
-function canEdit(p, fm) {
-  if (isAdmin(p)) return true;
-  if (fm.skapad_av && fm.skapad_av === p.email) return true;
-  return !!fm.lan && p.lan.includes(fm.lan);
+// Alla aktiva redaktörer får ändra alla artiklar (alla kategorier och län).
+function canEdit(p) {
+  return p.aktiv !== false;
 }
+// Sidtexter: admin får ändra allt, redaktörer bara kategoritexterna.
+const REDAKTOR_TEXTER = ['kategorier'];
+const canEditTexts = (p, del) => isAdmin(p) || REDAKTOR_TEXTER.includes(del);
 
 // ---------- GitHub ----------
 async function gh(e, path, opts = {}) {
@@ -175,7 +177,7 @@ async function listArticles(e, prof) {
         title: fm.title || x.name, kategori: fm.kategori || '', fler_kategorier: Array.isArray(fm.fler_kategorier) ? fm.fler_kategorier : [], lan: fm.lan || '', ort: fm.ort || '',
         datum: fm.datum || '', skribent: fm.skribent || '', utkast: fm.utkast === true,
         granskning: fm.granskning === true, toppnyhet: fm.toppnyhet === true,
-        skapad_av: fm.skapad_av || '', canEdit: canEdit(prof, fm),
+        skapad_av: fm.skapad_av || '', canEdit: canEdit(prof),
       };
     })
     .sort((a, b) => (b.datum || '').localeCompare(a.datum || ''));
@@ -186,7 +188,7 @@ async function getArticle(e, prof, slug) {
   const f = await getFile(e, filePath(e, slug));
   if (!f) fail(404, 'Artikeln finns inte.');
   const { fm, body } = parseMd(unb64(f.content));
-  return { slug, sha: f.sha, ...fm, body, canEdit: canEdit(prof, fm) };
+  return { slug, sha: f.sha, ...fm, body, canEdit: canEdit(prof) };
 }
 
 async function saveArticle(e, prof, input) {
@@ -202,19 +204,21 @@ async function saveArticle(e, prof, input) {
   let old = {};
   if (existing) {
     old = parseMd(unb64(existing.content)).fm;
-    if (!canEdit(prof, old)) fail(403, 'Du har inte behörighet att ändra den här artikeln.');
+    if (!canEdit(prof)) fail(403, 'Du har inte behörighet att ändra den här artikeln.');
     if (input.sha && input.sha !== existing.sha) fail(409, 'Artikeln har ändrats av någon annan. Ladda om och försök igen.');
   }
 
-  // Län-begränsning för redaktörer
-  if (!isAdmin(prof) && prof.lan.length > 0 && !(fm.lan && prof.lan.includes(fm.lan))) {
+  // Län-begränsning gäller bara nya artiklar från redaktörer med valda län
+  if (!existing && !isAdmin(prof) && prof.lan.length > 0 && !(fm.lan && prof.lan.includes(fm.lan))) {
     fail(403, `Du kan bara skriva för: ${prof.lan.join(', ')}.`);
   }
   // Toppnyhet bara för admin
   if (!isAdmin(prof)) fm.toppnyhet = old.toppnyhet === true;
-  // Publicering
+  // Publicering. En redaktör utan publiceringsrätt kan ändra en redan publicerad
+  // artikel utan att den försvinner från sajten; nya artiklar går via granskning.
+  const wasPublished = existing && old.utkast !== true;
   fm.granskning = false;
-  if (!fm.utkast && !canPublish(prof)) {
+  if (!fm.utkast && !canPublish(prof) && !wasPublished) {
     fm.utkast = true;
     fm.granskning = true; // skickad för granskning
   }
@@ -224,7 +228,6 @@ async function saveArticle(e, prof, input) {
   const verb = existing ? 'Uppdatera' : 'Ny';
   const state = fm.utkast ? (fm.granskning ? 'granskning' : 'utkast') : 'publicerad';
   // Utkast som aldrig varit publicerade syns inte på sajten -> ingen ombyggnad behövs
-  const wasPublished = existing && old.utkast !== true;
   const skip = fm.utkast && !wasPublished ? ' [skip netlify]' : '';
   const res = await putFile(e, path, b64(toMd(fm, body)), `${verb} artikel: ${fm.title} (${state}, ${prof.namn || prof.email})${skip}`, existing?.sha);
   return { slug, sha: res?.content?.sha, state };
@@ -306,13 +309,16 @@ async function readTextsFile(e) {
   if (!f?.content) fail(404, `Filen ${e.textsPath} finns inte i GitHub. Ladda upp den först.`);
   return f;
 }
-async function getTexts(e) {
+async function getTexts(e, prof) {
   const f = await readTextsFile(e);
-  return { texts: JSON.parse(unb64(f.content)), sha: f.sha };
+  const all = JSON.parse(unb64(f.content));
+  const texts = isAdmin(prof) ? all : Object.fromEntries(Object.entries(all).filter(([k]) => canEditTexts(prof, k)));
+  return { texts, sha: f.sha };
 }
 
 async function saveTexts(e, prof, input) {
   const del = clean(input.del, 40);
+  if (!canEditTexts(prof, del)) fail(403, 'Bara administratörer kan ändra den här delen.');
   const cur = await readTextsFile(e);
   if (input.sha && input.sha !== cur.sha) fail(409, 'Någon annan har sparat sidtexterna under tiden. Ladda om fliken och gör ändringen igen.');
   const prev = JSON.parse(unb64(cur.content));
@@ -458,7 +464,7 @@ export default async (req) => {
       case 'save': return json(await saveArticle(e, prof, input.article || {}));
       case 'delete': return json(await deleteArticle(e, prof, input.slug));
       case 'upload': return json(await uploadImage(e, prof, input));
-      case 'getTexts': return json(await getTexts(e));
+      case 'getTexts': return json(await getTexts(e, prof));
       case 'saveTexts': return json(await saveTexts(e, prof, input));
       case 'users':
         if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
