@@ -226,6 +226,14 @@ Inget mer behövs i Netlify.
 
 Umami använder inga cookies, så ingen cookie-banner behövs. Knappar med `data-umami-event` räknas som händelser (Bli medlem, offertförfrågan, lokal partner).
 
+## 14. Sidtexter i adminpanelen
+
+- Fliken **Sidtexter** i /admin/ låter alla med inloggning ändra texter och bilder på: Allmänt, Startsidan, Om oss, Våra tjänster, Bli lokal partner, InvestMatch, Kategorier (titlar och texter för Google) samt Län och ansvariga.
+- Texterna sparas i `src/data/sidtexter.json` i GitHub. Varje sparning blir en commit med namnet på den som ändrade, så allt går att ångra i GitHub.
+- Vilka fält som syns styrs av `src/data/sidtexter-schema.ts`. Vill du göra fler texter redigerbara: lägg till fältet i båda filerna och använd `TEXTER.<del>.<fält>` på sidan.
+- Bilder laddas upp till `public/img/uploads/` och förminskas automatiskt.
+- Juridiska sidor (villkor, integritet, cookies) och formulär ändras fortfarande i koden.
+
 ## Struktur
 
 ```
