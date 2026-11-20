@@ -1,7 +1,7 @@
 ---
 import '@fontsource-variable/inter';
 import '../styles/global.css';
-import { SITE, ANALYTICS } from '../config';
+import { SITE, ANALYTICS, TEXTER } from '../config';
 import { getMenu, usedCategories } from '../lib/posts';
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
   published?: Date;
   schema?: Record<string, unknown> | Record<string, unknown>[]; // strukturerad data (JSON-LD) för Google
 }
-const { title, description = SITE.description, image = '/img/hero_people.jpg', imageAlt, type = 'website', published, schema } = Astro.props;
+const { title, description = SITE.description, image = TEXTER.allmant.standardbild, imageAlt, type = 'website', published, schema } = Astro.props;
 const fullTitle = title ? `${title} – ${SITE.name}` : `${SITE.name} – ${SITE.tagline}`;
 const path = Astro.url.pathname;
 const canonical = new URL(path, Astro.site);
@@ -61,7 +61,7 @@ const isActive = (g: (typeof menu)[number]) =>
   <body>
     <div class="topbar">
       <div class="wrap">
-        <span class="claim">STARTA · DRIVA · UTVECKLA</span>
+        <span class="claim">{TEXTER.allmant.slogan}</span>
         <nav aria-label="Genvägar">
           <a href="/om-oss/">Om oss</a>
           <a href="/tjanster/">Våra tjänster</a>
