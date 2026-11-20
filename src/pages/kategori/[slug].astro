@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { getPosts, inCategory } from '../../lib/posts';
 import { CATEGORIES, TEXTER } from '../../config';
+import KategoriMeny from '../../components/KategoriMeny.astro';
 const IM = TEXTER.investmatch;
 const SEO = TEXTER.kategorier as Record<string, { titel: string; text: string }>;
 
@@ -22,6 +23,7 @@ const seo = SEO[slug!];
     <span class="eyebrow">Kategori</span>
     <h1>{name}</h1>
     {seo && <p class="lead" style="margin:0;max-width:760px">{seo.text}</p>}
+    <div><KategoriMeny current={slug} /></div>
   </div>
   {slug === 'investering' && (
     <section class="wrap" style="padding-bottom:32px" id="investmatch">
