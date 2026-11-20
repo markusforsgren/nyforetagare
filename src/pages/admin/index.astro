@@ -57,7 +57,7 @@ const taxonomy = JSON.stringify({
       <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="29" /><span>Redaktion</span></a>
       <nav class="adm-tabs" aria-label="Redaktionen">
         <button type="button" data-tab="articles" aria-current="page">Artiklar</button>
-        <button type="button" data-tab="texts">Sidtexter</button>
+        <button type="button" data-tab="texts" id="tab-texts">Sidtexter</button>
         <button type="button" data-tab="companies" id="tab-companies" hidden>Företag <span id="pending-count" class="count" hidden></span></button>
         <button type="button" data-tab="users" id="tab-users" hidden>Användare</button>
       </nav>
@@ -362,10 +362,12 @@ const taxonomy = JSON.stringify({
       $('#me-name').textContent = `${me!.namn || me!.email} · ${roll}${me!.lan.length ? ' · ' + me!.lan.map(lanName).join(', ') : ''}`;
       $('#tab-users').hidden = me!.roll !== 'admin';
       $('#tab-companies').hidden = me!.roll !== 'admin';
+      $('#tab-texts').textContent = me!.roll === 'admin' ? 'Sidtexter' : 'Kategoritexter';
+      $('#p-texts h1').textContent = $('#tab-texts').textContent;
       if (me!.roll === 'admin') loadCompanies(true);
       $('#row-top').hidden = me!.roll !== 'admin';
       $('#b-delete').dataset.allowed = me!.roll === 'admin' ? '1' : '';
-      if (me!.lan.length === 1) ($('#flt-lan') as HTMLSelectElement).value = me!.lan[0];
+      // Redaktörer ser alla artiklar; länfiltret kan väljas själv
       show('v-app');
       openTab('articles');
     }
@@ -475,9 +477,13 @@ const taxonomy = JSON.stringify({
       return `<label>${esc(f.label)}${help}<input type="${type}" data-p="${pa}" value="${esc(v)}" maxlength="${f.max || 300}" ${f.typ === 'lank' ? 'placeholder="https://"' : ''} /></label>`;
     }
 
+    // Redaktörer ser bara de delar servern skickar (kategoritexterna)
+    const txDelar = () => TX_SCHEMA.filter((d) => txData && d.key in txData);
     function renderTexts() {
+      if (!txDelar().some((d) => d.key === txDel)) txDel = txDelar()[0]?.key || '';
       const del = TX_SCHEMA.find((d) => d.key === txDel)!;
-      $('#tx-nav').innerHTML = TX_SCHEMA.map((d) => `<button type="button" data-txdel="${d.key}" ${d.key === txDel ? 'aria-current="page"' : ''}>${esc(d.label)}</button>`).join('');
+      $('#tx-nav').hidden = txDelar().length < 2;
+      $('#tx-nav').innerHTML = txDelar().map((d) => `<button type="button" data-txdel="${d.key}" ${d.key === txDel ? 'aria-current="page"' : ''}>${esc(d.label)}</button>`).join('');
       $('#tx-title').textContent = del.label;
       ($('#tx-view') as HTMLAnchorElement).href = del.sida || '/';
       let html = (del.falt || []).map((f) => fieldHtml(f, [del.key, f.key])).join('');
