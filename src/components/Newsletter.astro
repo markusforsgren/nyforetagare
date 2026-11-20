@@ -1,10 +1,12 @@
 ---
+import { TEXTER } from '../config';
+const T = TEXTER.startsida;
 ---
 <section class="newsletter" id="nyhetsbrev">
   <div class="wrap section split">
     <div>
-      <h2 class="h2">Veckans bästa tips för företagare</h2>
-      <p>Nyheter, reportage och verktyg direkt i inkorgen. Gratis.</p>
+      <h2 class="h2">{T.nyhetsbrev_rubrik}</h2>
+      <p>{T.nyhetsbrev_text}</p>
     </div>
     <form class="inline-form" name="nyhetsbrev" method="POST" action="/tack/" data-netlify="true" netlify-honeypot="bot-field">
       <input type="hidden" name="form-name" value="nyhetsbrev" />
