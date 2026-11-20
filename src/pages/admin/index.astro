@@ -24,6 +24,18 @@ const taxonomy = JSON.stringify({
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
+  <!-- Bildbank -->
+  <dialog id="bank" class="bank" aria-labelledby="bank-title">
+    <div class="bank-head">
+      <h2 id="bank-title">Bildbank</h2>
+      <input type="search" id="bank-q" placeholder="Sök på filnamn" />
+      <label class="btn btn-primary btn-sm">Ladda upp bild<input type="file" id="bank-file" accept="image/jpeg,image/png,image/webp" multiple hidden /></label>
+      <button type="button" class="btn btn-outline btn-sm" id="bank-close">Stäng</button>
+    </div>
+    <p class="muted small" id="bank-hint"></p>
+    <div class="bank-grid" id="bank-grid"><p class="muted">Laddar…</p></div>
+  </dialog>
+
   <!-- Laddar -->
   <section id="v-loading" class="adm-center"><p class="muted">Laddar…</p></section>
 
@@ -73,7 +85,10 @@ const taxonomy = JSON.stringify({
       <div id="p-list">
         <div class="adm-head">
           <h1>Artiklar</h1>
-          <button type="button" class="btn btn-primary" id="b-new">+ Ny artikel</button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button type="button" class="btn btn-outline" id="b-bank">Bildbank</button>
+            <button type="button" class="btn btn-primary" id="b-new">+ Ny artikel</button>
+          </div>
         </div>
         <div class="adm-filters">
           <label class="sr-only" for="flt-status">Status</label>
@@ -124,7 +139,7 @@ const taxonomy = JSON.stringify({
                 <button type="button" data-md="ul" title="Punktlista">• Lista</button>
                 <button type="button" data-md="quote" title="Citat">” Citat</button>
                 <button type="button" data-md="link" title="Länk">Länk</button>
-                <button type="button" data-md="img" title="Bild i texten">Bild</button>
+                <button type="button" data-md="img" title="Infoga bild där markören står">Infoga bild</button>
                 <span class="md-sp"></span>
                 <button type="button" id="b-preview" aria-pressed="false">Förhandsvisa</button>
               </div>
@@ -149,7 +164,8 @@ const taxonomy = JSON.stringify({
               <span class="lbl">Huvudbild</span>
               <img id="ed-img" alt="" hidden />
               <div class="imgbtns">
-                <label class="btn btn-outline btn-sm">Välj bild<input type="file" id="ed-file" accept="image/jpeg,image/png,image/webp" hidden /></label>
+                <button type="button" class="btn btn-outline btn-sm" id="b-img-bank">Bildbank</button>
+                <label class="btn btn-outline btn-sm">Ladda upp ny<input type="file" id="ed-file" accept="image/jpeg,image/png,image/webp" hidden /></label>
                 <button type="button" class="linkbtn" id="b-img-rm" hidden>Ta bort</button>
               </div>
               <input type="hidden" name="bild" />
@@ -433,6 +449,65 @@ const taxonomy = JSON.stringify({
       openTab(b.dataset.tab!);
     }));
 
+    // ---------- Bildbank ----------
+    type Bild = { path: string; name: string; size: number; uppladdad: boolean; ts: number };
+    let bankImages: Bild[] | null = null;
+    let bankPick: ((path: string) => void) | null = null;
+    const bankPreview: Record<string, string> = {}; // nyss uppladdade bilder syns inte på sajten förrän nästa bygge
+    const bankDlg = $('#bank') as HTMLDialogElement;
+
+    function renderBank() {
+      const q = ($('#bank-q') as HTMLInputElement).value.trim().toLowerCase();
+      const list = (bankImages || []).filter((b) => !q || b.name.toLowerCase().includes(q));
+      $('#bank-hint').textContent = bankPick ? 'Klicka på en bild för att välja den.' : `${list.length} bilder. Ladda upp bilder här och välj dem sedan i artiklarna.`;
+      $('#bank-grid').innerHTML = list.length
+        ? list.map((b) => `<button type="button" class="bank-item" data-pick="${esc(b.path)}" title="${esc(b.name)}">
+            <img src="${esc(bankPreview[b.path] || b.path)}" alt="" loading="lazy" />
+            <span>${esc(b.name.replace(/-\d{13}(?=\.\w+$)/, ''))}</span></button>`).join('')
+        : '<p class="muted">Inga bilder hittades.</p>';
+    }
+    async function loadBank(force = false) {
+      if (bankImages && !force) return renderBank();
+      $('#bank-grid').innerHTML = '<p class="muted">Laddar…</p>';
+      try { bankImages = await api<Bild[]>('images'); renderBank(); }
+      catch (e: any) { $('#bank-grid').innerHTML = `<p class="muted">${esc(e.message)}</p>`; }
+    }
+    function openBank(onPick: ((path: string) => void) | null = null) {
+      bankPick = onPick;
+      bankDlg.showModal();
+      loadBank();
+    }
+    $('#bank-close').addEventListener('click', () => bankDlg.close());
+    bankDlg.addEventListener('click', (ev) => { if (ev.target === bankDlg) bankDlg.close(); });
+    $('#bank-q').addEventListener('input', renderBank);
+    // Bilder som inte finns på sajten än (nyss uppladdade) visas som platshållare
+    $('#bank-grid').addEventListener('error', (ev) => (ev.target as HTMLElement).closest('.bank-item')?.classList.add('broken'), true);
+    $('#bank-grid').addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-pick]');
+      if (!b || !bankPick) return;
+      bankPick(b.dataset.pick!);
+      bankDlg.close();
+    });
+    $('#bank-file').addEventListener('change', async (ev) => {
+      const input = ev.target as HTMLInputElement;
+      const files = Array.from(input.files || []);
+      input.value = '';
+      for (const file of files) {
+        try {
+          if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error(`${file.name}: välj JPG, PNG eller WebP.`);
+          toast(`Laddar upp ${file.name}…`);
+          const dataUrl = await resizeToDataUrl(file, 2000);
+          const name = file.name.replace(/\.[^.]+$/, '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').slice(0, 40) || 'bild';
+          const res = await api<{ path: string }>('upload', { dataUrl, slug: name });
+          bankPreview[res.path] = dataUrl;
+          (bankImages ||= []).unshift({ path: res.path, name: res.path.split('/').pop()!, size: 0, uppladdad: true, ts: Date.now() });
+          renderBank();
+        } catch (e: any) { toast(e.message, 'err'); }
+      }
+      if (files.length) toast('Klart! Bilderna finns i bildbanken.');
+    });
+    $('#b-bank').addEventListener('click', () => openBank(null));
+
     // ---------- Sidtexter ----------
     type Falt = { key: string; label: string; typ: 'text' | 'textarea' | 'bild' | 'lank' | 'epost' | 'lista'; hjalp?: string; max?: number; falt?: Falt[] };
     type Del = { key: string; label: string; sida?: string; falt?: Falt[]; poster?: { key: string; label: string }[]; postFalt?: Falt[] };
@@ -461,7 +536,8 @@ const taxonomy = JSON.stringify({
         const src = txPreview[path.join('.')] || v;
         return `<div class="tx-img"><span class="tx-lbl">${esc(f.label)}</span>${help}
           <div class="tx-img-row">${src ? `<img src="${esc(src)}" alt="" />` : '<span class="tx-noimg">Ingen bild</span>'}
-          <label class="btn btn-outline btn-sm">Byt bild<input type="file" accept="image/jpeg,image/png,image/webp" data-img="${pa}" hidden /></label></div></div>`;
+          <button type="button" class="btn btn-outline btn-sm" data-bank="${pa}">Bildbank</button>
+          <label class="btn btn-outline btn-sm">Ladda upp ny<input type="file" accept="image/jpeg,image/png,image/webp" data-img="${pa}" hidden /></label></div></div>`;
       }
       if (f.typ === 'lista') {
         const rows: any[] = Array.isArray(v) ? v : [];
@@ -521,6 +597,17 @@ const taxonomy = JSON.stringify({
       txDirty = true; txChanged.add(txDel); $('#tx-status').textContent = 'Osparade ändringar';
     });
     $('#tx-fields').addEventListener('click', (ev) => {
+      const bk = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-bank]');
+      if (bk) {
+        const p = JSON.parse(bk.dataset.bank!);
+        openBank((path) => {
+          txSet(p, path);
+          if (bankPreview[path]) txPreview[p.join('.')] = bankPreview[path];
+          txDirty = true; txChanged.add(txDel); $('#tx-status').textContent = 'Osparade ändringar';
+          renderTexts();
+        });
+        return;
+      }
       const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-add],[data-del],[data-move]');
       if (!b) return;
       const p = JSON.parse((b.dataset.add || b.dataset.del || b.dataset.move)!);
@@ -816,6 +903,7 @@ const taxonomy = JSON.stringify({
       } catch (e: any) { toast(e.message, 'err'); }
     });
     $('#b-img-rm').addEventListener('click', () => { setImage(''); dirty = true; });
+    $('#b-img-bank').addEventListener('click', () => openBank((path) => { setImage(path, bankPreview[path]); dirty = true; }));
 
     // Markdown-verktyg
     const ta = $('#ed-body') as HTMLTextAreaElement;
@@ -847,20 +935,15 @@ const taxonomy = JSON.stringify({
           return;
         }
         case 'img': {
-          const pick = document.createElement('input');
-          pick.type = 'file';
-          pick.accept = 'image/jpeg,image/png,image/webp';
-          pick.onchange = async () => {
-            const f = pick.files?.[0];
-            if (!f) return;
-            toast('Laddar upp bild…');
-            try {
-              const r = await uploadFile(f);
-              wrap(`\n![`, `](${r.path})\n`, 'Bildtext');
-              toast('Bilden är infogad. Den syns på sajten när artikeln publiceras.');
-            } catch (e: any) { toast(e.message, 'err'); }
-          };
-          pick.click();
+          // Välj bild ur bildbanken (eller ladda upp en ny där) och infoga där markören står
+          const start = ta.selectionStart, end = ta.selectionEnd;
+          openBank((path) => {
+            ta.focus();
+            ta.setSelectionRange(start, end);
+            wrap(`\n\n![`, `](${path})\n\n`, 'Skriv bildtext här');
+            toast('Bilden är infogad. Ändra texten inom hakparenteserna till en bildtext.');
+          });
+          return;
         }
       }
     }));
