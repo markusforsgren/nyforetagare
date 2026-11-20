@@ -3,6 +3,8 @@ import '@fontsource-variable/inter';
 import '../../styles/global.css';
 import '../../styles/admin.css';
 import { CATEGORIES, LAN, MENU } from '../../config';
+import { SIDTEXTER_SCHEMA } from '../../data/sidtexter-schema';
+const textSchema = JSON.stringify(SIDTEXTER_SCHEMA);
 const taxonomy = JSON.stringify({
   kategorier: CATEGORIES.map((c) => ({ slug: c.slug, name: c.name })),
   grupper: MENU.map((g) => ({ label: g.label, kategorier: g.kategorier })),
@@ -18,7 +20,7 @@ const taxonomy = JSON.stringify({
   <title>Redaktion – Nyföretagare</title>
   <link rel="icon" type="image/png" href="/img/favicon-64.png" />
 </head>
-<body class="adm" data-taxonomy={taxonomy}>
+<body class="adm" data-taxonomy={taxonomy} data-textschema={textSchema}>
 
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
@@ -55,6 +57,7 @@ const taxonomy = JSON.stringify({
       <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="29" /><span>Redaktion</span></a>
       <nav class="adm-tabs" aria-label="Redaktionen">
         <button type="button" data-tab="articles" aria-current="page">Artiklar</button>
+        <button type="button" data-tab="texts">Sidtexter</button>
         <button type="button" data-tab="companies" id="tab-companies" hidden>Företag <span id="pending-count" class="count" hidden></span></button>
         <button type="button" data-tab="users" id="tab-users" hidden>Användare</button>
       </nav>
@@ -183,6 +186,28 @@ const taxonomy = JSON.stringify({
           </select>
         </div>
         <div id="c-list" class="c-list"><p class="muted">Laddar…</p></div>
+      </div>
+
+      <!-- Sidtexter -->
+      <div id="p-texts" hidden>
+        <div class="adm-head">
+          <h1>Sidtexter</h1>
+          <p class="muted" style="margin:0">Ändra texter och bilder på sajten. När du sparar uppdateras sajten inom ett par minuter.</p>
+        </div>
+        <div class="tx-layout">
+          <nav class="tx-nav adm-card" id="tx-nav" aria-label="Delar av sajten"></nav>
+          <form class="adm-card tx-form" id="tx-form">
+            <div class="tx-top">
+              <h2 id="tx-title">Välj en del</h2>
+              <a id="tx-view" href="/" target="_blank" rel="noopener" class="muted">Visa sidan ↗</a>
+            </div>
+            <div id="tx-fields"><p class="muted">Laddar…</p></div>
+            <div class="tx-save">
+              <button class="btn btn-primary" type="submit" id="tx-save">Spara</button>
+              <span class="muted small" id="tx-status"></span>
+            </div>
+          </form>
+        </div>
       </div>
 
       <!-- Användare -->
@@ -394,14 +419,150 @@ const taxonomy = JSON.stringify({
       $('#p-edit').hidden = true;
       $('#p-users').hidden = tab !== 'users';
       $('#p-companies').hidden = tab !== 'companies';
+      $('#p-texts').hidden = tab !== 'texts';
+      if (tab === 'texts') loadTexts();
       if (tab === 'companies') loadCompanies();
       if (tab === 'articles') loadList();
       if (tab === 'users') loadUsers();
     }
     $$('[data-tab]').forEach((b) => b.addEventListener('click', () => {
       if (!$('#p-edit').hidden && dirty && !confirm('Du har osparade ändringar. Lämna ändå?')) return;
+      if (!$('#p-texts').hidden && txDirty && !confirm('Du har osparade ändringar i sidtexterna. Lämna ändå?')) return;
       openTab(b.dataset.tab!);
     }));
+
+    // ---------- Sidtexter ----------
+    type Falt = { key: string; label: string; typ: 'text' | 'textarea' | 'bild' | 'lank' | 'epost' | 'lista'; hjalp?: string; max?: number; falt?: Falt[] };
+    type Del = { key: string; label: string; sida?: string; falt?: Falt[]; poster?: { key: string; label: string }[]; postFalt?: Falt[] };
+    const TX_SCHEMA: Del[] = JSON.parse(document.body.dataset.textschema || '[]');
+    let txData: Record<string, any> | null = null;
+    let txSha = '';
+    let txDel = TX_SCHEMA[0]?.key || '';
+    let txDirty = false;
+    const txChanged = new Set<string>(); // delar med osparade ändringar
+    const txPreview: Record<string, string> = {}; // bilder som laddats upp men inte publicerats än
+
+    function txGet(path: (string | number)[]) { return path.reduce<any>((o, k) => (o == null ? o : o[k]), txData); }
+    function txSet(path: (string | number)[], v: unknown) {
+      let o: any = txData;
+      path.slice(0, -1).forEach((k, i) => { if (o[k] == null) o[k] = typeof path[i + 1] === 'number' ? [] : {}; o = o[k]; });
+      o[path[path.length - 1]] = v;
+    }
+    const pathAttr = (p: (string | number)[]) => esc(JSON.stringify(p));
+
+    function fieldHtml(f: Falt, path: (string | number)[]): string {
+      const v = txGet(path) ?? '';
+      const help = f.hjalp ? `<small class="muted">${esc(f.hjalp)}</small>` : '';
+      const pa = pathAttr(path);
+      if (f.typ === 'textarea') return `<label>${esc(f.label)}${help}<textarea data-p="${pa}" maxlength="${f.max || 2000}" rows="${String(v).length > 160 ? 5 : 3}">${esc(v)}</textarea></label>`;
+      if (f.typ === 'bild') {
+        const src = txPreview[path.join('.')] || v;
+        return `<div class="tx-img"><span class="tx-lbl">${esc(f.label)}</span>${help}
+          <div class="tx-img-row">${src ? `<img src="${esc(src)}" alt="" />` : '<span class="tx-noimg">Ingen bild</span>'}
+          <label class="btn btn-outline btn-sm">Byt bild<input type="file" accept="image/jpeg,image/png,image/webp" data-img="${pa}" hidden /></label></div></div>`;
+      }
+      if (f.typ === 'lista') {
+        const rows: any[] = Array.isArray(v) ? v : [];
+        return `<fieldset class="tx-list"><legend>${esc(f.label)}</legend>${help}
+          ${rows.map((_, i) => `<div class="tx-row"><div class="tx-row-head"><strong>${i + 1}</strong>
+            <span><button type="button" class="k-link" data-move="${pa}" data-i="${i}" data-d="-1" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button type="button" class="k-link" data-move="${pa}" data-i="${i}" data-d="1" ${i === rows.length - 1 ? 'disabled' : ''}>↓</button>
+            <button type="button" class="k-link danger" data-del="${pa}" data-i="${i}">Ta bort</button></span></div>
+            ${(f.falt || []).map((sf) => fieldHtml(sf, [...path, i, sf.key])).join('')}</div>`).join('')}
+          <button type="button" class="btn btn-outline btn-sm" data-add="${pa}" data-keys="${esc(JSON.stringify((f.falt || []).map((x) => x.key)))}">+ Lägg till</button></fieldset>`;
+      }
+      const type = f.typ === 'epost' ? 'email' : f.typ === 'lank' ? 'url' : 'text';
+      return `<label>${esc(f.label)}${help}<input type="${type}" data-p="${pa}" value="${esc(v)}" maxlength="${f.max || 300}" ${f.typ === 'lank' ? 'placeholder="https://"' : ''} /></label>`;
+    }
+
+    function renderTexts() {
+      const del = TX_SCHEMA.find((d) => d.key === txDel)!;
+      $('#tx-nav').innerHTML = TX_SCHEMA.map((d) => `<button type="button" data-txdel="${d.key}" ${d.key === txDel ? 'aria-current="page"' : ''}>${esc(d.label)}</button>`).join('');
+      $('#tx-title').textContent = del.label;
+      ($('#tx-view') as HTMLAnchorElement).href = del.sida || '/';
+      let html = (del.falt || []).map((f) => fieldHtml(f, [del.key, f.key])).join('');
+      if (del.poster) {
+        html += `<p class="muted small">Klicka på en rad för att öppna den.</p>` + del.poster.map((post) => {
+          const first = txGet([del.key, post.key, del.postFalt![0].key]);
+          return `<details class="tx-post"><summary><strong>${esc(post.label)}</strong> <span class="muted">${esc(first || '–')}</span></summary>
+            ${del.postFalt!.map((f) => fieldHtml(f, [del.key, post.key, f.key])).join('')}</details>`;
+        }).join('');
+      }
+      $('#tx-fields').innerHTML = html;
+    }
+
+    async function loadTexts() {
+      if (txData && !txDirty) { renderTexts(); return; }
+      if (txData) return;
+      $('#tx-fields').innerHTML = '<p class="muted">Laddar…</p>';
+      try {
+        const res = await api<{ texts: Record<string, any>; sha: string }>('getTexts');
+        txData = res.texts; txSha = res.sha; txDirty = false;
+        renderTexts();
+      } catch (e: any) { $('#tx-fields').innerHTML = `<p class="muted">${esc(e.message)}</p>`; }
+    }
+
+    $('#tx-nav').addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-txdel]');
+      if (!b) return;
+            txDel = b.dataset.txdel!;
+      renderTexts();
+    });
+    $('#tx-fields').addEventListener('input', (ev) => {
+      const el = ev.target as HTMLInputElement;
+      if (!el.dataset.p) return;
+      txSet(JSON.parse(el.dataset.p), el.value);
+      txDirty = true; txChanged.add(txDel); $('#tx-status').textContent = 'Osparade ändringar';
+    });
+    $('#tx-fields').addEventListener('click', (ev) => {
+      const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-add],[data-del],[data-move]');
+      if (!b) return;
+      const p = JSON.parse((b.dataset.add || b.dataset.del || b.dataset.move)!);
+      const list: any[] = txGet(p) || [];
+      const i = Number(b.dataset.i);
+      if (b.dataset.add) list.push(Object.fromEntries(JSON.parse(b.dataset.keys!).map((k: string) => [k, ''])));
+      if (b.dataset.del) { if (!confirm('Ta bort raden?')) return; list.splice(i, 1); }
+      if (b.dataset.move) { const j = i + Number(b.dataset.d); [list[i], list[j]] = [list[j], list[i]]; }
+      txSet(p, list);
+      txDirty = true; txChanged.add(txDel); $('#tx-status').textContent = 'Osparade ändringar';
+      renderTexts();
+    });
+    $('#tx-fields').addEventListener('change', async (ev) => {
+      const input = ev.target as HTMLInputElement;
+      if (!input.dataset.img || !input.files?.[0]) return;
+      const p = JSON.parse(input.dataset.img);
+      const file = input.files[0];
+      try {
+        if (!/^image\/(jpeg|png|webp)$/.test(file.type)) throw new Error('Välj en JPG, PNG eller WebP.');
+        $('#tx-status').textContent = 'Laddar upp bilden…';
+        const dataUrl = await resizeToDataUrl(file, 2000);
+        const res = await api<{ path: string }>('upload', { dataUrl, slug: 'sida-' + p.slice(-1)[0] });
+        txSet(p, res.path);
+        txPreview[p.join('.')] = dataUrl;
+        txDirty = true; txChanged.add(txDel); $('#tx-status').textContent = 'Bilden är uppladdad. Klicka Spara för att använda den.';
+        renderTexts();
+      } catch (e: any) { toast(e.message, 'err'); $('#tx-status').textContent = ''; }
+    });
+    $('#tx-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (!txData) return;
+      const btn = $('#tx-save') as HTMLButtonElement;
+      busy(btn, true);
+      try {
+        const dels = txChanged.size ? [...txChanged] : [txDel];
+        for (const del of dels) {
+          const res = await api<{ sha: string }>('saveTexts', { del, values: txData[del], sha: txSha });
+          if (res.sha) txSha = res.sha;
+          txChanged.delete(del);
+        }
+        txDirty = false;
+        $('#tx-status').textContent = 'Sparat. Sajten uppdateras inom ett par minuter.';
+        toast('Sparat! Sajten uppdateras inom ett par minuter.');
+      } catch (e: any) {
+        toast(e.message, 'err');
+        if (/annan har sparat/.test(e.message)) { txData = null; }
+      } finally { busy(btn, false); }
+    });
 
     // ---------- Artikellista ----------
     type Row = { slug: string; title: string; kategori: string; lan: string; ort: string; datum: string; skribent: string; utkast: boolean; granskning: boolean; toppnyhet: boolean; skapad_av: string; canEdit: boolean };
