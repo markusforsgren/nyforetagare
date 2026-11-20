@@ -8,12 +8,22 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'profile';
+  published?: Date;
+  schema?: Record<string, unknown> | Record<string, unknown>[]; // strukturerad data (JSON-LD) för Google
 }
-const { title, description = SITE.description, image = '/img/hero_people.jpg' } = Astro.props;
+const { title, description = SITE.description, image = '/img/hero_people.jpg', imageAlt, type = 'website', published, schema } = Astro.props;
 const fullTitle = title ? `${title} – ${SITE.name}` : `${SITE.name} – ${SITE.tagline}`;
 const path = Astro.url.pathname;
 const canonical = new URL(path, Astro.site);
 const ogImage = new URL(image, Astro.site);
+// Strukturerad data: bolaget och webbplatsen på startsidan, plus sidans egen
+const ORG = { '@type': 'Organization', '@id': `${Astro.site}#org`, name: SITE.name, url: String(Astro.site), logo: new URL('/img/logo-tile-512.png', Astro.site).href, email: SITE.email, sameAs: [SITE.facebook].filter(Boolean), parentOrganization: { '@type': 'Organization', name: SITE.company } };
+const jsonld = [
+  ...(path === '/' ? [ORG, { '@type': 'WebSite', name: SITE.name, url: String(Astro.site), inLanguage: 'sv-SE', publisher: { '@id': `${Astro.site}#org` } }] : []),
+  ...(schema ? (Array.isArray(schema) ? schema : [schema]) : []),
+];
 const menu = (await getMenu()).filter((g) => g.items.length > 0);
 const footerCats = (await usedCategories()).slice(0, 5);
 const HUBS = ['/starta/', '/driva/', '/utveckla/'];
@@ -31,11 +41,19 @@ const isActive = (g: (typeof menu)[number]) =>
     <link rel="icon" type="image/png" href="/img/favicon-64.png" />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
     <meta name="theme-color" content="#0b2344" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:url" content={canonical} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
+    {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
     <meta property="og:locale" content="sv_SE" />
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    {jsonld.length > 0 && (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify({ '@context': 'https://schema.org', '@graph': jsonld }).replace(/</g, '\\u003c')}></script>
+    )}
     {ANALYTICS.umamiWebsiteId && (
       <script is:inline defer src={ANALYTICS.src} data-website-id={ANALYTICS.umamiWebsiteId} data-do-not-track="true" data-exclude-search="true"></script>
     )}
@@ -165,7 +183,7 @@ const isActive = (g: (typeof menu)[number]) =>
       // Innehåll glider in när man scrollar. Avstängt om användaren valt reducerad rörelse.
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!reduce && 'IntersectionObserver' in window) {
-        const sel = '.hero-main, .latest, .cats a, .card, .acard, .split > *, .section-head';
+        const sel = '.hero-main, .latest, .cats a, .omrade, .card, .acard, .split > *, .section-head';
         const els = Array.from(document.querySelectorAll<HTMLElement>(sel)).filter((el) => !el.closest('.intro'));
         const io = new IntersectionObserver((entries) => {
           entries.forEach((e) => {
