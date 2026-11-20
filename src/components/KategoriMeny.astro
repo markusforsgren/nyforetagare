@@ -1,0 +1,59 @@
+---
+// Knapp med hamburgerikon som fäller ut alla kategorier, grupperade som huvudmenyn.
+// Visas på artikelsidor och kategorisidor så att det är lätt att bläddra.
+import { getMenu, getPosts, inCategory } from '../lib/posts';
+interface Props { current?: string }
+const { current = '' } = Astro.props;
+const posts = await getPosts();
+const grupper = (await getMenu())
+  .map((g) => ({
+    label: g.label,
+    items: g.items
+      .filter((i) => i.href.startsWith('/kategori/'))
+      .map((i) => {
+        const slug = i.href.split('/')[2];
+        return { ...i, slug, n: posts.filter((p) => inCategory(p, slug)).length };
+      }),
+  }))
+  .filter((g) => g.items.length > 0);
+// Samma kategori kan stå i flera grupper (t.ex. Finansiering) – visa den bara en gång
+const seen = new Set<string>();
+grupper.forEach((g) => (g.items = g.items.filter((i) => !seen.has(i.slug) && seen.add(i.slug))));
+---
+<details class="katmeny" data-katmeny>
+  <summary>
+    <span class="katmeny-ikon" aria-hidden="true"><span></span><span></span><span></span></span>
+    Alla kategorier
+  </summary>
+  <div class="katmeny-panel">
+    <button type="button" class="katmeny-close" data-katmeny-close aria-label="Stäng">Stäng ✕</button>
+    <a href="/artiklar/" class="katmeny-all">Alla artiklar <span>{posts.length}</span></a>
+    <div class="katmeny-grid">
+      {grupper.filter((g) => g.items.length).map((g) => (
+        <div>
+          <strong>{g.label}</strong>
+          <ul>
+            {g.items.map((i) => (
+              <li><a href={i.href} aria-current={i.slug === current ? 'page' : undefined}>{i.label}<span>{i.n}</span></a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</details>
+
+<script>
+  // Stäng menyn vid klick utanför eller Escape
+  document.addEventListener('click', (e) => {
+    document.querySelectorAll<HTMLDetailsElement>('[data-katmeny][open]').forEach((d) => {
+      if (!d.contains(e.target as Node)) d.open = false;
+    });
+  });
+  document.querySelectorAll('[data-katmeny-close]').forEach((b) => b.addEventListener('click', () => {
+    (b.closest('[data-katmeny]') as HTMLDetailsElement).open = false;
+  }));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.querySelectorAll<HTMLDetailsElement>('[data-katmeny][open]').forEach((d) => (d.open = false));
+  });
+</script>
