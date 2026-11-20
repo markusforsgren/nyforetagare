@@ -162,14 +162,36 @@ function validateArticle(a) {
 }
 
 // ---------- Actions ----------
+// Hela repots filträd (en anrop). Används för att hitta artiklar i alla mappar
+// (src/Content/artiklar, src/content/artiklar och undermappar) och för bildbanken.
+async function repoTree(e) {
+  const t = await gh(e, `git/trees/${encodeURIComponent(e.branch)}?recursive=1`);
+  return t?.tree || [];
+}
+const ART_RE = /^src\/[cC]ontent\/artiklar\/(?:.+\/)?([^/_][^/]*)\.md$/;
+async function articlePaths(e) {
+  const map = {};
+  for (const x of await repoTree(e)) {
+    const m = x.type === 'blob' && ART_RE.exec(x.path);
+    if (m && !map[m[1]]) map[m[1]] = x.path;
+  }
+  return map;
+}
+// Var ligger artikeln? Befintlig fil var den än ligger, annars standardmappen.
+async function resolvePath(e, slug) {
+  return (await articlePaths(e))[slug] || filePath(e, slug);
+}
+
 async function listArticles(e, prof) {
   const [owner, name] = e.repo.split('/');
-  const data = await ghGraphql(e,
-    `query($owner:String!,$name:String!,$expr:String!){repository(owner:$owner,name:$name){object(expression:$expr){... on Tree{entries{name object{... on Blob{text}}}}}}}`,
-    { owner, name, expr: `${e.branch}:${e.dir}` });
-  const entries = data?.repository?.object?.entries || [];
+  const paths = Object.values(await articlePaths(e));
+  const dirs = [...new Set([e.dir, ...paths.map((p) => p.slice(0, p.lastIndexOf('/')))])].slice(0, 20);
+  const q = dirs.map((d, i) => `d${i}: object(expression: ${JSON.stringify(`${e.branch}:${d}`)}) { ... on Tree { entries { name object { ... on Blob { text } } } } }`).join('\n');
+  const data = await ghGraphql(e, `query($owner:String!,$name:String!){repository(owner:$owner,name:$name){${q}}}`, { owner, name });
+  const seen = new Set();
+  const entries = dirs.flatMap((_, i) => data?.repository?.[`d${i}`]?.entries || []);
   return entries
-    .filter((x) => x.name.endsWith('.md') && !x.name.startsWith('_'))
+    .filter((x) => x.name.endsWith('.md') && !x.name.startsWith('_') && !seen.has(x.name) && seen.add(x.name))
     .map((x) => {
       const { fm } = parseMd(x.object?.text || '');
       return {
@@ -185,7 +207,7 @@ async function listArticles(e, prof) {
 
 async function getArticle(e, prof, slug) {
   if (!SLUG_RE.test(slug || '')) fail(400, 'Ogiltig adress.');
-  const f = await getFile(e, filePath(e, slug));
+  const f = await getFile(e, await resolvePath(e, slug));
   if (!f) fail(404, 'Artikeln finns inte.');
   const { fm, body } = parseMd(unb64(f.content));
   return { slug, sha: f.sha, ...fm, body, canEdit: canEdit(prof) };
@@ -195,7 +217,7 @@ async function saveArticle(e, prof, input) {
   const slug = clean(input.slug, 80);
   if (!SLUG_RE.test(slug)) fail(400, 'Adressen får bara innehålla a–z, 0–9 och bindestreck.');
   const { fm, body } = validateArticle(input);
-  const path = filePath(e, slug);
+  const path = await resolvePath(e, slug);
   const existing = await getFile(e, path);
 
   if (input.isNew && existing) fail(409, 'Det finns redan en artikel med den adressen. Välj en annan.');
@@ -236,9 +258,10 @@ async function saveArticle(e, prof, input) {
 async function deleteArticle(e, prof, slug) {
   if (!isAdmin(prof)) fail(403, 'Bara administratörer kan radera artiklar.');
   if (!SLUG_RE.test(slug || '')) fail(400, 'Ogiltig adress.');
-  const f = await getFile(e, filePath(e, slug));
+  const path = await resolvePath(e, slug);
+  const f = await getFile(e, path);
   if (!f) fail(404, 'Artikeln finns inte.');
-  await gh(e, `contents/${encodePath(filePath(e, slug))}`, {
+  await gh(e, `contents/${encodePath(path)}`, {
     method: 'DELETE',
     body: JSON.stringify({ message: `Radera artikel: ${slug} (${prof.namn || prof.email})`, sha: f.sha, branch: e.branch }),
   });
@@ -255,6 +278,20 @@ async function uploadImage(e, prof, input) {
   const path = `${e.imgDir}/${base}-${Date.now()}.${ext}`;
   await putFile(e, path, m[2], `Ny bild: ${path} (${prof.namn || prof.email}) [skip netlify]`);
   return { path: '/' + path.replace(/^public\//, '') };
+}
+
+// Bildbanken: alla bilder i public/img (uppladdade först, nyast först)
+const IMG_RE = /^public\/(img\/.+\.(?:jpe?g|png|webp))$/i;
+const SKIP_IMG = /(favicon|apple-touch|logo-tile|\/mark\.png$)/i;
+async function listImages(e) {
+  return (await repoTree(e))
+    .filter((x) => x.type === 'blob' && IMG_RE.test(x.path) && !SKIP_IMG.test(x.path))
+    .map((x) => {
+      const path = '/' + IMG_RE.exec(x.path)[1];
+      const ts = Number((/-(\d{13})\.\w+$/.exec(x.path) || [])[1] || 0);
+      return { path, name: path.split('/').pop(), size: x.size || 0, uppladdad: path.startsWith('/img/uploads/'), ts };
+    })
+    .sort((a, b) => b.ts - a.ts || a.name.localeCompare(b.name));
 }
 
 // ---------- Sidtexter (texter och bilder på sidorna) ----------
@@ -464,6 +501,7 @@ export default async (req) => {
       case 'save': return json(await saveArticle(e, prof, input.article || {}));
       case 'delete': return json(await deleteArticle(e, prof, input.slug));
       case 'upload': return json(await uploadImage(e, prof, input));
+      case 'images': return json(await listImages(e));
       case 'getTexts': return json(await getTexts(e, prof));
       case 'saveTexts': return json(await saveTexts(e, prof, input));
       case 'users':
