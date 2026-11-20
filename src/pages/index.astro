@@ -55,7 +55,7 @@ const services = [
   {top && (
     <section class="wrap hero">
       <article class="hero-main">
-        <img src={top.data.bild ?? '/img/hero_people.jpg'} alt="" />
+        <img src={top.data.bild ?? '/img/hero_people.jpg'} alt={top.data.title} />
         <span class="tag" style="align-self:flex-start">{categoryName(top.data.kategori)}</span>
         <h1><a href={`/artiklar/${top.id}/`}>{top.data.title}</a></h1>
         <p class="lead" style="margin:0">{top.data.ingress}</p>

@@ -28,7 +28,7 @@ export async function getStaticPaths() {
 const { g, cats, posts } = Astro.props;
 const key = g.href.replaceAll('/', '');
 ---
-<Base title={g.label} description={INTRO[key]}>
+<Base title={g.label === 'Starta' ? 'Starta företag – guider och checklistor' : g.label === 'Driva' ? 'Driva företag – ekonomi, marknadsföring och juridik' : 'Utveckla företaget – strategi, lönsamhet och kapital'} description={INTRO[key]}>
   <div class="wrap page-head stack">
     <span class="eyebrow">{g.label}</span>
     <h1>{g.label === 'Starta' ? 'Starta företag' : g.label === 'Driva' ? 'Driva företag' : 'Utveckla företaget'}</h1>
