@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { getPosts, inCategory } from '../../lib/posts';
 import { CATEGORIES } from '../../config';
+import { CATEGORY_SEO } from '../../data/seo';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -13,11 +14,13 @@ export async function getStaticPaths() {
 }
 const { name, posts } = Astro.props;
 const { slug } = Astro.params;
+const seo = CATEGORY_SEO[slug!];
 ---
-<Base title={name}>
-  <div class="wrap page-head">
+<Base title={seo?.titel ?? name} description={seo?.text}>
+  <div class="wrap page-head stack">
     <span class="eyebrow">Kategori</span>
     <h1>{name}</h1>
+    {seo && <p class="lead" style="margin:0;max-width:760px">{seo.text}</p>}
   </div>
   {slug === 'investering' && (
     <section class="wrap" style="padding-bottom:32px" id="investmatch">
