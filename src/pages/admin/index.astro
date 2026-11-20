@@ -99,6 +99,8 @@ const taxonomy = JSON.stringify({
             <option value="utkast">Utkast</option>
             <option value="publicerad">Publicerade</option>
           </select>
+          <label class="sr-only" for="flt-kat">Kategori</label>
+          <select id="flt-kat"><option value="">Alla kategorier</option></select>
           <label class="sr-only" for="flt-lan">Län</label>
           <select id="flt-lan"><option value="">Alla län</option></select>
           <label class="sr-only" for="flt-q">Sök</label>
@@ -315,6 +317,17 @@ const taxonomy = JSON.stringify({
     const setExtra = (list: string[]) => { extraBoxes().forEach((cb) => (cb.checked = list.includes(cb.value))); syncExtra(); };
     fillOptions($('select[name=lan]'), TAX.lan);
     fillOptions($('#flt-lan'), TAX.lan);
+    // Kategorifilter grupperat som menyn på sajten
+    {
+      const sel = $('#flt-kat') as HTMLSelectElement;
+      const seen = new Set<string>();
+      TAX.grupper.forEach((g) => {
+        const og = document.createElement('optgroup');
+        og.label = g.label;
+        g.kategorier.filter((k) => !seen.has(k)).forEach((k) => { seen.add(k); og.append(new Option(katName(k), k)); });
+        if (og.children.length) sel.append(og);
+      });
+    }
     $('#invite-lan').innerHTML = TAX.lan
       .map((l) => `<label class="check"><input type="checkbox" value="${l.slug}" /> ${esc(l.name)}</label>`)
       .join('');
@@ -377,10 +390,10 @@ const taxonomy = JSON.stringify({
       const roll = me!.roll === 'admin' ? 'Admin' : 'Redaktör';
       $('#me-name').textContent = `${me!.namn || me!.email} · ${roll}${me!.lan.length ? ' · ' + me!.lan.map(lanName).join(', ') : ''}`;
       $('#tab-users').hidden = me!.roll !== 'admin';
-      $('#tab-companies').hidden = me!.roll !== 'admin';
+      $('#tab-companies').hidden = false; // alla redaktörer kan godkänna företag
       $('#tab-texts').textContent = me!.roll === 'admin' ? 'Sidtexter' : 'Kategoritexter';
       $('#p-texts h1').textContent = $('#tab-texts').textContent;
-      if (me!.roll === 'admin') loadCompanies(true);
+      loadCompanies(true);
       $('#row-top').hidden = me!.roll !== 'admin';
       $('#b-delete').dataset.allowed = me!.roll === 'admin' ? '1' : '';
       // Redaktörer ser alla artiklar; länfiltret kan väljas själv
@@ -658,7 +671,7 @@ const taxonomy = JSON.stringify({
     });
 
     // ---------- Artikellista ----------
-    type Row = { slug: string; title: string; kategori: string; lan: string; ort: string; datum: string; skribent: string; utkast: boolean; granskning: boolean; toppnyhet: boolean; skapad_av: string; canEdit: boolean };
+    type Row = { slug: string; title: string; kategori: string; fler_kategorier?: string[]; lan: string; ort: string; datum: string; skribent: string; utkast: boolean; granskning: boolean; toppnyhet: boolean; skapad_av: string; canEdit: boolean };
     let rows: Row[] = [];
     const statusOf = (r: { utkast: boolean; granskning: boolean }) => (!r.utkast ? 'publicerad' : r.granskning ? 'granskning' : 'utkast');
     const STATUS_LABEL: Record<string, string> = { publicerad: 'Publicerad', granskning: 'Väntar på granskning', utkast: 'Utkast' };
@@ -676,10 +689,12 @@ const taxonomy = JSON.stringify({
     function renderList() {
       const st = ($('#flt-status') as HTMLSelectElement).value;
       const ln = ($('#flt-lan') as HTMLSelectElement).value;
+      const kt = ($('#flt-kat') as HTMLSelectElement).value;
       const q = ($('#flt-q') as HTMLInputElement).value.trim().toLowerCase();
       const list = rows.filter((r) =>
         (!st || (st === 'mine' ? r.skapad_av === me?.email : statusOf(r) === st)) &&
         (!ln || r.lan === ln) &&
+        (!kt || r.kategori === kt || (r.fler_kategorier || []).includes(kt)) &&
         (!q || r.title.toLowerCase().includes(q)));
       $('#list-body').innerHTML = list.length
         ? list.map((r) => {
@@ -694,7 +709,7 @@ const taxonomy = JSON.stringify({
           }).join('')
         : '<tr><td colspan="5" class="muted">Inga artiklar matchar.</td></tr>';
     }
-    ['#flt-status', '#flt-lan', '#flt-q'].forEach((s) => $(s).addEventListener('input', renderList));
+    ['#flt-status', '#flt-kat', '#flt-lan', '#flt-q'].forEach((s) => $(s).addEventListener('input', renderList));
     $('#list-body').addEventListener('click', (ev) => {
       const b = (ev.target as HTMLElement).closest('[data-open]') as HTMLElement | null;
       if (b) openEditor(b.dataset.open!);
