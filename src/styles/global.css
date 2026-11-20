@@ -440,3 +440,26 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 .im-box { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; padding: 22px; border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); }
 .im-box h3 { margin: 0; color: #fff; font-size: 19px; }
 .im-box p { margin: 0; color: rgba(255,255,255,.85); }
+
+/* Platshållarbild när artikeln saknar bild: alltid mörk bakgrund och vit text */
+.acard .img.img-fallback { background: var(--navy); color: #fff; }
+.acard .img.img-fallback.cat-reportage, .img-fallback.cat-reportage { background: #0b1f3a; }
+.acard .img.img-fallback.cat-foretagsnyheter, .img-fallback.cat-foretagsnyheter { background: #123a6b; }
+.acard .img.img-fallback.cat-inspiration, .img-fallback.cat-inspiration { background: #0b4f9e; }
+.acard .img.img-fallback.cat-affarsideer, .img-fallback.cat-affarsideer { background: #0e4d64; }
+.acard .img.img-fallback.cat-kapital, .img-fallback.cat-kapital { background: #2a3f5f; }
+.acard .img.img-fallback.cat-natverk, .img-fallback.cat-natverk { background: #174a7c; }
+.acard .img.img-fallback.cat-affarsplan, .img-fallback.cat-affarsplan { background: #1b3d6e; }
+.acard .img.img-fallback.cat-foretagsformer, .img-fallback.cat-foretagsformer { background: #0f3557; }
+.acard .img.img-fallback.cat-komma-igang, .img-fallback.cat-komma-igang { background: #0d5a6b; }
+.acard .img.img-fallback.cat-ekonomi, .img-fallback.cat-ekonomi { background: #1d3b5c; }
+.acard .img.img-fallback.cat-marknadsforing, .img-fallback.cat-marknadsforing { background: #0c5a8a; }
+.acard .img.img-fallback.cat-juridik, .img-fallback.cat-juridik { background: #2b3550; }
+.acard .img.img-fallback.cat-personal, .img-fallback.cat-personal { background: #164a6a; }
+.acard .img.img-fallback.cat-digitala-verktyg, .img-fallback.cat-digitala-verktyg { background: #0a4a7a; }
+.acard .img.img-fallback.cat-affarsutveckling, .img-fallback.cat-affarsutveckling { background: #123f63; }
+.acard .img.img-fallback.cat-lonsamhet, .img-fallback.cat-lonsamhet { background: #0e5260; }
+.acard .img.img-fallback.cat-investering, .img-fallback.cat-investering { background: #0b2344; }
+.acard .img.img-fallback.cat-guider, .img-fallback.cat-guider { background: #174070; }
+.acard .img.img-fallback.cat-tips-verktyg, .img-fallback.cat-tips-verktyg { background: #0d4f73; }
+.acard .img.img-fallback.cat-event, .img-fallback.cat-event { background: #1a3a66; }
