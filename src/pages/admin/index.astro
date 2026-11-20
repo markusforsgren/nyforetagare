@@ -69,7 +69,7 @@ const taxonomy = JSON.stringify({
       <a href="/admin/" class="adm-brand"><img src="/img/mark.png" alt="" width="36" height="29" /><span>Redaktion</span></a>
       <nav class="adm-tabs" aria-label="Redaktionen">
         <button type="button" data-tab="articles" aria-current="page">Artiklar</button>
-        <button type="button" data-tab="texts" id="tab-texts">Sidtexter</button>
+        <button type="button" data-tab="texts" id="tab-texts" hidden>Sidtexter</button>
         <button type="button" data-tab="companies" id="tab-companies" hidden>Företag <span id="pending-count" class="count" hidden></span></button>
         <button type="button" data-tab="users" id="tab-users" hidden>Användare</button>
       </nav>
@@ -391,8 +391,7 @@ const taxonomy = JSON.stringify({
       $('#me-name').textContent = `${me!.namn || me!.email} · ${roll}${me!.lan.length ? ' · ' + me!.lan.map(lanName).join(', ') : ''}`;
       $('#tab-users').hidden = me!.roll !== 'admin';
       $('#tab-companies').hidden = false; // alla redaktörer kan godkänna företag
-      $('#tab-texts').textContent = me!.roll === 'admin' ? 'Sidtexter' : 'Kategoritexter';
-      $('#p-texts h1').textContent = $('#tab-texts').textContent;
+      $('#tab-texts').hidden = me!.roll !== 'admin'; // sidtexter är bara för admin
       loadCompanies(true);
       $('#row-top').hidden = me!.roll !== 'admin';
       $('#b-delete').dataset.allowed = me!.roll === 'admin' ? '1' : '';
