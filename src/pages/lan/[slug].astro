@@ -24,7 +24,7 @@ const services = [...SERVICES, ...dbCompanies.filter((c) => c.tjanstekategori).m
   .filter((s) => s.lan.includes(lan.slug) || s.lan.includes('hela-sverige'))
   .sort((a, b) => Number(b.utvald) - Number(a.utvald));
 ---
-<Base title={`Nyföretagare i ${lan.name}`} description={`Lokala nyheter, företag och tjänster i ${lan.full}.`}>
+<Base title={`Starta och driva företag i ${lan.name}`} description={`Nyföretagare i ${lan.full}: lokala nyheter, företag och tjänster för småföretagare i ${kommuner.slice(0, 6).join(', ')}${kommuner.length > 6 ? ' med flera' : ''}.`}>
   <div class="wrap page-head">
     <div class="lan-head">
       <div class="stack" style="gap:10px">
