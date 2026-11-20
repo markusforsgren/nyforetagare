@@ -2,15 +2,19 @@
 //  ALLT DU BEHÖVER ÄNDRA FINNS HÄR
 // =============================================================
 
+import TEXTER from './data/sidtexter.json';
+import { LAN_BAS } from './data/lan-bas';
+export { TEXTER };
+
+// Slogan, beskrivning och Facebooklänk ändras i adminpanelen (Sidtexter → Allmänt).
 export const SITE = {
   name: 'Nyföretagare',
-  tagline: 'Sveriges nätverk för småföretagare',
-  description:
-    'Nyheter, reportage, inspiration och tjänster för dig som vill starta, driver eller vill utveckla företag.',
+  tagline: TEXTER.allmant.tagline,
+  description: TEXTER.allmant.beskrivning,
   email: 'kontakt@nyforetagare.se',
   company: 'Today Media Group AB',
   orgnr: '559373-5227',
-  facebook: 'https://www.facebook.com/nyforetagare.se/',
+  facebook: TEXTER.allmant.facebook,
 };
 
 // Formulären hanteras av Netlify Forms. Inskick syns i Netlify under
@@ -83,33 +87,18 @@ export type CategorySlug = (typeof CATEGORIES)[number]['slug'];
 export const categoryName = (slug: string) =>
   CATEGORIES.find((c) => c.slug === slug)?.name ?? slug;
 
-// Län. "slug" blir adressen: /lan/<slug>
-// "redaktor" = lokal partner som ansvarar för länet (lämna tomt om ingen).
-// "epost" / "telefon" = kontaktuppgifter som visas på länssidan. Tom e-post = kontakt@nyforetagare.se.
-// "facebook" = länk till länets Facebookgrupp.
-export const LAN = [
-  { slug: 'blekinge', name: 'Blekinge', full: 'Blekinge län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'dalarna', name: 'Dalarna', full: 'Dalarnas län', redaktor: 'Markus Forsgren', epost: '', telefon: '', facebook: '' },
-  { slug: 'gotland', name: 'Gotland', full: 'Gotlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'gavleborg', name: 'Gävleborg', full: 'Gävleborgs län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'halland', name: 'Halland', full: 'Hallands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'jamtland', name: 'Jämtland', full: 'Jämtlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'jonkoping', name: 'Jönköping', full: 'Jönköpings län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'kalmar', name: 'Kalmar', full: 'Kalmar län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'kronoberg', name: 'Kronoberg', full: 'Kronobergs län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'norrbotten', name: 'Norrbotten', full: 'Norrbottens län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'skane', name: 'Skåne', full: 'Skåne län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'stockholm', name: 'Stockholm', full: 'Stockholms län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'sodermanland', name: 'Södermanland', full: 'Södermanlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'uppsala', name: 'Uppsala', full: 'Uppsala län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'varmland', name: 'Värmland', full: 'Värmlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'vasterbotten', name: 'Västerbotten', full: 'Västerbottens län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'vasternorrland', name: 'Västernorrland', full: 'Västernorrlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'vastmanland', name: 'Västmanland', full: 'Västmanlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'vastra-gotaland', name: 'Västra Götaland', full: 'Västra Götalands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'orebro', name: 'Örebro', full: 'Örebro län', redaktor: '', epost: '', telefon: '', facebook: '' },
-  { slug: 'ostergotland', name: 'Östergötland', full: 'Östergötlands län', redaktor: '', epost: '', telefon: '', facebook: '' },
-] as const;
+// Län. Grunduppgifterna finns i data/lan-bas.ts. Ansvarig, e-post, telefon och
+// Facebookgrupp ändras i adminpanelen (Sidtexter → Län och ansvariga).
+export const LAN = LAN_BAS.map((l) => {
+  const info = (TEXTER.lan as Record<string, { ansvarig?: string; epost?: string; telefon?: string; facebook?: string }>)[l.slug] ?? {};
+  return {
+    ...l,
+    redaktor: info.ansvarig ?? '',
+    epost: info.epost ?? '',
+    telefon: info.telefon ?? '',
+    facebook: /^https:\/\//.test(info.facebook ?? '') ? info.facebook! : '',
+  };
+});
 
 export const lanName = (slug?: string) => LAN.find((l) => l.slug === slug)?.name ?? '';
 
