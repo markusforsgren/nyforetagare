@@ -463,3 +463,8 @@ h1, h2, h3 { font-family: var(--display); line-height: 1.15; margin: 0; letter-s
 .acard .img.img-fallback.cat-guider, .img-fallback.cat-guider { background: #174070; }
 .acard .img.img-fallback.cat-tips-verktyg, .img-fallback.cat-tips-verktyg { background: #0d4f73; }
 .acard .img.img-fallback.cat-event, .img-fallback.cat-event { background: #1a3a66; }
+
+/* Bilder mitt i artiklar */
+.prose figure { margin: 32px 0; }
+.prose img { display: block; width: 100%; height: auto; border-radius: 12px; }
+.prose figcaption { margin-top: 8px; font-size: 14px; line-height: 1.5; color: var(--muted); }
