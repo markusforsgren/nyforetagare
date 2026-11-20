@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import Newsletter from '../../components/Newsletter.astro';
+import KategoriMeny from '../../components/KategoriMeny.astro';
 import { getPosts, formatDate, inCategory } from '../../lib/posts';
 import { categoryName, lanName, SITE } from '../../config';
 
@@ -41,7 +42,8 @@ const related = posts.filter((p) => p.id !== post.id && inCategory(p, kategori))
 ---
 <Base title={title} description={ingress} image={bild} imageAlt={title} type="article" published={datum} schema={schema}>
   <article class="article">
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <KategoriMeny current={kategori} />
       <a href={`/kategori/${kategori}/`} class="tag">{categoryName(kategori)}</a>
       {lan && <a href={`/lan/${lan}/`} class="tag">{ort ? `${ort}, ` : ''}{lanName(lan)}</a>}
     </div>

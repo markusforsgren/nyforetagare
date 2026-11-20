@@ -2,12 +2,14 @@
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { getPosts } from '../../lib/posts';
+import KategoriMeny from '../../components/KategoriMeny.astro';
 
 const posts = await getPosts();
 ---
 <Base title="Alla artiklar">
-  <div class="wrap page-head">
+  <div class="wrap page-head stack">
     <h1>Alla artiklar</h1>
+    <div><KategoriMeny /></div>
   </div>
   <div class="wrap grid" style="padding-bottom:64px">
     {posts.map((p) => <ArticleCard post={p} showIngress />)}
