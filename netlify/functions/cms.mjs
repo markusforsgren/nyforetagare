@@ -60,8 +60,8 @@ const canPublish = (p) => isAdmin(p) || p.publicera === true;
 function canEdit(p) {
   return p.aktiv !== false;
 }
-// Sidtexter: admin får ändra allt, redaktörer bara kategoritexterna.
-const REDAKTOR_TEXTER = ['kategorier'];
+// Sidtexter: bara admin. Lägg till delar här (t.ex. 'kategorier') om redaktörer ska få ändra dem.
+const REDAKTOR_TEXTER = [];
 const canEditTexts = (p, del) => isAdmin(p) || REDAKTOR_TEXTER.includes(del);
 
 // ---------- GitHub ----------
