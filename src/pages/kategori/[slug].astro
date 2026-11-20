@@ -2,8 +2,9 @@
 import Base from '../../layouts/Base.astro';
 import ArticleCard from '../../components/ArticleCard.astro';
 import { getPosts, inCategory } from '../../lib/posts';
-import { CATEGORIES } from '../../config';
-import { CATEGORY_SEO } from '../../data/seo';
+import { CATEGORIES, TEXTER } from '../../config';
+const IM = TEXTER.investmatch;
+const SEO = TEXTER.kategorier as Record<string, { titel: string; text: string }>;
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -14,7 +15,7 @@ export async function getStaticPaths() {
 }
 const { name, posts } = Astro.props;
 const { slug } = Astro.params;
-const seo = CATEGORY_SEO[slug!];
+const seo = SEO[slug!];
 ---
 <Base title={seo?.titel ?? name} description={seo?.text}>
   <div class="wrap page-head stack">
@@ -25,22 +26,22 @@ const seo = CATEGORY_SEO[slug!];
   {slug === 'investering' && (
     <section class="wrap" style="padding-bottom:32px" id="investmatch">
       <div class="card dark investmatch">
-        <span class="eyebrow" style="color:var(--green)">InvestMatch · Egen webbplats lanseras snart</span>
-        <h2 class="h2" style="color:#fff;margin:0">Vi sammanför företag som söker kapital med investerare</h2>
-        <p style="margin:0;max-width:720px">InvestMatch är vår matchningstjänst för entreprenörer och företag som behöver kapital för att växa – och för privatpersoner, affärsänglar och bolag som vill investera i nya företag. Tjänsten får en egen webbplats, investmatch.se. Anmäl intresse redan nu så hör vi av oss.</p>
+        <span class="eyebrow" style="color:var(--green)">{IM.etikett}</span>
+        <h2 class="h2" style="color:#fff;margin:0">{IM.rubrik}</h2>
+        <p style="margin:0;max-width:720px">{IM.text}</p>
         <div class="im-grid">
           <div class="im-box">
-            <h3>Söker du kapital?</h3>
-            <p>Berätta kort om företaget, hur mycket kapital ni söker och vad det ska användas till.</p>
-            <a href="mailto:ir@investmatch.se?subject=S%C3%B6ker%20kapital%20%E2%80%93%20InvestMatch" class="btn btn-bright" data-umami-event="InvestMatch: Sök kapital">Sök kapital</a>
+            <h3>{IM.kapital_rubrik}</h3>
+            <p>{IM.kapital_text}</p>
+            <a href={`mailto:${IM.epost}?subject=${encodeURIComponent('Söker kapital – InvestMatch')}`} class="btn btn-bright" data-umami-event="InvestMatch: Sök kapital">Sök kapital</a>
           </div>
           <div class="im-box">
-            <h3>Vill du investera?</h3>
-            <p>Berätta vilka branscher och vilken storlek på investering du är intresserad av.</p>
-            <a href="mailto:ir@investmatch.se?subject=Bli%20investerare%20%E2%80%93%20InvestMatch" class="btn btn-ghost" data-umami-event="InvestMatch: Bli investerare">Bli investerare</a>
+            <h3>{IM.investera_rubrik}</h3>
+            <p>{IM.investera_text}</p>
+            <a href={`mailto:${IM.epost}?subject=${encodeURIComponent('Bli investerare – InvestMatch')}`} class="btn btn-ghost" data-umami-event="InvestMatch: Bli investerare">Bli investerare</a>
           </div>
         </div>
-        <p class="small" style="margin:0;opacity:.8">Kontakt: <a href="mailto:ir@investmatch.se" style="color:#fff">ir@investmatch.se</a></p>
+        <p class="small" style="margin:0;opacity:.8">Kontakt: <a href={`mailto:${IM.epost}`} style="color:#fff">{IM.epost}</a></p>
       </div>
     </section>
   )}
