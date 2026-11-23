@@ -5,6 +5,10 @@ kategori: affarsideer
 fler_kategorier:
   - tips-verktyg
 datum: 2026-11-04
+skribent: Redaktionen
+bild: /img/uploads/testa-din-affarside-1795427275396.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Det dyraste misstaget en nyföretagare kan göra är att bygga färdigt innan någon har sagt ja. Här är fem sätt att testa en idé på några veckor, ofta utan att det kostar något.
