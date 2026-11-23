@@ -3,6 +3,10 @@ title: Från ensam till växande – när är det dags för nästa steg?
 ingress: Att växa är inget måste. Men om du har mer att göra än du hinner kan det vara dags att tänka nytt. Fem tecken och fem vägar framåt.
 kategori: affarsutveckling
 datum: 2026-11-16
+skribent: Redaktionen
+bild: /img/uploads/nasta-steg-vaxa-1795426357796.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Många småföretagare vill inte bli stora – och det är helt okej. Men oavsett storlek behöver företaget utvecklas för att fortsätta vara lönsamt.
