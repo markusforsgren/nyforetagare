@@ -3,9 +3,13 @@ title: Starta företag – checklista i 10 steg
 ingress: Från idé till första fakturan. Här är stegen de flesta går igenom när de startar eget, i den ordning som brukar fungera bäst.
 kategori: komma-igang
 fler_kategorier:
-  - guider
   - foretagsformer
+  - guider
 datum: 2026-11-03
+skribent: Redaktionen
+bild: /img/uploads/starta-foretag-checklista-1795427379512.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Att starta företag är enklare än många tror. Det mesta görs digitalt via [Verksamt.se](https://www.verksamt.se), som drivs av Bolagsverket, Skatteverket och Tillväxtverket tillsammans. Här är stegen i en ordning som brukar fungera.
