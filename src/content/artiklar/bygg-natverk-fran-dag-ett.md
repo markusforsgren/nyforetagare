@@ -3,6 +3,10 @@ title: Därför ska du bygga nätverk från dag ett
 ingress: De första kunderna kommer ofta via någon du känner. Så skaffar du ett nätverk som hjälper dig framåt.
 kategori: natverk
 datum: 2026-10-25
+skribent: Redaktionen
+bild: /img/uploads/bygg-natverk-fran-dag-ett-1795427569596.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Många nystartade lägger all tid på produkten och för lite på människorna runt omkring. Men rekommendationer är ofta den snabbaste vägen till de första kunderna.
