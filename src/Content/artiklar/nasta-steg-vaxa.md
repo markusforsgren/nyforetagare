@@ -4,7 +4,7 @@ ingress: Att växa är inget måste. Men om du har mer att göra än du hinner k
 kategori: affarsutveckling
 datum: 2026-11-16
 skribent: Redaktionen
-bild: /img/uploads/nasta-steg-vaxa-1795426357796.jpg
+bild: /img/uploads/nasta-steg-vaxa-1795436238913.jpg
 utkast: false
 skapad_av: elin@nyforetagare.se
 ---
