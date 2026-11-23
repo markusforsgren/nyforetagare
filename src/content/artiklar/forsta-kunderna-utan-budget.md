@@ -5,6 +5,10 @@ kategori: marknadsforing
 fler_kategorier:
   - tips-verktyg
 datum: 2026-11-10
+skribent: Redaktionen
+bild: /img/uploads/forsta-kunderna-utan-budget-1795426980204.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 De första kunderna kommer nästan alltid från personer som redan känner dig, eller som någon de litar på har tipsat. Bygg vidare på det.
