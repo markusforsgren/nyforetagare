@@ -8,6 +8,7 @@ ingress: |-
 kategori: reportage
 datum: 2026-11-12
 skribent: Redaktör
+bild: /img/uploads/oka-ditt-foretags-beredskap-1795426573433.jpg
 utkast: true
 skapad_av: markusforsgren0@gmail.com
 ---
