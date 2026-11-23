@@ -5,6 +5,10 @@ kategori: kapital
 fler_kategorier:
   - investering
 datum: 2026-11-06
+skribent: Redaktionen
+bild: /img/uploads/finansiera-starten-1795427144388.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Behöver du inte låna, gör det inte. Många tjänsteföretag kan startas med en dator och en telefon. Men behöver du kapital finns det flera vägar.
