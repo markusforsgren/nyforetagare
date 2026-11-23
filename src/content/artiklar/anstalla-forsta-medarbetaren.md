@@ -5,6 +5,10 @@ kategori: personal
 fler_kategorier:
   - affarsutveckling
 datum: 2026-11-12
+skribent: Redaktionen
+bild: /img/uploads/anstalla-forsta-medarbetaren-1795426705051.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Den första anställningen är ofta det som gör att ett företag kan växa. Men det innebär också ansvar. Här är det viktigaste att ha koll på.
