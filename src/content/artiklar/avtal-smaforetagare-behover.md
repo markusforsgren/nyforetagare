@@ -6,7 +6,7 @@ fler_kategorier:
   - guider
 datum: 2026-11-11
 skribent: Redaktionen
-bild: /img/uploads/avtal-smaforetagare-behover-1795426773459.jpg
+bild: /img/uploads/avtal-smaforetagare-behover-1795427084260.jpg
 utkast: false
 skapad_av: elin@nyforetagare.se
 ---
