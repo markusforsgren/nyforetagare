@@ -3,9 +3,13 @@ title: Affärsplan på en sida – så gör du
 ingress: En affärsplan behöver inte vara 30 sidor. För de flesta som startar räcker en sida som svarar på nio frågor.
 kategori: affarsplan
 fler_kategorier:
-  - guider
   - komma-igang
+  - guider
 datum: 2026-11-05
+skribent: Redaktionen
+bild: /img/uploads/affarsplan-pa-en-sida-1795427189183.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 En affärsplan är framför allt till för dig själv. Den tvingar dig att tänka igenom det som avgör om företaget går runt. Behöver du söka lån eller stöd kan du bygga ut den senare.
