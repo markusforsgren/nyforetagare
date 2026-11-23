@@ -5,6 +5,10 @@ kategori: juridik
 fler_kategorier:
   - guider
 datum: 2026-11-11
+skribent: Redaktionen
+bild: /img/uploads/avtal-smaforetagare-behover-1795426773459.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Ett avtal handlar inte om misstro. Det handlar om att båda parter vet vad som gäller, och det gör samarbetet enklare när något går fel.
