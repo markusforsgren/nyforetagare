@@ -6,6 +6,10 @@ fler_kategorier:
   - foretagsformer
   - guider
 datum: 2026-10-28
+skribent: Redaktionen
+bild: /img/uploads/enskild-firma-eller-aktiebolag-1795427494589.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 De två vanligaste bolagsformerna för den som startar ensam är enskild firma och aktiebolag.
