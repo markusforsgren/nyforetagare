@@ -6,6 +6,7 @@ fler_kategorier:
   - tips-verktyg
 datum: 2026-11-13
 skribent: Redaktionen
+bild: /img/uploads/ai-verktyg-smaforetagare-1795427701461.jpg
 utkast: false
 skapad_av: elin@nyforetagare.se
 ---
