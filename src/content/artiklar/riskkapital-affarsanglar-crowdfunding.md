@@ -5,6 +5,10 @@ kategori: investering
 fler_kategorier:
   - kapital
 datum: 2026-11-17
+skribent: Redaktionen
+bild: /img/uploads/riskkapital-affarsanglar-crowdfunding-1795426253872.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Investerare köper en del av ditt företag i hopp om att den ska bli mer värd. Det skiljer sig från lån, som ska betalas tillbaka med ränta oavsett hur det går.
