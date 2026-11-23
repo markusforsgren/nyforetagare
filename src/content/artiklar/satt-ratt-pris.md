@@ -6,6 +6,10 @@ fler_kategorier:
   - affarsutveckling
   - tips-verktyg
 datum: 2026-11-14
+skribent: Redaktionen
+bild: /img/uploads/satt-ratt-pris-1795426467986.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Ett för lågt pris syns inte direkt. Det märks först när du har jobbat dubbelt så mycket som du räknat med och ändå inte får ihop till lönen.
