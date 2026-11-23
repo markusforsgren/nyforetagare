@@ -3,10 +3,13 @@ title: Fem misstag nystartade gör med sin första hemsida
 ingress: En hemsida behöver inte vara dyr eller avancerad. Men några vanliga misstag gör att den aldrig ger några kunder.
 kategori: inspiration
 fler_kategorier:
-  - digitala-verktyg
   - marknadsforing
+  - digitala-verktyg
 datum: 2026-10-30
 skribent: M Webbutveckling
+bild: /img/uploads/fem-misstag-med-forsta-hemsidan-1795427450887.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Hemsidan är ofta det första en kund ser. Här är fem misstag som är lätta att undvika.
