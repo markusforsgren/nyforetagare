@@ -5,6 +5,9 @@ kategori: digitala-verktyg
 fler_kategorier:
   - tips-verktyg
 datum: 2026-11-13
+skribent: Redaktionen
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 AI-verktyg som ChatGPT, Claude och Gemini har blivit vardag för många företagare. Rätt använda kan de spara flera timmar i veckan.
