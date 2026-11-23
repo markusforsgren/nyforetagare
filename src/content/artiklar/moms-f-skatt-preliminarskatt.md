@@ -3,9 +3,13 @@ title: Moms, F-skatt och preliminärskatt – grunderna för nya företagare
 ingress: Skatt är det många nyföretagare oroar sig mest för. Grunderna är enklare än det låter – här är det viktigaste att ha koll på.
 kategori: ekonomi
 fler_kategorier:
-  - guider
   - komma-igang
+  - guider
 datum: 2026-11-07
+skribent: Redaktionen
+bild: /img/uploads/moms-f-skatt-preliminarskatt-1795427038683.jpg
+utkast: false
+skapad_av: elin@nyforetagare.se
 ---
 
 Det här är en översikt. Reglerna har undantag, så kontrollera alltid hos [Skatteverket](https://www.skatteverket.se) eller med en redovisningskonsult.
