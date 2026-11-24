@@ -231,6 +231,16 @@ const taxonomy = JSON.stringify({
       <!-- Användare -->
       <div id="p-users" hidden>
         <div class="adm-head"><h1>Användare</h1></div>
+        <section class="adm-card adm-col uv" id="uv" hidden aria-labelledby="uv-h">
+          <h2 id="uv-h">Har inte bekräftat sin e-post</h2>
+          <p class="muted" style="margin:0" id="uv-info"></p>
+          <div class="adm-tablewrap">
+            <table class="adm-table">
+              <thead><tr><th>E-post</th><th>Företag</th><th>Registrerad</th><th></th></tr></thead>
+              <tbody id="uv-body"></tbody>
+            </table>
+          </div>
+        </section>
         <div class="adm-card adm-tablewrap">
           <table class="adm-table">
             <thead><tr><th>Namn</th><th>E-post</th><th>Roll</th><th>Län</th><th>Får publicera</th><th>Aktiv</th><th></th></tr></thead>
@@ -390,6 +400,7 @@ const taxonomy = JSON.stringify({
       const roll = me!.roll === 'admin' ? 'Admin' : 'Redaktör';
       $('#me-name').textContent = `${me!.namn || me!.email} · ${roll}${me!.lan.length ? ' · ' + me!.lan.map(lanName).join(', ') : ''}`;
       $('#tab-users').hidden = me!.roll !== 'admin';
+      if (me!.roll === 'admin') loadUnverified(); // visar en siffra på fliken om någon väntar
       $('#tab-companies').hidden = false; // alla redaktörer kan godkänna företag
       $('#tab-texts').hidden = me!.roll !== 'admin'; // sidtexter är bara för admin
       loadCompanies(true);
@@ -977,7 +988,40 @@ const taxonomy = JSON.stringify({
     // ---------- Användare ----------
     type U = { id: string; email: string; namn: string; roll: string; lan: string[]; publicera: boolean; aktiv: boolean };
     let users: U[] = [];
+    // Konton som inte bekräftat e-posten inom 5 timmar
+    type UV = { id: string; email: string; created_at: string; foretag: string };
+    async function loadUnverified() {
+      try {
+        const res = await api<{ timmar: number; gamla: UV[]; nya: number }>('unverified');
+        const n = res.gamla.length;
+        $('#uv').hidden = n === 0 && res.nya === 0;
+        $('#tab-users').dataset.count = n ? String(n) : '';
+        $('#uv-info').textContent = (n
+          ? `${n} ${n === 1 ? 'konto har' : 'konton har'} inte bekräftat sin e-post på över ${res.timmar} timmar. Kontrollera att adressen ser rimlig ut och godkänn eller radera.`
+          : `Inga konton har väntat i över ${res.timmar} timmar.`) + (res.nya ? ` ${res.nya} nyare väntar fortfarande på sitt mejl.` : '');
+        $('#uv-body').innerHTML = res.gamla.map((u) => `<tr>
+          <td>${esc(u.email)}</td>
+          <td>${esc(u.foretag || '–')}</td>
+          <td class="nowrap">${esc(new Date(u.created_at).toLocaleString('sv-SE', { dateStyle: 'short', timeStyle: 'short' }))}</td>
+          <td class="nowrap"><button type="button" class="btn btn-primary btn-sm" data-uv="confirm" data-id="${esc(u.id)}">Godkänn e-post</button>
+            <button type="button" class="btn btn-outline btn-sm" data-uv="delete" data-id="${esc(u.id)}" data-email="${esc(u.email)}">Radera</button></td>
+        </tr>`).join('');
+      } catch (e: any) { toast(e.message, 'err'); }
+    }
+    $('#uv-body').addEventListener('click', async (ev) => {
+      const b = (ev.target as HTMLElement).closest<HTMLButtonElement>('[data-uv]');
+      if (!b) return;
+      if (b.dataset.uv === 'delete' && !confirm(`Radera kontot ${b.dataset.email}? Personen får registrera sig igen.`)) return;
+      busy(b, true);
+      try {
+        await api('handleUnverified', { id: b.dataset.id, do: b.dataset.uv });
+        toast(b.dataset.uv === 'confirm' ? 'Godkänt! Personen kan logga in nu.' : 'Kontot är raderat.');
+        loadUnverified();
+      } catch (e: any) { toast(e.message, 'err'); busy(b, false); }
+    });
+
     async function loadUsers() {
+      loadUnverified();
       $('#users-body').innerHTML = '<tr><td colspan="7" class="muted">Laddar…</td></tr>';
       try {
         users = await api<U[]>('users');
