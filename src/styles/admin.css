@@ -172,3 +172,9 @@ body.adm { background: var(--bg-soft); min-height: 100vh; }
 .bank-item.broken::before { content: 'Publiceras vid nästa bygge'; position: absolute; }
 .bank-item { position: relative; }
 .bank-item.broken::before { inset: 6px 6px auto 6px; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; color: var(--muted); padding: 8px; }
+
+/* Ej bekräftade konton */
+.uv { margin-bottom: 24px; border-left: 4px solid #ffb020; }
+.uv h2 { margin: 0; font-size: 18px; }
+.uv td .btn + .btn { margin-left: 6px; }
+[data-tab][data-count]:not([data-count=""])::after { content: attr(data-count); display: inline-block; min-width: 18px; margin-left: 6px; padding: 0 5px; border-radius: 9px; background: #ffb020; color: #0B2344; font-size: 11px; font-weight: 800; line-height: 18px; text-align: center; }
