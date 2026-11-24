@@ -380,6 +380,53 @@ async function listUsers(sb) {
   return data;
 }
 
+// Konton som inte bekräftat sin e-post. Visas i adminpanelen efter VANTA timmar.
+const VANTA_TIMMAR = 5;
+async function listUnverified(sb) {
+  const out = [];
+  for (let page = 1; page <= 10; page++) {
+    const { data, error } = await sb.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) fail(500, 'Kunde inte hämta konton.');
+    out.push(...data.users.filter((u) => !u.email_confirmed_at && u.email));
+    if (data.users.length < 1000) break;
+  }
+  const ids = out.map((u) => u.id);
+  const namn = {};
+  if (ids.length) {
+    const { data } = await sb.from('companies').select('owner_id,namn').in('owner_id', ids);
+    (data || []).forEach((c) => (namn[c.owner_id] = c.namn));
+  }
+  const grans = Date.now() - VANTA_TIMMAR * 3600_000;
+  const list = out
+    .map((u) => ({ id: u.id, email: u.email, created_at: u.created_at, foretag: namn[u.id] || '' }))
+    .sort((a, b) => a.created_at.localeCompare(b.created_at));
+  return {
+    timmar: VANTA_TIMMAR,
+    gamla: list.filter((u) => Date.parse(u.created_at) < grans),
+    nya: list.filter((u) => Date.parse(u.created_at) >= grans).length,
+  };
+}
+
+// Godkänn eller radera ett konto som inte bekräftat sin e-post
+async function handleUnverified(sb, input) {
+  const id = clean(input.id, 64);
+  if (!/^[0-9a-f-]{36}$/i.test(id)) fail(400, 'Ogiltigt konto.');
+  const { data, error } = await sb.auth.admin.getUserById(id);
+  if (error || !data?.user) fail(404, 'Kontot finns inte.');
+  if (data.user.email_confirmed_at) fail(400, 'Kontot är redan bekräftat.');
+  if (input.do === 'confirm') {
+    const { error: e2 } = await sb.auth.admin.updateUserById(id, { email_confirm: true });
+    if (e2) fail(500, 'Kunde inte godkänna kontot.');
+    return { ok: true };
+  }
+  if (input.do === 'delete') {
+    const { error: e2 } = await sb.auth.admin.deleteUser(id);
+    if (e2) fail(500, 'Kunde inte radera kontot.');
+    return { ok: true };
+  }
+  fail(400, 'Okänd åtgärd.');
+}
+
 async function inviteUser(e, sb, input) {
   const email = clean(input.email, 200).toLowerCase();
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) fail(400, 'Ogiltig e-postadress.');
@@ -507,6 +554,12 @@ export default async (req) => {
       case 'users':
         if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await listUsers(sb));
+      case 'unverified':
+        if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
+        return json(await listUnverified(sb));
+      case 'handleUnverified':
+        if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
+        return json(await handleUnverified(sb, input));
       case 'invite':
         if (!isAdmin(prof)) fail(403, 'Bara administratörer.');
         return json(await inviteUser(e, sb, input.user || {}));
